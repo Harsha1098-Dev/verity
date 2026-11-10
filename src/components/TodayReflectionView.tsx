@@ -24,6 +24,8 @@ import {
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { PALETTE, FONTS } from '@/constants/theme';
+import { AudioPlayerModal } from './AudioPlayerModal';
+import { Play } from 'lucide-react-native';
 
 export interface TodayReflectionViewProps {
   onSave?: (reflection: { text: string; tags: string[]; date: string }) => void;
@@ -67,6 +69,7 @@ export const TodayReflectionView: React.FC<TodayReflectionViewProps> = ({
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>(['1', '2']);
   const [isSaved, setIsSaved] = useState<boolean>(false);
   const [isFocused, setIsFocused] = useState<boolean>(false);
+  const [audioModalVisible, setAudioModalVisible] = useState<boolean>(false);
 
   // 7-day rolling calendar strip (centred around today)
   const weekDays: DayItem[] = [
@@ -249,6 +252,30 @@ export const TodayReflectionView: React.FC<TodayReflectionViewProps> = ({
                 })}
               </ScrollView>
             </View>
+
+            {/* Interactive Mobile Daily Audio Practice Banner */}
+            <Pressable
+              onPress={() => {
+                if (Platform.OS !== 'web') {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                }
+                setAudioModalVisible(true);
+              }}
+              style={styles.audioPracticeBanner}
+            >
+              <View style={styles.audioBannerLeft}>
+                <View style={styles.audioPlayCircle}>
+                  <Play size={12} color="#FFFFFF" fill="#FFFFFF" style={{ marginLeft: 2 }} />
+                </View>
+                <View>
+                  <Text style={styles.audioBannerTitle}>Today’s Audio Practice</Text>
+                  <Text style={styles.audioBannerSub}>3 min guided • Rooted Presence</Text>
+                </View>
+              </View>
+              <View style={styles.listenPill}>
+                <Text style={styles.listenPillText}>Listen</Text>
+              </View>
+            </Pressable>
           </View>
 
           {/* ========================================================
@@ -573,6 +600,14 @@ export const TodayReflectionView: React.FC<TodayReflectionViewProps> = ({
           </View>
         </View>
       )}
+      {/* Interactive Mobile Audio Player Modal */}
+      <AudioPlayerModal
+        visible={audioModalVisible}
+        onClose={() => setAudioModalVisible(false)}
+        title="Rooted Presence & Inner Stillness"
+        category="Quiet Confidence"
+        durationSeconds={180}
+      />
     </SafeAreaView>
   );
 };
@@ -843,6 +878,60 @@ const styles = StyleSheet.create({
   },
   tabLabelActive: {
     fontFamily: FONTS.sansSemiBold,
+    color: PALETTE.bronze.base,
+  },
+  audioPracticeBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: 'rgba(122, 82, 48, 0.12)',
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginTop: 10,
+    shadowColor: '#7A5230',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  audioBannerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  audioPlayCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: PALETTE.bronze.base,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  audioBannerTitle: {
+    fontFamily: FONTS.serifSemiBold,
+    fontSize: 13,
+    color: PALETTE.ink.charcoal,
+  },
+  audioBannerSub: {
+    fontFamily: FONTS.sans,
+    fontSize: 10,
+    color: PALETTE.ink.muted,
+    marginTop: 1,
+  },
+  listenPill: {
+    backgroundColor: PALETTE.prosecco.light,
+    borderWidth: 1,
+    borderColor: PALETTE.prosecco.border,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 14,
+  },
+  listenPillText: {
+    fontFamily: FONTS.sansSemiBold,
+    fontSize: 11,
     color: PALETTE.bronze.base,
   },
 });
