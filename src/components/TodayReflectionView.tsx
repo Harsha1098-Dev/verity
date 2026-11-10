@@ -142,7 +142,7 @@ export const TodayReflectionView: React.FC<TodayReflectionViewProps> = ({
                 <Image
                   source={require('../../assets/images/verity_logo.jpg')}
                   style={styles.logoImage}
-                  resizeMode="contain"
+                  resizeMode="cover"
                 />
                 <View style={styles.brandTextGroup}>
                   <Text style={styles.brandTitle}>VERITY</Text>

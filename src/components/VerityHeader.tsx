@@ -25,7 +25,7 @@ export const VerityHeader: React.FC<VerityHeaderProps> = ({
           <Image
             source={require('../../assets/images/verity_logo.jpg')}
             style={styles.logo}
-            resizeMode="contain"
+            resizeMode="cover"
           />
         )}
         <View style={styles.textContainer}>

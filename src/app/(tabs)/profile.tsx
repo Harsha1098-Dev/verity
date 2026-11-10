@@ -50,12 +50,12 @@ export default function ProfileScreen() {
             <Image
               source={require('../../../assets/images/verity_logo.jpg')}
               style={styles.logoImage}
-              resizeMode="contain"
+              resizeMode="cover"
             />
           </View>
           <Text style={styles.memberName}>Elena Vance</Text>
           <Text style={styles.memberStatus}>
-            VERITY INNER CIRCLE • MEMBER SINCE 2026
+            VERITY INNER CIRCLE
           </Text>
 
           <View style={styles.membershipPill}>
