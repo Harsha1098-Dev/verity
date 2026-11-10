@@ -1,6 +1,12 @@
 import '../../global.css';
 import React, { useEffect } from 'react';
-import { StyleSheet, View, ActivityIndicator, Platform } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  ActivityIndicator,
+  Platform,
+  useWindowDimensions,
+} from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -25,6 +31,8 @@ import { PALETTE } from '@/constants/theme';
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function RootLayout() {
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+
   const [fontsLoaded, fontError] = useFonts({
     PlayfairDisplay_400Regular,
     PlayfairDisplay_600SemiBold,
@@ -51,14 +59,23 @@ export default function RootLayout() {
     );
   }
 
-  // Mobile container wrapper for desktop web preview
   const isWeb = Platform.OS === 'web';
+  const isMobileScreen = windowWidth < 520;
+
+  // On wide screens (desktop web), frame the mobile app proportionally to the viewport height so nothing overflows
+  const frameHeight = isWeb && !isMobileScreen ? Math.min(880, Math.max(620, windowHeight - 32)) : '100%';
 
   return (
     <SafeAreaProvider>
       <StatusBar style="dark" />
-      <View style={isWeb ? styles.webOuterCanvas : styles.nativeContainer}>
-        <View style={isWeb ? styles.mobileFrame : styles.nativeContainer}>
+      <View style={isWeb && !isMobileScreen ? styles.webOuterCanvas : styles.nativeContainer}>
+        <View
+          style={
+            isWeb && !isMobileScreen
+              ? [styles.mobileFrame, { height: frameHeight }]
+              : styles.nativeContainer
+          }
+        >
           <Stack
             screenOptions={{
               headerShown: false,
@@ -83,29 +100,32 @@ const styles = StyleSheet.create({
   },
   nativeContainer: {
     flex: 1,
+    width: '100%',
+    height: '100%',
     backgroundColor: PALETTE.paper.linen,
   },
   webOuterCanvas: {
     flex: 1,
-    minHeight: '100vh' as any,
-    backgroundColor: '#EFE9E1', // Luxury editorial desk backdrop
+    width: '100%',
+    height: '100vh' as any,
+    backgroundColor: '#EFEAE3', // Refined linen desk backdrop
     alignItems: 'center',
     justifyContent: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 12,
   },
   mobileFrame: {
     width: '100%',
-    maxWidth: 430, // iPhone 15/16 Pro Max viewport width
-    height: '100vh' as any,
-    maxHeight: 932,
+    maxWidth: 420, // Ideal iPhone viewport width
     backgroundColor: PALETTE.paper.linen,
-    borderRadius: 36,
+    borderRadius: 32,
     overflow: 'hidden',
     shadowColor: '#5C3E1E',
     shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.15,
-    shadowRadius: 40,
+    shadowOpacity: 0.16,
+    shadowRadius: 36,
     elevation: 12,
     borderWidth: 1,
-    borderColor: 'rgba(122, 82, 48, 0.15)',
+    borderColor: 'rgba(122, 82, 48, 0.18)',
   },
 });

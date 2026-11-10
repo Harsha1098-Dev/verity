@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, Platform } from 'react-native';
 import { Tabs } from 'expo-router';
 import { Sparkles, BookOpen, BarChart3, User } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
-import { PALETTE, FONTS, SPACING } from '@/constants/theme';
+import { PALETTE, FONTS } from '@/constants/theme';
 
 export default function TabLayout() {
   const triggerHaptic = () => {
@@ -12,6 +12,9 @@ export default function TabLayout() {
     }
   };
 
+  const isWeb = Platform.OS === 'web';
+  const isIos = Platform.OS === 'ios';
+
   return (
     <Tabs
       screenOptions={{
@@ -19,7 +22,14 @@ export default function TabLayout() {
         tabBarShowLabel: true,
         tabBarActiveTintColor: PALETTE.bronze.base,
         tabBarInactiveTintColor: PALETTE.ink.subtle,
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: [
+          styles.tabBar,
+          {
+            height: isIos ? 84 : isWeb ? 66 : 64,
+            paddingBottom: isIos ? 24 : isWeb ? 8 : 6,
+            paddingTop: 6,
+          },
+        ],
         tabBarLabelStyle: styles.tabBarLabel,
         tabBarItemStyle: styles.tabBarItem,
       }}
@@ -40,7 +50,7 @@ export default function TabLayout() {
               ]}
             >
               <Sparkles
-                size={20}
+                size={19}
                 color={color}
                 strokeWidth={focused ? 2.2 : 1.7}
               />
@@ -62,7 +72,7 @@ export default function TabLayout() {
               ]}
             >
               <BookOpen
-                size={20}
+                size={19}
                 color={color}
                 strokeWidth={focused ? 2.2 : 1.7}
               />
@@ -84,7 +94,7 @@ export default function TabLayout() {
               ]}
             >
               <BarChart3
-                size={20}
+                size={19}
                 color={color}
                 strokeWidth={focused ? 2.2 : 1.7}
               />
@@ -106,7 +116,7 @@ export default function TabLayout() {
               ]}
             >
               <User
-                size={20}
+                size={19}
                 color={color}
                 strokeWidth={focused ? 2.2 : 1.7}
               />
@@ -123,29 +133,28 @@ const styles = StyleSheet.create({
     backgroundColor: '#FAF8F5',
     borderTopWidth: 1,
     borderTopColor: 'rgba(122, 82, 48, 0.12)',
-    height: Platform.OS === 'ios' ? 84 : 68,
-    paddingTop: 8,
-    paddingBottom: Platform.OS === 'ios' ? 24 : 10,
     elevation: 8,
     shadowColor: '#7A5230',
     shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.04,
+    shadowOpacity: 0.05,
     shadowRadius: 10,
   },
   tabBarItem: {
-    paddingVertical: 2,
+    paddingVertical: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   iconWrapper: {
-    paddingHorizontal: 14,
-    paddingVertical: 4,
-    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 3,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 2,
   },
   tabBarLabel: {
     fontFamily: FONTS.sansMedium,
-    fontSize: 11,
-    letterSpacing: 0.5,
+    fontSize: 10,
+    letterSpacing: 0.3,
   },
 });
