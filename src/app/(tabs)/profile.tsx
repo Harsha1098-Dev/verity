@@ -7,9 +7,11 @@ import {
   Image,
   Pressable,
   Switch,
+  Modal,
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import {
   Sparkles,
   Volume2,
@@ -20,19 +22,30 @@ import {
   ChevronRight,
   Sliders,
   Zap,
-  Target,
+  Crown,
   Flame,
+  Award,
+  Check,
+  X,
+  Lock,
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
-import { PALETTE, FONTS, SPACING, RADII, SHADOWS } from '@/constants/theme';
-import { PastelBadge } from '@/components/PastelBadge';
+import { PALETTE, FONTS, SHADOWS } from '@/constants/theme';
+import { UserPortalProfile, SACRED_PORTAL_TIMES, ACHIEVEMENTS_LIST } from '@/types/portal';
+import {
+  loadPortalProfile,
+  savePortalProfile,
+  DEFAULT_PORTAL_PROFILE,
+} from '@/utils/portalStore';
 import { PortalOnboardingModal } from '@/components/PortalOnboardingModal';
-import { loadPortalProfile, savePortalProfile, DEFAULT_PORTAL_PROFILE } from '@/utils/portalStore';
-import { UserPortalProfile } from '@/types/portal';
+import { WelcomeAuthModal } from '@/components/WelcomeAuthModal';
 
 export default function ProfileScreen() {
   const [profile, setProfile] = useState<UserPortalProfile>(DEFAULT_PORTAL_PROFILE);
   const [onboardingVisible, setOnboardingVisible] = useState(false);
+  const [authVisible, setAuthVisible] = useState(false);
+  const [premiumModalVisible, setPremiumModalVisible] = useState(false);
+
   const [remindersEnabled, setRemindersEnabled] = useState(true);
   const [hapticsEnabled, setHapticsEnabled] = useState(true);
 
@@ -43,14 +56,10 @@ export default function ProfileScreen() {
     })();
   }, []);
 
-  const toggleSwitch = (
-    setter: React.Dispatch<React.SetStateAction<boolean>>,
-    val: boolean
-  ) => {
+  const triggerHaptic = () => {
     if (Platform.OS !== 'web') {
       Haptics.selectionAsync();
     }
-    setter(!val);
   };
 
   const handleProfileUpdated = async (updated: UserPortalProfile) => {
@@ -58,89 +67,179 @@ export default function ProfileScreen() {
     await savePortalProfile(updated);
   };
 
+  const togglePortalTime = async (time: string) => {
+    triggerHaptic();
+    const exists = profile.portalTimes.includes(time);
+    const updatedTimes = exists
+      ? profile.portalTimes.filter((t) => t !== time)
+      : [...profile.portalTimes, time];
+    const newProfile = {
+      ...profile,
+      portalTimes: updatedTimes.length > 0 ? updatedTimes : [time],
+    };
+    setProfile(newProfile);
+    await savePortalProfile(newProfile);
+  };
+
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
+    <SafeAreaView edges={['top']} style={styles.safeArea}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Profile Header & Logo Mark */}
+        {/* Profile Header */}
         <View style={styles.profileHeader}>
-          <View style={styles.logoRing}>
+          <Pressable onPress={() => setAuthVisible(true)} style={styles.logoRing}>
             <Image
               source={require('../../../assets/images/verity_logo.jpg')}
               style={styles.logoImage}
               resizeMode="cover"
             />
-          </View>
+          </Pressable>
           <Text style={styles.memberName}>{profile.name}</Text>
           <Text style={styles.memberStatus}>
-            PORTAL 11:11 INNER CIRCLE • {profile.energyIntention.toUpperCase()}
+            PORTAL 11:11 SOVEREIGN CIRCLE • {profile.energy.toUpperCase()}
           </Text>
 
-          <View style={styles.membershipPill}>
-            <Sparkles size={12} color={PALETTE.bronze.base} />
+          {/* Premium Membership Badge */}
+          <Pressable
+            onPress={() => {
+              triggerHaptic();
+              setPremiumModalVisible(true);
+            }}
+            style={styles.membershipPill}
+          >
+            <Crown size={13} color={PALETTE.gold.base} />
             <Text style={styles.membershipPillText}>
-              🔥 {profile.streakDays} Day Synchronicity Streak
+              Portal 11:11 VIP • Unlimited AI Engine
             </Text>
-          </View>
+          </Pressable>
         </View>
 
-        {/* 90-Day Manifestation Intention */}
-        <View style={[styles.sectionCard, SHADOWS.subtle]}>
+        {/* 90-Day Vision & Current Intention */}
+        <View style={styles.sectionCard}>
           <View style={styles.sectionTitleRow}>
-            <Text style={styles.sectionTitle}>90-Day Manifestation Goal</Text>
-            <PastelBadge label={profile.manifestationGoal.toUpperCase()} color="prosecco" active />
+            <Text style={styles.sectionTitle}>90-Day Manifestation Reality</Text>
+            <View style={styles.tagBadge}>
+              <Text style={styles.tagBadgeText}>{profile.goal.toUpperCase()}</Text>
+            </View>
           </View>
 
-          <Text style={styles.intentionQuote}>
-            “{profile.goal90Days}”
-          </Text>
+          <Text style={styles.intentionQuote}>“{profile.goal90Days}”</Text>
 
-          <View style={styles.intentMetaRow}>
-            <Text style={styles.intentMetaText}>
-              Emotional State: <Text style={{ fontFamily: FONTS.sansSemiBold }}>{profile.emotionalState}</Text> • Income Goal: <Text style={{ fontFamily: FONTS.sansSemiBold }}>{profile.incomeGoal || '₹1 Lakh/mo'}</Text>
+          <View style={styles.metaRow}>
+            <Text style={styles.metaText}>
+              Emotional Baseline: <Text style={{ color: '#FFFFFF' }}>{profile.emotion}</Text> • Confidence:{' '}
+              <Text style={{ color: PALETTE.gold.base }}>{profile.confidence}/10</Text>
             </Text>
           </View>
 
           <Pressable
-            style={styles.changeIntentionBtn}
+            style={styles.retuneBtn}
             onPress={() => {
-              if (Platform.OS !== 'web') {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              }
+              triggerHaptic();
               setOnboardingVisible(true);
             }}
           >
-            <Sliders size={13} color={PALETTE.bronze.base} />
-            <Text style={styles.changeIntentionText}>Retune 15-Question Profile</Text>
+            <Sliders size={13} color="#07040E" />
+            <Text style={styles.retuneBtnText}>Retune 10-Step Profile</Text>
           </Pressable>
         </View>
 
-        {/* Active Portal Synchronicity Times */}
-        <View style={[styles.sectionCard, SHADOWS.subtle]}>
+        {/* Active Portal Times Manager */}
+        <View style={styles.sectionCard}>
           <View style={styles.sectionTitleRow}>
-            <Text style={styles.sectionTitle}>Active Portal Times</Text>
-            <Zap size={14} color="#D97706" />
+            <Text style={styles.sectionTitle}>Active Portal Times (10 Gateways)</Text>
+            <Zap size={15} color={PALETTE.gold.base} />
           </View>
-
-          <Text style={styles.portalTimesSub}>
-            Affirmations are AI-synthesized and delivered at these celestial portals:
+          <Text style={styles.cardSub}>
+            Tap to toggle synchronicity alert times:
           </Text>
 
-          <View style={styles.portalChipsRow}>
-            {profile.portalTimes.map((time) => (
-              <View key={time} style={styles.portalChip}>
-                <Clock size={11} color={PALETTE.bronze.rich} />
-                <Text style={styles.portalChipText}>{time}</Text>
-              </View>
-            ))}
+          <View style={styles.portalChipsGrid}>
+            {SACRED_PORTAL_TIMES.map((portal) => {
+              const isActive = profile.portalTimes.includes(portal.time);
+              return (
+                <Pressable
+                  key={portal.time}
+                  onPress={() => togglePortalTime(portal.time)}
+                  style={[
+                    styles.portalChip,
+                    isActive && styles.portalChipActive,
+                  ]}
+                >
+                  <Clock
+                    size={11}
+                    color={isActive ? '#07040E' : PALETTE.gold.base}
+                  />
+                  <Text
+                    style={[
+                      styles.portalChipText,
+                      isActive && styles.portalChipTextActive,
+                    ]}
+                  >
+                    {portal.display}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
+
+        {/* Gamification Achievements Shelf */}
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionTitleRow}>
+            <Text style={styles.sectionTitle}>Manifestation Milestones</Text>
+            <Award size={15} color={PALETTE.gold.base} />
+          </View>
+
+          <View style={styles.achievementsList}>
+            {ACHIEVEMENTS_LIST.map((ach) => {
+              const isUnlocked = profile.streakDays >= ach.requiredStreak;
+              return (
+                <View
+                  key={ach.id}
+                  style={[
+                    styles.achievementItem,
+                    isUnlocked && styles.achievementItemUnlocked,
+                  ]}
+                >
+                  <Text style={styles.achievementIcon}>{ach.icon}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text
+                      style={[
+                        styles.achievementTitle,
+                        isUnlocked && styles.achievementTitleUnlocked,
+                      ]}
+                    >
+                      {ach.title}
+                    </Text>
+                    <Text style={styles.achievementDesc}>{ach.description}</Text>
+                  </View>
+                  <View
+                    style={[
+                      styles.lockBadge,
+                      isUnlocked && styles.lockBadgeUnlocked,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.lockBadgeText,
+                        isUnlocked && styles.lockBadgeTextUnlocked,
+                      ]}
+                    >
+                      {isUnlocked ? 'UNLOCKED' : `${ach.requiredStreak}d`}
+                    </Text>
+                  </View>
+                </View>
+              );
+            })}
           </View>
         </View>
 
         {/* Practice Preferences */}
-        <View style={[styles.sectionCard, SHADOWS.subtle]}>
-          <Text style={styles.sectionTitle}>Practice & Notification Customization</Text>
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>Practice & Sensory Settings</Text>
 
           <View style={styles.settingsList}>
             {/* Preferred Voice */}
@@ -150,56 +249,38 @@ export default function ProfileScreen() {
             >
               <View style={styles.settingLeft}>
                 <View style={styles.iconCircle}>
-                  <Volume2 size={16} color={PALETTE.bronze.base} />
+                  <Volume2 size={16} color={PALETTE.gold.base} />
                 </View>
                 <View>
                   <Text style={styles.settingLabel}>Narrator Voice</Text>
                   <Text style={styles.settingValue}>{profile.preferredVoice}</Text>
                 </View>
               </View>
-              <ChevronRight size={18} color={PALETTE.ink.subtle} />
+              <ChevronRight size={18} color="#6B7280" />
             </Pressable>
 
-            {/* Affirmation Style */}
-            <Pressable
-              style={styles.settingItem}
-              onPress={() => setOnboardingVisible(true)}
-            >
-              <View style={styles.settingLeft}>
-                <View style={styles.iconCircle}>
-                  <Clock size={16} color={PALETTE.bronze.base} />
-                </View>
-                <View>
-                  <Text style={styles.settingLabel}>Affirmation Style & Length</Text>
-                  <Text style={styles.settingValue}>
-                    {profile.affirmationStyle} • {profile.messageLength}
-                  </Text>
-                </View>
-              </View>
-              <ChevronRight size={18} color={PALETTE.ink.subtle} />
-            </Pressable>
-
-            {/* Portal Notifications */}
+            {/* Notification Toggle */}
             <View style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.iconCircle}>
-                  <Bell size={16} color={PALETTE.bronze.base} />
+                  <Bell size={16} color={PALETTE.gold.base} />
                 </View>
                 <View>
-                  <Text style={styles.settingLabel}>Portal Synchronicity Alerts</Text>
-                  <Text style={styles.settingValue}>Push at 11:11, 2:22, 5:55</Text>
+                  <Text style={styles.settingLabel}>Portal Push Alerts</Text>
+                  <Text style={styles.settingValue}>Delivered at chosen portal times</Text>
                 </View>
               </View>
               <Switch
                 value={remindersEnabled}
-                onValueChange={() =>
-                  toggleSwitch(setRemindersEnabled, remindersEnabled)
-                }
-                trackColor={{
-                  false: PALETTE.paper.linen,
-                  true: PALETTE.deltaMint.base,
+                onValueChange={(val) => {
+                  triggerHaptic();
+                  setRemindersEnabled(val);
                 }}
-                thumbColor={remindersEnabled ? PALETTE.bronze.base : '#FFFFFF'}
+                trackColor={{
+                  false: 'rgba(255, 255, 255, 0.1)',
+                  true: PALETTE.gold.base,
+                }}
+                thumbColor={remindersEnabled ? '#07040E' : '#FFFFFF'}
               />
             </View>
 
@@ -207,46 +288,103 @@ export default function ProfileScreen() {
             <View style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.iconCircle}>
-                  <Vibrate size={16} color={PALETTE.bronze.base} />
+                  <Vibrate size={16} color={PALETTE.gold.base} />
                 </View>
                 <View>
                   <Text style={styles.settingLabel}>Haptic Sacred Breath</Text>
-                  <Text style={styles.settingValue}>Subtle tactile vibration on unlock</Text>
+                  <Text style={styles.settingValue}>Tactile wave on affirmation delivery</Text>
                 </View>
               </View>
               <Switch
                 value={hapticsEnabled}
-                onValueChange={() =>
-                  toggleSwitch(setHapticsEnabled, hapticsEnabled)
-                }
-                trackColor={{
-                  false: PALETTE.paper.linen,
-                  true: PALETTE.prosecco.base,
+                onValueChange={(val) => {
+                  triggerHaptic();
+                  setHapticsEnabled(val);
                 }}
-                thumbColor={hapticsEnabled ? PALETTE.bronze.base : '#FFFFFF'}
+                trackColor={{
+                  false: 'rgba(255, 255, 255, 0.1)',
+                  true: PALETTE.gold.base,
+                }}
+                thumbColor={hapticsEnabled ? '#07040E' : '#FFFFFF'}
               />
             </View>
           </View>
         </View>
 
-        {/* Ethical Mindset Statement */}
+        {/* Ethical Statement */}
         <View style={styles.ethicsContainer}>
-          <Shield size={14} color={PALETTE.bronze.tint} />
+          <Shield size={14} color={PALETTE.gold.base} />
           <Text style={styles.ethicsText}>
-            Portal 11:11 by Verity is an AI-powered manifestation engine designed to align conscious intention, emotional grounding, and synchronicity.
+            Portal 11:11 operates on conscious neuroscience and manifestation psychology, creating emotional certainty that transforms your reality.
           </Text>
         </View>
 
-        <View style={{ height: 40 }} />
+        <View style={{ height: 90 }} />
       </ScrollView>
 
-      {/* 15-Question Onboarding / Personalization Modal */}
+      {/* Onboarding Modal */}
       <PortalOnboardingModal
         visible={onboardingVisible}
         onClose={() => setOnboardingVisible(false)}
         onComplete={handleProfileUpdated}
         currentProfile={profile}
       />
+
+      {/* Welcome / Auth Modal */}
+      <WelcomeAuthModal
+        visible={authVisible}
+        onClose={() => setAuthVisible(false)}
+        onSuccess={() => {}}
+      />
+
+      {/* Premium Features Showcase Modal */}
+      <Modal
+        visible={premiumModalVisible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setPremiumModalVisible(false)}
+      >
+        <LinearGradient
+          colors={['#170C33', '#0C061C', '#05030C']}
+          style={styles.premiumModal}
+        >
+          <View style={styles.premiumHeader}>
+            <Pressable onPress={() => setPremiumModalVisible(false)} style={{ padding: 6 }}>
+              <X size={20} color="#D1CDDA" />
+            </Pressable>
+            <View style={styles.crownPill}>
+              <Crown size={14} color={PALETTE.gold.base} />
+              <Text style={styles.crownPillText}>PORTAL 11:11 VIP</Text>
+            </View>
+            <View style={{ width: 32 }} />
+          </View>
+
+          <ScrollView contentContainerStyle={styles.premiumScroll} showsVerticalScrollIndicator={false}>
+            <Text style={styles.premiumTitle}>Ascend to Sovereign Mastery</Text>
+            <Text style={styles.premiumSub}>
+              Unlock the entire celestial manifestation stack with zero limitations.
+            </Text>
+
+            <View style={styles.featureBox}>
+              <Text style={styles.featureItem}>✨ Unlimited Dynamic AI Affirmations</Text>
+              <Text style={styles.featureItem}>🔊 Studio Audio Affirmations & Custom Voices</Text>
+              <Text style={styles.featureItem}>🌙 Delta-Wave Sleep Affirmations</Text>
+              <Text style={styles.featureItem}>🎯 Personalized 90-Day Manifestation Blueprint</Text>
+              <Text style={styles.featureItem}>🖼️ AI Vision Board Generator & High-Res Export</Text>
+              <Text style={styles.featureItem}>📖 AI Journal Insights & Synchronicity Tracker</Text>
+              <Text style={styles.featureItem}>🎨 All 10 Themed Luxury Background Atmospheres</Text>
+              <Text style={styles.featureItem}>❤️ Unlimited Favorites & Offline Sacred Audio</Text>
+            </View>
+
+            <Pressable
+              onPress={() => setPremiumModalVisible(false)}
+              style={styles.claimVipBtn}
+            >
+              <Text style={styles.claimVipBtnText}>Sovereign Lifetime Access Active</Text>
+            </Pressable>
+          </ScrollView>
+        </LinearGradient>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -254,50 +392,43 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: PALETTE.paper.linen,
+    backgroundColor: '#05040A',
   },
   scrollContent: {
-    paddingHorizontal: SPACING.lg,
-    paddingTop: SPACING.md,
-    paddingBottom: 90,
-    gap: 16,
+    paddingHorizontal: 18,
+    paddingTop: 12,
+    gap: 14,
   },
   profileHeader: {
     alignItems: 'center',
-    paddingVertical: SPACING.lg,
+    paddingVertical: 14,
   },
   logoRing: {
-    width: 92,
-    height: 92,
-    borderRadius: 46,
-    borderWidth: 2,
-    borderColor: PALETTE.bronze.base,
-    padding: 2,
-    backgroundColor: '#FFFFFF',
-    marginBottom: SPACING.md,
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#7A5230',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.1,
-    shadowRadius: 14,
-  },
-  logoImage: {
     width: 84,
     height: 84,
     borderRadius: 42,
+    borderWidth: 2,
+    borderColor: PALETTE.gold.base,
+    padding: 2,
+    backgroundColor: '#0F0824',
+    marginBottom: 10,
+    overflow: 'hidden',
+  },
+  logoImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 40,
   },
   memberName: {
     fontFamily: FONTS.serifBold,
-    fontSize: 24,
-    color: PALETTE.ink.charcoal,
+    fontSize: 22,
+    color: '#FFFFFF',
     letterSpacing: 0.5,
   },
   memberStatus: {
-    fontFamily: FONTS.sansMedium,
-    fontSize: 10,
-    color: PALETTE.bronze.base,
+    fontFamily: FONTS.sansSemiBold,
+    fontSize: 9.5,
+    color: PALETTE.gold.base,
     letterSpacing: 1.5,
     marginTop: 4,
   },
@@ -305,9 +436,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#FFFBEB',
+    backgroundColor: 'rgba(245, 208, 97, 0.15)',
     borderWidth: 1,
-    borderColor: '#FCD34D',
+    borderColor: PALETTE.gold.border,
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: 16,
@@ -316,130 +447,274 @@ const styles = StyleSheet.create({
   membershipPillText: {
     fontFamily: FONTS.sansSemiBold,
     fontSize: 11,
-    color: '#B45309',
+    color: PALETTE.gold.base,
   },
   sectionCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: RADII.xl,
-    padding: SPACING.xl,
+    backgroundColor: 'rgba(26, 20, 56, 0.7)',
+    borderRadius: 22,
+    padding: 18,
     borderWidth: 1,
-    borderColor: 'rgba(122, 82, 48, 0.08)',
+    borderColor: 'rgba(245, 208, 97, 0.18)',
+    gap: 8,
   },
   sectionTitleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: SPACING.sm,
   },
   sectionTitle: {
-    fontFamily: FONTS.serifSemiBold,
-    fontSize: 17,
-    color: PALETTE.ink.charcoal,
+    fontFamily: FONTS.serifBold,
+    fontSize: 15,
+    color: '#FFFFFF',
+  },
+  tagBadge: {
+    backgroundColor: 'rgba(245, 208, 97, 0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  tagBadgeText: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 9,
+    color: PALETTE.gold.base,
+    letterSpacing: 0.8,
   },
   intentionQuote: {
     fontFamily: FONTS.serifItalic,
-    fontSize: 14,
-    lineHeight: 22,
-    color: PALETTE.ink.body,
-    marginVertical: SPACING.sm,
+    fontSize: 13.5,
+    lineHeight: 20,
+    color: '#D1CDDA',
   },
-  intentMetaRow: {
-    marginBottom: 8,
+  metaRow: {
+    marginTop: 2,
   },
-  intentMetaText: {
+  metaText: {
     fontFamily: FONTS.sans,
     fontSize: 11,
-    color: PALETTE.ink.muted,
+    color: '#9CA3AF',
   },
-  changeIntentionBtn: {
+  retuneBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     alignSelf: 'flex-start',
-    backgroundColor: PALETTE.bronze.subtle,
+    backgroundColor: PALETTE.gold.base,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 14,
     marginTop: 6,
   },
-  changeIntentionText: {
-    fontFamily: FONTS.sansMedium,
+  retuneBtnText: {
+    fontFamily: FONTS.sansBold,
     fontSize: 11,
-    color: PALETTE.bronze.base,
+    color: '#07040E',
   },
-  portalTimesSub: {
+  cardSub: {
     fontFamily: FONTS.sans,
     fontSize: 11,
-    color: PALETTE.ink.muted,
-    marginBottom: 10,
+    color: '#9CA3AF',
   },
-  portalChipsRow: {
+  portalChipsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
+    marginTop: 4,
   },
   portalChip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: PALETTE.prosecco.light,
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
     borderWidth: 1,
-    borderColor: PALETTE.prosecco.border,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 12,
   },
+  portalChipActive: {
+    backgroundColor: PALETTE.gold.base,
+    borderColor: PALETTE.gold.rich,
+  },
   portalChipText: {
     fontFamily: FONTS.sansSemiBold,
-    fontSize: 12,
-    color: PALETTE.bronze.rich,
+    fontSize: 11.5,
+    color: '#D1CDDA',
+  },
+  portalChipTextActive: {
+    color: '#07040E',
+  },
+  achievementsList: {
+    gap: 10,
+    marginTop: 4,
+  },
+  achievementItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderRadius: 14,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    opacity: 0.6,
+  },
+  achievementItemUnlocked: {
+    backgroundColor: 'rgba(245, 208, 97, 0.12)',
+    borderColor: 'rgba(245, 208, 97, 0.25)',
+    opacity: 1,
+  },
+  achievementIcon: {
+    fontSize: 20,
+  },
+  achievementTitle: {
+    fontFamily: FONTS.serifBold,
+    fontSize: 13,
+    color: '#D1CDDA',
+  },
+  achievementTitleUnlocked: {
+    color: '#FFFFFF',
+  },
+  achievementDesc: {
+    fontFamily: FONTS.sans,
+    fontSize: 10,
+    color: '#9CA3AF',
+  },
+  lockBadge: {
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  lockBadgeUnlocked: {
+    backgroundColor: PALETTE.gold.base,
+  },
+  lockBadgeText: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 9,
+    color: '#9CA3AF',
+  },
+  lockBadgeTextUnlocked: {
+    color: '#07040E',
   },
   settingsList: {
-    marginTop: SPACING.md,
-    gap: 14,
+    gap: 12,
+    marginTop: 4,
   },
   settingItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 6,
   },
   settingLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 10,
   },
   iconCircle: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: PALETTE.paper.linen,
+    backgroundColor: 'rgba(245, 208, 97, 0.12)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   settingLabel: {
     fontFamily: FONTS.sansMedium,
     fontSize: 13,
-    color: PALETTE.ink.charcoal,
+    color: '#FFFFFF',
   },
   settingValue: {
     fontFamily: FONTS.sans,
-    fontSize: 11,
-    color: PALETTE.ink.muted,
+    fontSize: 10.5,
+    color: '#9CA3AF',
     marginTop: 1,
   },
   ethicsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
   },
   ethicsText: {
     flex: 1,
     fontFamily: FONTS.sans,
-    fontSize: 11,
+    fontSize: 10.5,
     lineHeight: 16,
-    color: PALETTE.ink.muted,
+    color: '#9CA3AF',
+  },
+  premiumModal: {
+    flex: 1,
+    paddingTop: Platform.OS === 'ios' ? 24 : 16,
+    paddingHorizontal: 20,
+  },
+  premiumHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingBottom: 16,
+  },
+  crownPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(245, 208, 97, 0.15)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  crownPillText: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 10.5,
+    color: PALETTE.gold.base,
+    letterSpacing: 1,
+  },
+  premiumScroll: {
+    paddingTop: 10,
+    paddingBottom: 40,
+    gap: 14,
+    alignItems: 'center',
+  },
+  premiumTitle: {
+    fontFamily: FONTS.serifBold,
+    fontSize: 24,
+    color: '#FFFFFF',
+    textAlign: 'center',
+  },
+  premiumSub: {
+    fontFamily: FONTS.sans,
+    fontSize: 13,
+    color: '#9CA3AF',
+    textAlign: 'center',
+    lineHeight: 19,
+    paddingHorizontal: 16,
+  },
+  featureBox: {
+    width: '100%',
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(245, 208, 97, 0.25)',
+    padding: 18,
+    gap: 12,
+    marginVertical: 12,
+  },
+  featureItem: {
+    fontFamily: FONTS.sansMedium,
+    fontSize: 13,
+    color: '#FFFFFF',
+    lineHeight: 20,
+  },
+  claimVipBtn: {
+    width: '100%',
+    backgroundColor: PALETTE.gold.base,
+    paddingVertical: 14,
+    borderRadius: 24,
+    alignItems: 'center',
+  },
+  claimVipBtnText: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 14,
+    color: '#07040E',
   },
 });

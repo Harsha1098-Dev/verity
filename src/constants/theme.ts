@@ -1,10 +1,45 @@
 /**
- * Verity Mindfulness & Affirmation App
- * Luxury Editorial Design System Tokens
+ * Portal 11:11 Design System Tokens
+ * Cosmic Luxury • Deep Indigo • Midnight Black • Sacred Gold Accents
  */
 
 export const PALETTE = {
-  // Brand Pastels
+  // Cosmic Portal 11:11 Theme
+  portal: {
+    midnight: '#05040A',
+    deepIndigo: '#0B0819',
+    indigoSurface: '#120E2E',
+    cosmicPurple: '#2A164D',
+    vibrantPurple: '#431B75',
+    royalViolet: '#6B21A8',
+    starlightGlow: '#9F7AEA',
+    auroraCyan: '#38BDF8',
+    emeraldLife: '#10B981',
+  },
+
+  // Sacred Gold Accents
+  gold: {
+    light: '#FFFBEB',
+    radiant: '#FDE68A',
+    base: '#F5D061',
+    rich: '#E5B842',
+    deep: '#D4AF37',
+    bronze: '#B45309',
+    glow: 'rgba(245, 208, 97, 0.35)',
+    border: 'rgba(245, 208, 97, 0.25)',
+  },
+
+  // Glassmorphic Surfaces
+  glass: {
+    card: 'rgba(26, 20, 56, 0.70)',
+    cardBorder: 'rgba(245, 208, 97, 0.16)',
+    cardBorderHover: 'rgba(245, 208, 97, 0.40)',
+    input: 'rgba(11, 8, 25, 0.65)',
+    glow: 'rgba(159, 122, 234, 0.12)',
+    subtle: 'rgba(255, 255, 255, 0.06)',
+  },
+
+  // Brand Pastels & Accents
   berriesCream: {
     light: '#FDF2F5',
     base: '#F2BAC7',
@@ -41,7 +76,6 @@ export const PALETTE = {
     glass: 'rgba(216, 198, 235, 0.25)',
   },
 
-  // Primary Accent & Line Art (Matches Verity Emblem)
   bronze: {
     subtle: '#F5EFE9',
     tint: '#C4A485',
@@ -52,45 +86,59 @@ export const PALETTE = {
     glow: 'rgba(122, 82, 48, 0.10)',
   },
 
-  // Editorial Paper & Atmosphere
   paper: {
-    linen: '#FAF8F5',
+    linen: '#0B0819', // Default dark cosmic backdrop
     warmWhite: '#FFFFFF',
     ivory: '#F4EFEA',
-    card: '#FFFFFF',
-    cardBorder: 'rgba(122, 82, 48, 0.08)',
+    card: '#161131',
+    cardBorder: 'rgba(245, 208, 97, 0.12)',
   },
 
-  // Dark Velvet Atmosphere
   velvet: {
-    night: '#121118',
-    surface: '#1A1822',
-    card: '#221F2C',
-    border: 'rgba(246, 214, 167, 0.12)',
+    night: '#080612',
+    surface: '#120E2E',
+    card: '#1C1542',
+    border: 'rgba(245, 208, 97, 0.20)',
   },
 
-  // Monochromes & Typography
   ink: {
-    charcoal: '#232120',
-    body: '#4A4642',
-    muted: '#736F6B',
-    subtle: '#A8A29D',
+    charcoal: '#F3F0FB',
+    body: '#D1CDDA',
+    muted: '#9CA3AF',
+    subtle: '#6B7280',
     light: '#FFFFFF',
-    lightMuted: '#B8B3CE',
+    lightMuted: '#C4B5FD',
   },
 } as const;
 
 export const THEME = {
-  light: {
-    background: PALETTE.paper.linen,
-    surface: PALETTE.paper.warmWhite,
-    surfaceSecondary: PALETTE.paper.ivory,
-    card: PALETTE.paper.card,
-    border: PALETTE.paper.cardBorder,
-    borderStrong: PALETTE.bronze.border,
-    textPrimary: PALETTE.ink.charcoal,
+  dark: {
+    background: PALETTE.portal.deepIndigo,
+    surface: PALETTE.portal.indigoSurface,
+    surfaceSecondary: PALETTE.portal.cosmicPurple,
+    card: PALETTE.glass.card,
+    border: PALETTE.glass.cardBorder,
+    borderStrong: PALETTE.gold.border,
+    textPrimary: '#FFFFFF',
     textSecondary: PALETTE.ink.body,
     textMuted: PALETTE.ink.muted,
+    accent: PALETTE.gold.base,
+    accentSubtle: 'rgba(245, 208, 97, 0.12)',
+    tabBarBackground: 'rgba(8, 6, 18, 0.94)',
+    tabBarActive: PALETTE.gold.base,
+    tabBarInactive: '#8B87A8',
+    highlight: PALETTE.gold.base,
+  },
+  light: {
+    background: '#FAF8F5',
+    surface: '#FFFFFF',
+    surfaceSecondary: '#F4EFEA',
+    card: '#FFFFFF',
+    border: 'rgba(122, 82, 48, 0.08)',
+    borderStrong: PALETTE.bronze.border,
+    textPrimary: '#232120',
+    textSecondary: '#4A4642',
+    textMuted: '#736F6B',
     accent: PALETTE.bronze.base,
     accentSubtle: PALETTE.bronze.subtle,
     tabBarBackground: 'rgba(250, 248, 245, 0.94)',
@@ -98,33 +146,13 @@ export const THEME = {
     tabBarInactive: '#9E9891',
     highlight: PALETTE.prosecco.base,
   },
-  dark: {
-    background: PALETTE.velvet.night,
-    surface: PALETTE.velvet.surface,
-    surfaceSecondary: PALETTE.velvet.card,
-    card: PALETTE.velvet.card,
-    border: PALETTE.velvet.border,
-    borderStrong: 'rgba(246, 214, 167, 0.25)',
-    textPrimary: '#F7F5F2',
-    textSecondary: '#D1CDDA',
-    textMuted: PALETTE.ink.lightMuted,
-    accent: PALETTE.prosecco.base,
-    accentSubtle: 'rgba(246, 214, 167, 0.15)',
-    tabBarBackground: 'rgba(18, 17, 24, 0.94)',
-    tabBarActive: PALETTE.prosecco.base,
-    tabBarInactive: '#7C778B',
-    highlight: PALETTE.berriesCream.base,
-  },
 };
 
 export const FONTS = {
-  // Editorial Serif Headers (Playfair Display)
   serif: 'PlayfairDisplay_400Regular',
   serifSemiBold: 'PlayfairDisplay_600SemiBold',
   serifBold: 'PlayfairDisplay_700Bold',
   serifItalic: 'PlayfairDisplay_400Regular_Italic',
-
-  // Modern Clean Sans Body (Inter)
   sansLight: 'Inter_300Light',
   sans: 'Inter_400Regular',
   sansMedium: 'Inter_500Medium',
@@ -139,41 +167,38 @@ export const SPACING = {
   lg: 16,
   xl: 20,
   xxl: 24,
-  '3xl': 32,
-  '4xl': 40,
-  '5xl': 48,
-  '6xl': 64,
+  xxxl: 32,
+  huge: 48,
 };
 
 export const RADII = {
-  xs: 6,
-  sm: 10,
-  md: 14,
-  lg: 18,
-  xl: 24,
-  full: 9999,
+  sm: 6,
+  md: 12,
+  lg: 16,
+  xl: 22,
+  pill: 9999,
 };
 
 export const SHADOWS = {
   subtle: {
-    shadowColor: '#7A5230',
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
-    elevation: 2,
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  cosmicGlow: {
+    shadowColor: PALETTE.gold.base,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.35,
+    shadowRadius: 16,
+    elevation: 6,
   },
   card: {
-    shadowColor: '#7A5230',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.08,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.4,
     shadowRadius: 20,
-    elevation: 4,
-  },
-  float: {
-    shadowColor: '#5C3E1E',
-    shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.12,
-    shadowRadius: 32,
-    elevation: 8,
+    elevation: 6,
   },
 };

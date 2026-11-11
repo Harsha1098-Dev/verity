@@ -1,7 +1,15 @@
 import React from 'react';
-import { StyleSheet, View, Text, Platform } from 'react-native';
+import { StyleSheet, View, Platform } from 'react-native';
 import { Tabs } from 'expo-router';
-import { Sparkles, BookOpen, BarChart3, User } from 'lucide-react-native';
+import {
+  Sparkles,
+  Layers,
+  BookMarked,
+  Eye,
+  User,
+  BookOpen,
+  BarChart3,
+} from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { PALETTE, FONTS } from '@/constants/theme';
 
@@ -20,8 +28,8 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: true,
-        tabBarActiveTintColor: PALETTE.bronze.base,
-        tabBarInactiveTintColor: PALETTE.ink.subtle,
+        tabBarActiveTintColor: PALETTE.gold.base,
+        tabBarInactiveTintColor: '#6B7280',
         tabBarStyle: [
           styles.tabBar,
           {
@@ -37,73 +45,95 @@ export default function TabLayout() {
         tabPress: () => triggerHaptic(),
       }}
     >
-      {/* 1. Today (Daily Reflection) */}
+      {/* 1. Home */}
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Today',
+          title: 'Home',
           tabBarIcon: ({ color, focused }) => (
             <View
               style={[
                 styles.iconWrapper,
-                focused && { backgroundColor: PALETTE.prosecco.light },
+                focused && styles.iconWrapperActive,
               ]}
             >
               <Sparkles
-                size={19}
+                size={18}
                 color={color}
-                strokeWidth={focused ? 2.2 : 1.7}
+                strokeWidth={focused ? 2.3 : 1.7}
               />
             </View>
           ),
         }}
       />
 
-      {/* 2. History (Past Entries) */}
+      {/* 2. Affirmations (Flagship Reel / Vertical Swipe) */}
       <Tabs.Screen
-        name="history"
+        name="affirmations"
         options={{
-          title: 'History',
+          title: 'Affirmations',
           tabBarIcon: ({ color, focused }) => (
             <View
               style={[
                 styles.iconWrapper,
-                focused && { backgroundColor: PALETTE.foggyLove.light },
+                focused && styles.iconWrapperActive,
               ]}
             >
-              <BookOpen
-                size={19}
+              <Layers
+                size={18}
                 color={color}
-                strokeWidth={focused ? 2.2 : 1.7}
+                strokeWidth={focused ? 2.3 : 1.7}
               />
             </View>
           ),
         }}
       />
 
-      {/* 3. Insights (Mood Trends) */}
+      {/* 3. Journal */}
       <Tabs.Screen
-        name="insights"
+        name="journal"
         options={{
-          title: 'Insights',
+          title: 'Journal',
           tabBarIcon: ({ color, focused }) => (
             <View
               style={[
                 styles.iconWrapper,
-                focused && { backgroundColor: PALETTE.deltaMint.light },
+                focused && styles.iconWrapperActive,
               ]}
             >
-              <BarChart3
-                size={19}
+              <BookMarked
+                size={18}
                 color={color}
-                strokeWidth={focused ? 2.2 : 1.7}
+                strokeWidth={focused ? 2.3 : 1.7}
               />
             </View>
           ),
         }}
       />
 
-      {/* 4. Profile */}
+      {/* 4. Vision Board */}
+      <Tabs.Screen
+        name="vision-board"
+        options={{
+          title: 'Vision Board',
+          tabBarIcon: ({ color, focused }) => (
+            <View
+              style={[
+                styles.iconWrapper,
+                focused && styles.iconWrapperActive,
+              ]}
+            >
+              <Eye
+                size={18}
+                color={color}
+                strokeWidth={focused ? 2.3 : 1.7}
+              />
+            </View>
+          ),
+        }}
+      />
+
+      {/* 5. Profile */}
       <Tabs.Screen
         name="profile"
         options={{
@@ -112,16 +142,30 @@ export default function TabLayout() {
             <View
               style={[
                 styles.iconWrapper,
-                focused && { backgroundColor: PALETTE.polarOpposite.light },
+                focused && styles.iconWrapperActive,
               ]}
             >
               <User
-                size={19}
+                size={18}
                 color={color}
-                strokeWidth={focused ? 2.2 : 1.7}
+                strokeWidth={focused ? 2.3 : 1.7}
               />
             </View>
           ),
+        }}
+      />
+
+      {/* Hidden legacy routes preserved for backward-compatibility */}
+      <Tabs.Screen
+        name="history"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="insights"
+        options={{
+          href: null,
         }}
       />
     </Tabs>
@@ -130,13 +174,13 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: '#FAF8F5',
+    backgroundColor: '#07040E',
     borderTopWidth: 1,
-    borderTopColor: 'rgba(122, 82, 48, 0.12)',
+    borderTopColor: 'rgba(245, 208, 97, 0.15)',
     elevation: 8,
-    shadowColor: '#7A5230',
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.35,
     shadowRadius: 10,
   },
   tabBarItem: {
@@ -145,16 +189,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   iconWrapper: {
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
     paddingVertical: 3,
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 2,
   },
+  iconWrapperActive: {
+    backgroundColor: 'rgba(245, 208, 97, 0.15)',
+  },
   tabBarLabel: {
     fontFamily: FONTS.sansMedium,
-    fontSize: 10,
-    letterSpacing: 0.3,
+    fontSize: 9.5,
+    letterSpacing: 0.2,
   },
 });

@@ -374,7 +374,7 @@ export const TodayReflectionView: React.FC<TodayReflectionViewProps> = ({
                 <View style={styles.audioBannerTextGroup}>
                   <Text style={styles.audioBannerTitle}>Portal Audio Alignment</Text>
                   <Text style={styles.audioBannerSub}>
-                    {portalProfile.preferredVoice} • {portalProfile.messageLength}
+                    {portalProfile.preferredVoice} • {portalProfile.format || portalProfile.messageLength || 'Medium'}
                   </Text>
                 </View>
               </View>
@@ -746,7 +746,7 @@ export const TodayReflectionView: React.FC<TodayReflectionViewProps> = ({
         visible={audioModalVisible}
         onClose={() => setAudioModalVisible(false)}
         title="11:11 Gateway & Rooted Presence"
-        category={portalProfile.manifestationGoal}
+        category={portalProfile.goal || portalProfile.manifestationGoal || 'Career Success'}
         durationSeconds={180}
       />
 

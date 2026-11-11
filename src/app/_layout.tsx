@@ -54,7 +54,7 @@ export default function RootLayout() {
   if (!fontsLoaded && !fontError) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="small" color={PALETTE.bronze.base} />
+        <ActivityIndicator size="small" color={PALETTE.gold.base} />
       </View>
     );
   }
@@ -67,7 +67,7 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <StatusBar style="dark" />
+      <StatusBar style="light" />
       <View style={isWeb && !isMobileScreen ? styles.webOuterCanvas : styles.nativeContainer}>
         <View
           style={
@@ -79,7 +79,7 @@ export default function RootLayout() {
           <Stack
             screenOptions={{
               headerShown: false,
-              contentStyle: { backgroundColor: PALETTE.paper.linen },
+              contentStyle: { backgroundColor: '#05040A' },
               animation: 'fade',
             }}
           >
@@ -94,7 +94,7 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,
-    backgroundColor: PALETTE.paper.linen,
+    backgroundColor: '#05040A',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -102,13 +102,13 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100%',
-    backgroundColor: PALETTE.paper.linen,
+    backgroundColor: '#05040A',
   },
   webOuterCanvas: {
     flex: 1,
     width: '100%',
     height: '100vh' as any,
-    backgroundColor: '#EFEAE3', // Refined linen desk backdrop
+    backgroundColor: '#030207', // Deep cosmic obsidian desk backdrop
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 16,
@@ -117,15 +117,15 @@ const styles = StyleSheet.create({
   mobileFrame: {
     width: '100%',
     maxWidth: 420, // Ideal iPhone viewport width
-    backgroundColor: PALETTE.paper.linen,
-    borderRadius: 32,
+    backgroundColor: '#05040A',
+    borderRadius: 34,
     overflow: 'hidden',
-    shadowColor: '#5C3E1E',
-    shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.16,
+    shadowColor: PALETTE.gold.base,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.22,
     shadowRadius: 36,
     elevation: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(122, 82, 48, 0.18)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(245, 208, 97, 0.28)',
   },
 });
