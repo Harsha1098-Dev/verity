@@ -2,6 +2,7 @@ import {
   UserPortalProfile,
   AffirmationCategory,
   AffirmationItem,
+  AffirmationPatternType,
   SACRED_PORTAL_TIMES,
   PortalTimeDefinition,
 } from '@/types/portal';
@@ -101,86 +102,449 @@ export const THEMED_BACKGROUNDS: Record<
 };
 
 /**
- * Rich Affirmation Content Library adhering strictly to rules:
- * - Present tense only
- * - No "I will", "Someday", "Hopefully", "Trying", "Want", "Need"
- * - No repeating "I already"
- * - Max 20 words
- * - Varied starter anchors: "I am", "I choose", "I embody", "I attract", "I receive", "I welcome", "I trust", "I celebrate", "I enjoy", reality statements, ownership statements
+ * 10 Multi-Pattern Affirmation Structure Pools:
+ * - Identity-Based
+ * - Ownership-Based
+ * - Reality-Based
+ * - Gratitude-Based
+ * - Embodiment-Based
+ * - Receiving-Based
+ * - Certainty-Based
+ * - Magnetic-Based
+ * - Expansion-Based
+ * - Completion-Based
  */
-export const INITIAL_AFFIRMATION_LIBRARY: Record<AffirmationCategory, string[]> = {
-  Wealth: [
-    'Money flows effortlessly through channels that honor and multiply my gifts.',
-    'Prosperity accompanies every conscious decision I make.',
-    'I embody the frequency of financial freedom and sovereign wealth.',
-    'Abundance feels natural, peaceful, and permanently anchored in my life.',
-    'I receive wealth with open arms and manage it with absolute poise.',
-    'Multiplying income streams arrive with divine ease and speed.',
-    'I welcome infinite prosperity; money loves residing in my care.',
-    'Financial miracles happen around me daily with unquestioned regularity.',
-  ],
-  Love: [
-    'My relationships are founded on unconditional devotion, trust, and mutual adoration.',
-    'I embody pure, magnetic love that attracts genuine soul connection.',
-    'I welcome deep emotional safety, passion, and enduring intimacy into my life.',
-    'The love I give returns to me multiplied through beautiful hearts.',
-    'I celebrate the presence of a loyal, conscious, and elevating partner.',
-    'Harmonious love surrounds me and nurtures my highest evolution.',
-  ],
-  Career: [
-    'My work attracts high recognition, sovereign respect, and generous financial rewards.',
-    'Opportunities consistently align with my unique genius and life purpose.',
-    'I lead with calm mastery and inspire excellence wherever I step.',
-    'Prominent rooms open wide to welcome my perspective and talent.',
-    'I attract career breakthroughs that elevate my income and influence.',
-    'Success and peaceful balance coexist effortlessly throughout my workday.',
-  ],
-  Health: [
-    'Vibrant vitality surges through every cell, organ, and thought I possess.',
-    'I embody radiant health, deep physical strength, and boundless daily energy.',
-    'My body heals, restores, and balances itself with supernatural intelligence.',
-    'I choose foods, thoughts, and habits that fuel my highest vitality.',
-    'Peaceful restorative sleep replenishes my youth and mental clarity every night.',
-  ],
-  Confidence: [
-    'Unshakable confidence radiates from every word and quiet presence I bring.',
-    'I trust my inner authority; doubt has no residence within my mind.',
-    'I stand sovereign, grounded, and unapologetically aligned with my truth.',
-    'My voice carries weight, clarity, and magnetic resonance.',
-    'I embody courage that turns every challenge into sacred victory.',
-  ],
-  Spiritual: [
-    'Cosmic intelligence guides my path with absolute mathematical precision.',
-    'I am locked in sacred coherence with universal abundance and grace.',
-    'Divine timing governs my life; what is meant for me is already mine.',
-    'My intuition is sharp, luminous, and always in sync with truth.',
-    'I surrender fear and receive the limitless blessings orchestrating for me.',
-  ],
-  Peace: [
-    'Stillness is my sovereign superpower amidst any shifting season.',
-    'I release all need to control, resting in tranquil divine order.',
-    'A deep, quiet serenity shields my nervous system from outer noise.',
-    'Peace dwells within my chest, untethered from external circumstances.',
-    'I enjoy tranquil breaths that anchor clarity and grounded poise.',
-  ],
-  Luxury: [
-    'Luxury, beauty, and refined excellence are the natural backdrop of my reality.',
-    'I enjoy first-class experiences, exquisite sanctuaries, and absolute time freedom.',
-    'My life is an expansive tapestry of world travel, elegance, and peace.',
-    'I welcome lavish comfort and savor the fine fruits of my creation.',
-  ],
-  Gratitude: [
-    'Deep gratitude magnifies every blessing already alive in my realm.',
-    'I celebrate the miracles unfolding today, both seen and unseen.',
-    'Thankfulness unlocks the next higher octave of my manifestation.',
-    'My heart overflows with appreciation for this extraordinary journey.',
-  ],
-  Freedom: [
-    'Total autonomy and creative freedom guide how I spend every hour.',
-    'I live anywhere I desire while my abundance multiplies in flow.',
-    'Unrestricted choice is my birthright; I design reality on my own terms.',
-  ],
+export const MULTI_PATTERN_AFFIRMATION_BANK: Record<
+  AffirmationPatternType,
+  Record<AffirmationCategory, string[]>
+> = {
+  'Identity-Based': {
+    Wealth: [
+      'I am a magnetic force for abundance and financial freedom.',
+      'I am the kind of person extraordinary wealth opportunities seek out.',
+      'I am naturally aligned with limitless prosperity and wise stewardship.',
+      'I am sovereign, generous, and comfortable holding massive financial flow.',
+    ],
+    Career: [
+      'I am the kind of professional leaders trust with visionary missions.',
+      'I am naturally aligned with high-impact success and fulfilling mastery.',
+      'I am an indispensable architect of remarkable value in the marketplace.',
+    ],
+    Love: [
+      'I am deeply deserving of devoted, loyal, and transcendent love.',
+      'I am the steady anchor of warmth, emotional safety, and joy.',
+    ],
+    Confidence: [
+      'I am sovereign, grounded, and unapologetically at peace in my power.',
+      'I am unshakable in my self-worth; outer opinions do not sway me.',
+    ],
+    Health: [
+      'I am radiant life force in motion; every cell vibrates with health.',
+      'I am strong, resilient, and deeply tuned to my body’s vitality.',
+    ],
+    Spiritual: [
+      'I am a conscious conduit of universal intelligence and divine order.',
+      'I am at one with the infinite wisdom orchestrating the cosmos.',
+    ],
+    Peace: [
+      'I am the tranquil sanctuary amidst any shifting season of life.',
+      'I am rooted in stillness that nothing outer can disturb.',
+    ],
+    Luxury: [
+      'I am naturally at home surrounded by exquisite beauty and comfort.',
+      'I am worthy of experiencing the finest fruits of this world.',
+    ],
+    Gratitude: [
+      'I am a vessel of perpetual thanksgiving and humble celebration.',
+    ],
+    Freedom: [
+      'I am entirely sovereign, designing my hours on my own terms.',
+    ],
+  },
+
+  'Ownership-Based': {
+    Wealth: [
+      'Financial freedom belongs in my life as my permanent reality.',
+      'Prosperity flows through every part of my daily world.',
+      'Wealth and multiplying resources belong naturally in my hands.',
+    ],
+    Career: [
+      'Prominent success, deep recognition, and sovereign influence belong to my work.',
+      'High-level leadership and meaningful impact are my rightful domain.',
+    ],
+    Love: [
+      'Deep, meaningful love surrounds me and enriches every moment.',
+      'A conscious, loyal partnership belongs naturally in my life.',
+    ],
+    Confidence: [
+      'Unshakable self-possession belongs to my character without exception.',
+      'Quiet authority and respect follow my every intentional step.',
+    ],
+    Health: [
+      'Vibrant wellness, stamina, and youthful energy belong to my body.',
+      'Effortless recovery and restorative sleep define my physical reality.',
+    ],
+    Spiritual: [
+      'Sacred synchronicity belongs to my daily walk with truth.',
+      'Divine protection and grace accompany every path I choose.',
+    ],
+    Peace: [
+      'Serenity belongs to my mind; anxious noise finds no harbor here.',
+    ],
+    Luxury: [
+      'Lavish ease, first-class comfort, and refined atmospheres belong to me.',
+    ],
+    Gratitude: [
+      'A grateful heart belongs at the center of my being.',
+    ],
+    Freedom: [
+      'Total time sovereignty belongs to my lifestyle and schedule.',
+    ],
+  },
+
+  'Reality-Based': {
+    Wealth: [
+      'Wealth is flowing into my life from expected and unexpected sources.',
+      'Money flows effortlessly through channels that honor my gifts.',
+      'Abundance appears wherever my conscious attention goes.',
+      'Financial freedom reflects my daily, undeniable reality.',
+    ],
+    Career: [
+      'My dream career is unfolding in perfect, mathematically sound ways.',
+      'Professional success reflects my dedication, mastery, and integrity.',
+      'Exciting breakthroughs arrive at the most opportune moments.',
+    ],
+    Love: [
+      'Loving relationships enrich every part of my life.',
+      'Genuine affection and supportive connections arrive daily.',
+      'Meaningful relationships thrive naturally around my calm energy.',
+    ],
+    Confidence: [
+      'Confidence feels completely natural, steady, and effortless to me.',
+      'Inner certainty guides every decision I make with clarity.',
+    ],
+    Health: [
+      'Every cell in my body responds positively to wellness and vitality.',
+      'Energy flows freely throughout my muscles, nerves, and mind.',
+    ],
+    Spiritual: [
+      'Divine synchronicity shapes my hours with miraculous precision.',
+      'The cosmic gateway delivers the answers I sought in meditation.',
+    ],
+    Peace: [
+      'Peace fills my mind and guides my decisions with grace.',
+      'Stillness reigns supreme across my nervous system today.',
+    ],
+    Luxury: [
+      'Exquisite travel, peaceful sanctuaries, and luxury surround my days.',
+    ],
+    Gratitude: [
+      'Abundant blessings reveal themselves everywhere I gaze.',
+    ],
+    Freedom: [
+      'Boundless creative autonomy defines how I spend my time.',
+    ],
+  },
+
+  'Gratitude-Based': {
+    Wealth: [
+      'I am grateful for the abundance that enriches my days.',
+      'Thank you for the financial opportunities arriving effortlessly.',
+      'I appreciate the steady stream of prosperity multiplying in my care.',
+    ],
+    Career: [
+      'Thank you for the visionary doors opening to receive my work.',
+      'I am grateful for the chance to create extraordinary value.',
+    ],
+    Love: [
+      'Thank you for the unconditional love that enriches my life.',
+      'I am deeply grateful for companions who honor and elevate me.',
+    ],
+    Confidence: [
+      'Thank you for the quiet courage that anchors my every step.',
+    ],
+    Health: [
+      'I am grateful for this body that heals, breathes, and thrives.',
+    ],
+    Spiritual: [
+      'Thank you for the unseen guidance steering me away from lack.',
+    ],
+    Peace: [
+      'I am grateful for this quiet sanctuary within my own chest.',
+    ],
+    Luxury: [
+      'Thank you for the elegance, comfort, and beauty I experience.',
+    ],
+    Gratitude: [
+      'Gratitude unlocks the next higher octave of my manifestation.',
+    ],
+    Freedom: [
+      'Thank you for the freedom to build reality on my terms.',
+    ],
+  },
+
+  'Embodiment-Based': {
+    Confidence: [
+      'Confidence radiates through every word I speak.',
+      'My presence commands quiet respect without effort or strain.',
+      'Courage accompanies me into every room I enter.',
+    ],
+    Career: [
+      'Success reflects in everything I create and deliver.',
+      'Leadership and poise shine through my daily actions.',
+    ],
+    Wealth: [
+      'I embody the frequency of sovereign prosperity and calm abundance.',
+      'Prosperity accompanies every decision I make.',
+    ],
+    Love: [
+      'I embody pure, magnetic love that invites deep emotional truth.',
+      'My heart remains open, brave, and joyfully receptive to romance.',
+    ],
+    Health: [
+      'Strength, balance, and wellness define my daily lifestyle.',
+      'I embody vibrant youthfulness, flexibility, and boundless stamina.',
+    ],
+    Spiritual: [
+      'I embody cosmic peace; fear dissolves in my presence.',
+    ],
+    Peace: [
+      'I embody stillness that calms every storm around me.',
+    ],
+    Luxury: [
+      'I embody the poise of someone who enjoys timeless elegance.',
+    ],
+    Gratitude: [
+      'I embody thankfulness with every conscious breath I take.',
+    ],
+    Freedom: [
+      'I embody unbridled freedom and bold creative sovereignty.',
+    ],
+  },
+
+  'Receiving-Based': {
+    Wealth: [
+      'I receive wealth with ease, poise, and genuine gratitude.',
+      'I welcome multiplying income streams into my accounts.',
+      'I allow massive prosperity to find me without resistance.',
+    ],
+    Love: [
+      'I welcome loving, conscious relationships into my world.',
+      'I receive deep affection, emotional support, and devotion.',
+    ],
+    Career: [
+      'I allow extraordinary opportunities and high rewards to find me.',
+      'I receive the praise and compensation my excellence deserves.',
+    ],
+    Confidence: [
+      'I receive praise and respect with calm, grounded grace.',
+    ],
+    Health: [
+      'I receive healing vitality from every wholesome meal and breath.',
+    ],
+    Spiritual: [
+      'I receive divine transmissions with crystal clarity.',
+    ],
+    Peace: [
+      'I welcome deep serenity into every corner of my mind.',
+    ],
+    Luxury: [
+      'I receive first-class treatment wherever my travels take me.',
+    ],
+    Gratitude: [
+      'I receive daily blessings with an open, humbled heart.',
+    ],
+    Freedom: [
+      'I welcome limitless autonomy into my daily schedule.',
+    ],
+  },
+
+  'Certainty-Based': {
+    Wealth: [
+      'Everything is working in my favor for lasting wealth.',
+      'The universe supports every financial step I take.',
+      'My abundance is becoming a tangible, permanent reality.',
+    ],
+    Career: [
+      'The universe conspires to elevate my career and purpose.',
+      'My goals are fully supported by divine timing and allies.',
+    ],
+    Love: [
+      'The love meant for me is already seeking me.',
+      'My heart knows with certainty that true devotion is here.',
+    ],
+    Confidence: [
+      'Self-belief fuels my growth; failure is merely useful feedback.',
+    ],
+    Health: [
+      'My body thrives under my loving, conscious care.',
+    ],
+    Spiritual: [
+      'Divine order governs my footsteps; I walk without anxiety.',
+    ],
+    Peace: [
+      'All is well in my world; peace is my fortress.',
+    ],
+    Luxury: [
+      'A life of beauty and ease is my natural destiny.',
+    ],
+    Gratitude: [
+      'Every experience is working together for my highest good.',
+    ],
+    Freedom: [
+      'My sovereign freedom is protected by universal law.',
+    ],
+  },
+
+  'Magnetic-Based': {
+    Wealth: [
+      'Abundance naturally gravitates toward my calm, focused energy.',
+      'I attract people, partnerships, and ideas that multiply my wealth.',
+      'Success recognizes my value and rewards it generously.',
+    ],
+    Career: [
+      'I attract visionary mentors, collaborators, and clients who honor me.',
+      'High-impact career doors open wide at my approach.',
+    ],
+    Love: [
+      'My warmth draws loyal, genuine, and inspiring souls to me.',
+      'I attract romantic devotion that matches my own depth.',
+    ],
+    Confidence: [
+      'My aura magnetically inspires confidence in everyone I meet.',
+    ],
+    Health: [
+      'My cellular vibration attracts restorative, rejuvenating health.',
+    ],
+    Spiritual: [
+      'My frequency attracts sacred miracles and portal synchronicities.',
+    ],
+    Peace: [
+      'My gentle presence diffuses tension wherever I step.',
+    ],
+    Luxury: [
+      'Elegance and world-class environments gravitate to my life.',
+    ],
+    Gratitude: [
+      'Appreciation acts as a magnet for multiplied blessings.',
+    ],
+    Freedom: [
+      'Autonomous opportunities seek me out relentlessly.',
+    ],
+  },
+
+  'Expansion-Based': {
+    Wealth: [
+      'My income continues to expand far beyond past expectations.',
+      'New financial streams reveal themselves to me daily.',
+      'My capacity to generate and hold wealth grows constantly.',
+    ],
+    Career: [
+      'My influence grows with every meaningful contribution I make.',
+      'My career horizon expands into global authority and acclaim.',
+    ],
+    Love: [
+      'My capacity for love, passion, and intimacy deepens daily.',
+    ],
+    Confidence: [
+      'My courage expands every time I embrace an unknown horizon.',
+    ],
+    Health: [
+      'My vitality and physical stamina expand with each morning sunrise.',
+    ],
+    Spiritual: [
+      'My spiritual consciousness broadens into boundless universal love.',
+    ],
+    Peace: [
+      'Serenity spreads throughout my home and workday with ease.',
+    ],
+    Luxury: [
+      'My world expands to include breathtaking destinations and sanctuaries.',
+    ],
+    Gratitude: [
+      'My thankfulness expands as I notice life’s quiet wonders.',
+    ],
+    Freedom: [
+      'My sovereign options multiply in every direction.',
+    ],
+  },
+
+  'Completion-Based': {
+    Wealth: [
+      'The financial reality I envisioned is becoming my normal life.',
+      'My wealth goals are fully materialized and sustained.',
+      'I live inside the abundance I once only imagined.',
+    ],
+    Career: [
+      'My success story unfolds beautifully and with sovereign dignity.',
+      'The milestones I dreamed of are now my daily backdrop.',
+    ],
+    Love: [
+      'The harmonious love I prayed for surrounds me in peace.',
+    ],
+    Confidence: [
+      'I have arrived at unbreakable peace with who I am.',
+    ],
+    Health: [
+      'Vibrant wellness is my steady, established baseline of living.',
+    ],
+    Spiritual: [
+      'My alignment with the cosmos is complete, steady, and joyful.',
+    ],
+    Peace: [
+      'Tranquility is my permanent anchor; the struggle is over.',
+    ],
+    Luxury: [
+      'Elegance and freedom have become the natural texture of life.',
+    ],
+    Gratitude: [
+      'My heart is full; I rest in divine sufficiency.',
+    ],
+    Freedom: [
+      'I walk as a free, sovereign creator in my own realm.',
+    ],
+  },
 };
+
+export const PATTERN_LIST: AffirmationPatternType[] = [
+  'Identity-Based',
+  'Ownership-Based',
+  'Reality-Based',
+  'Gratitude-Based',
+  'Embodiment-Based',
+  'Receiving-Based',
+  'Certainty-Based',
+  'Magnetic-Based',
+  'Expansion-Based',
+  'Completion-Based',
+];
+
+/**
+ * Validates affirmation text according to the user's Golden Rules:
+ * - Present tense only
+ * - NEVER "I will", "Someday", "One day", "Hopefully", "Trying to", "Want to", "Need to", "I already"
+ * - Maximum 18 words
+ */
+export function validateAffirmationText(text: string): boolean {
+  const bannedPhrases = [
+    'i will',
+    'someday',
+    'one day',
+    'hopefully',
+    'trying to',
+    'want to',
+    'need to',
+    'i already',
+  ];
+
+  const lower = text.toLowerCase();
+  for (const phrase of bannedPhrases) {
+    if (lower.includes(phrase)) return false;
+  }
+
+  const wordCount = text.trim().split(/\s+/).length;
+  return wordCount <= 18;
+}
 
 /**
  * Calculates next upcoming portal synchronicity countdown
@@ -278,35 +642,33 @@ export function getNextPortalCountdown(
 }
 
 /**
- * Dynamic AI Affirmation Synthesizer
- * Generates non-repetitive present-tense affirmations tailored to user profile
+ * Rotates between the 10 pattern structures and generates a fresh, non-repetitive affirmation
  */
+let lastPatternIndex = 0;
+
 export function generateDynamicAffirmation(
   profile: Partial<UserPortalProfile>,
   category: AffirmationCategory = 'Wealth',
-  portalTime: string = '11:11'
+  portalTime: string = '11:11',
+  requestedPattern?: AffirmationPatternType
 ): AffirmationItem {
   const name = profile.name || 'Harsha';
-  const goal = profile.goal || 'Wealth';
-  const emotion = profile.emotion || 'Motivated';
-  const intention = profile.energy || 'Grow';
 
-  const categoryAffirmations =
-    INITIAL_AFFIRMATION_LIBRARY[category] || INITIAL_AFFIRMATION_LIBRARY.Wealth;
+  // Cycle through patterns so consecutive affirmations never share the same structure
+  let pattern: AffirmationPatternType;
+  if (requestedPattern) {
+    pattern = requestedPattern;
+  } else {
+    lastPatternIndex = (lastPatternIndex + 1) % PATTERN_LIST.length;
+    pattern = PATTERN_LIST[lastPatternIndex];
+  }
 
-  // Pick a random base statement or synthesize dynamic one
-  const randomIndex = Math.floor(Math.random() * categoryAffirmations.length);
-  const baseText = categoryAffirmations[randomIndex];
+  const bank = MULTI_PATTERN_AFFIRMATION_BANK[pattern];
+  const statements = bank[category] || bank.Wealth;
 
-  const dynamicTemplates = [
-    `${baseText}`,
-    `I embody sovereign certainty; ${goal.toLowerCase()} unfolds through my every conscious breath.`,
-    `Opportunities for ${goal.toLowerCase()} align naturally as I choose to ${intention.toLowerCase()} and thrive.`,
-    `I welcome rapid breakthroughs in my life; abundance feels peaceful and native to who I am.`,
-    `My energy dissolves doubt; prosperity and recognition meet me at every turn.`,
-  ];
-
-  const chosenText = dynamicTemplates[Math.floor(Math.random() * dynamicTemplates.length)];
+  const chosenText =
+    statements[Math.floor(Math.random() * statements.length)] ||
+    'Abundance feels natural, peaceful, and permanently anchored in my life.';
 
   const theme = THEMED_BACKGROUNDS[category] || THEMED_BACKGROUNDS.Wealth;
 
@@ -314,8 +676,9 @@ export function generateDynamicAffirmation(
     id: `aff_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
     text: chosenText,
     category,
+    patternType: pattern,
     portalTime,
-    authorNote: `Personalized transmission for ${name} at ${portalTime} Portal`,
+    authorNote: `${pattern} Transmission for ${name} at ${portalTime} Portal`,
     format: profile.format || 'Medium',
     isFavorite: false,
     backgroundTheme: theme,
@@ -323,7 +686,7 @@ export function generateDynamicAffirmation(
 }
 
 /**
- * Builds initial feed of full-screen affirmations across all categories
+ * Builds initial diverse feed rotating across all 10 patterns and categories
  */
 export function buildAffirmationFeed(
   profile: Partial<UserPortalProfile>
@@ -341,18 +704,25 @@ export function buildAffirmationFeed(
     'Freedom',
   ];
 
-  return categories.flatMap((cat, idx) => {
-    const list = INITIAL_AFFIRMATION_LIBRARY[cat] || [];
-    return list.slice(0, 2).map((text, subIdx) => ({
-      id: `feed_${cat}_${idx}_${subIdx}`,
-      text,
-      category: cat,
-      portalTime: subIdx === 0 ? '11:11' : '2:22',
-      authorNote: `Sacred frequency attuned to ${profile.energy || 'Grow'} intention.`,
-      format: 'Medium',
-      isFavorite: subIdx === 0 && cat === 'Wealth',
-      backgroundTheme: THEMED_BACKGROUNDS[cat],
-    }));
+  return categories.flatMap((cat, catIdx) => {
+    // Pick 2 distinct patterns for each category to ensure maximum structural variety
+    const patternA = PATTERN_LIST[catIdx % PATTERN_LIST.length];
+    const patternB = PATTERN_LIST[(catIdx + 5) % PATTERN_LIST.length];
+
+    const affA = generateDynamicAffirmation(profile, cat, '11:11', patternA);
+    const affB = generateDynamicAffirmation(profile, cat, '2:22', patternB);
+
+    return [
+      {
+        ...affA,
+        id: `feed_${cat}_${catIdx}_a`,
+        isFavorite: cat === 'Wealth',
+      },
+      {
+        ...affB,
+        id: `feed_${cat}_${catIdx}_b`,
+      },
+    ];
   });
 }
 
@@ -363,7 +733,7 @@ export function generatePortalAffirmation(
   profile: Partial<UserPortalProfile>,
   portalKey: string = '11:11'
 ): { headline: string; affirmation: string; portalInsight: string } {
-  const item = generateDynamicAffirmation(profile, 'Wealth', portalKey);
+  const item = generateDynamicAffirmation(profile, 'Wealth', portalKey, 'Reality-Based');
   return {
     headline: `${portalKey} Gateway • ${profile.name || 'Harsha'}`,
     affirmation: item.text,

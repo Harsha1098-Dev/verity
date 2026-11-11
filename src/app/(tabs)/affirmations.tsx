@@ -275,7 +275,7 @@ export default function AffirmationsScreen() {
                         { color: bg.particleColor },
                       ]}
                     >
-                      {item.portalTime || '11:11'} PORTAL • {item.category.toUpperCase()}
+                      {item.portalTime || '11:11'} PORTAL • {item.patternType ? item.patternType.toUpperCase() + ' • ' : ''}{item.category.toUpperCase()}
                     </Text>
                   </View>
                 </View>

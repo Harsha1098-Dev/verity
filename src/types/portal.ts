@@ -203,10 +203,23 @@ export type AffirmationCategory =
   | 'Gratitude'
   | 'Freedom';
 
+export type AffirmationPatternType =
+  | 'Identity-Based'
+  | 'Ownership-Based'
+  | 'Reality-Based'
+  | 'Gratitude-Based'
+  | 'Embodiment-Based'
+  | 'Receiving-Based'
+  | 'Certainty-Based'
+  | 'Magnetic-Based'
+  | 'Expansion-Based'
+  | 'Completion-Based';
+
 export interface AffirmationItem {
   id: string;
   text: string;
   category: AffirmationCategory;
+  patternType?: AffirmationPatternType;
   portalTime?: string;
   authorNote: string;
   format: AffirmationFormat;
