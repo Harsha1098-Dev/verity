@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Image, Pressable, Platform } from 'react-native';
 import { PALETTE, FONTS, SPACING } from '@/constants/theme';
 import { Sparkles } from 'lucide-react-native';
 
@@ -58,7 +58,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.sm,
+    paddingTop: Platform.OS === 'web' ? 14 : SPACING.sm,
+    paddingBottom: SPACING.sm,
   },
   leftRow: {
     flexDirection: 'row',
@@ -71,6 +72,7 @@ const styles = StyleSheet.create({
     borderRadius: 19,
     borderWidth: 1,
     borderColor: PALETTE.bronze.border,
+    overflow: 'hidden',
   },
   textContainer: {
     justifyContent: 'center',

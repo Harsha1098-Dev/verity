@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.sm,
-    paddingBottom: 32,
+    paddingBottom: 90,
     gap: 16,
   },
   metricsRow: {

@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
   scrollList: {
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.sm,
-    paddingBottom: 32,
+    paddingBottom: 90,
     gap: 14,
   },
   entryCard: {
