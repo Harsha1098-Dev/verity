@@ -26,6 +26,8 @@ export const VerityHeader: React.FC<VerityHeaderProps> = ({
             source={require('../../assets/images/verity_logo.jpg')}
             style={styles.logo}
             resizeMode="cover"
+            alt="Verity Logo"
+            accessibilityLabel="Verity Logo"
           />
         )}
         <View style={styles.textContainer}>
@@ -73,6 +75,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: PALETTE.bronze.border,
     overflow: 'hidden',
+    resizeMode: 'cover',
   },
   textContainer: {
     justifyContent: 'center',
