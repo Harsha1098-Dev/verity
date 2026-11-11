@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -19,14 +19,29 @@ import {
   Shield,
   ChevronRight,
   Sliders,
+  Zap,
+  Target,
+  Flame,
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { PALETTE, FONTS, SPACING, RADII, SHADOWS } from '@/constants/theme';
 import { PastelBadge } from '@/components/PastelBadge';
+import { PortalOnboardingModal } from '@/components/PortalOnboardingModal';
+import { loadPortalProfile, savePortalProfile, DEFAULT_PORTAL_PROFILE } from '@/utils/portalStore';
+import { UserPortalProfile } from '@/types/portal';
 
 export default function ProfileScreen() {
+  const [profile, setProfile] = useState<UserPortalProfile>(DEFAULT_PORTAL_PROFILE);
+  const [onboardingVisible, setOnboardingVisible] = useState(false);
   const [remindersEnabled, setRemindersEnabled] = useState(true);
   const [hapticsEnabled, setHapticsEnabled] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      const p = await loadPortalProfile();
+      setProfile(p);
+    })();
+  }, []);
 
   const toggleSwitch = (
     setter: React.Dispatch<React.SetStateAction<boolean>>,
@@ -36,6 +51,11 @@ export default function ProfileScreen() {
       Haptics.selectionAsync();
     }
     setter(!val);
+  };
+
+  const handleProfileUpdated = async (updated: UserPortalProfile) => {
+    setProfile(updated);
+    await savePortalProfile(updated);
   };
 
   return (
@@ -53,28 +73,35 @@ export default function ProfileScreen() {
               resizeMode="cover"
             />
           </View>
-          <Text style={styles.memberName}>Elena Vance</Text>
+          <Text style={styles.memberName}>{profile.name}</Text>
           <Text style={styles.memberStatus}>
-            VERITY INNER CIRCLE
+            PORTAL 11:11 INNER CIRCLE • {profile.energyIntention.toUpperCase()}
           </Text>
 
           <View style={styles.membershipPill}>
             <Sparkles size={12} color={PALETTE.bronze.base} />
-            <Text style={styles.membershipPillText}>Unlimited Audio Practice</Text>
+            <Text style={styles.membershipPillText}>
+              🔥 {profile.streakDays} Day Synchronicity Streak
+            </Text>
           </View>
         </View>
 
-        {/* Primary Intention Setting */}
+        {/* 90-Day Manifestation Intention */}
         <View style={[styles.sectionCard, SHADOWS.subtle]}>
           <View style={styles.sectionTitleRow}>
-            <Text style={styles.sectionTitle}>Current Primary Intention</Text>
-            <PastelBadge label="ACTIVE" color="prosecco" active />
+            <Text style={styles.sectionTitle}>90-Day Manifestation Goal</Text>
+            <PastelBadge label={profile.manifestationGoal.toUpperCase()} color="prosecco" active />
           </View>
 
           <Text style={styles.intentionQuote}>
-            “Cultivating quiet confidence and speaking with calm self-possession
-            in high-stakes meetings.”
+            “{profile.goal90Days}”
           </Text>
+
+          <View style={styles.intentMetaRow}>
+            <Text style={styles.intentMetaText}>
+              Emotional State: <Text style={{ fontFamily: FONTS.sansSemiBold }}>{profile.emotionalState}</Text> • Income Goal: <Text style={{ fontFamily: FONTS.sansSemiBold }}>{profile.incomeGoal || '₹1 Lakh/mo'}</Text>
+            </Text>
+          </View>
 
           <Pressable
             style={styles.changeIntentionBtn}
@@ -82,55 +109,85 @@ export default function ProfileScreen() {
               if (Platform.OS !== 'web') {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               }
+              setOnboardingVisible(true);
             }}
           >
             <Sliders size={13} color={PALETTE.bronze.base} />
-            <Text style={styles.changeIntentionText}>Edit Focus & Tone</Text>
+            <Text style={styles.changeIntentionText}>Retune 15-Question Profile</Text>
           </Pressable>
         </View>
 
-        {/* Audio & Practice Preferences */}
+        {/* Active Portal Synchronicity Times */}
         <View style={[styles.sectionCard, SHADOWS.subtle]}>
-          <Text style={styles.sectionTitle}>Practice Customization</Text>
+          <View style={styles.sectionTitleRow}>
+            <Text style={styles.sectionTitle}>Active Portal Times</Text>
+            <Zap size={14} color="#D97706" />
+          </View>
+
+          <Text style={styles.portalTimesSub}>
+            Affirmations are AI-synthesized and delivered at these celestial portals:
+          </Text>
+
+          <View style={styles.portalChipsRow}>
+            {profile.portalTimes.map((time) => (
+              <View key={time} style={styles.portalChip}>
+                <Clock size={11} color={PALETTE.bronze.rich} />
+                <Text style={styles.portalChipText}>{time}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        {/* Practice Preferences */}
+        <View style={[styles.sectionCard, SHADOWS.subtle]}>
+          <Text style={styles.sectionTitle}>Practice & Notification Customization</Text>
 
           <View style={styles.settingsList}>
             {/* Preferred Voice */}
-            <Pressable style={styles.settingItem}>
+            <Pressable
+              style={styles.settingItem}
+              onPress={() => setOnboardingVisible(true)}
+            >
               <View style={styles.settingLeft}>
                 <View style={styles.iconCircle}>
                   <Volume2 size={16} color={PALETTE.bronze.base} />
                 </View>
                 <View>
                   <Text style={styles.settingLabel}>Narrator Voice</Text>
-                  <Text style={styles.settingValue}>Aura (Calm & Warm)</Text>
+                  <Text style={styles.settingValue}>{profile.preferredVoice}</Text>
                 </View>
               </View>
               <ChevronRight size={18} color={PALETTE.ink.subtle} />
             </Pressable>
 
-            {/* Session Duration */}
-            <Pressable style={styles.settingItem}>
+            {/* Affirmation Style */}
+            <Pressable
+              style={styles.settingItem}
+              onPress={() => setOnboardingVisible(true)}
+            >
               <View style={styles.settingLeft}>
                 <View style={styles.iconCircle}>
                   <Clock size={16} color={PALETTE.bronze.base} />
                 </View>
                 <View>
-                  <Text style={styles.settingLabel}>Session Length</Text>
-                  <Text style={styles.settingValue}>3 Minutes (Morning Anchor)</Text>
+                  <Text style={styles.settingLabel}>Affirmation Style & Length</Text>
+                  <Text style={styles.settingValue}>
+                    {profile.affirmationStyle} • {profile.messageLength}
+                  </Text>
                 </View>
               </View>
               <ChevronRight size={18} color={PALETTE.ink.subtle} />
             </Pressable>
 
-            {/* Daily Morning Anchor Notification */}
+            {/* Portal Notifications */}
             <View style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.iconCircle}>
                   <Bell size={16} color={PALETTE.bronze.base} />
                 </View>
                 <View>
-                  <Text style={styles.settingLabel}>Morning Anchor Reminder</Text>
-                  <Text style={styles.settingValue}>Daily at 7:30 AM</Text>
+                  <Text style={styles.settingLabel}>Portal Synchronicity Alerts</Text>
+                  <Text style={styles.settingValue}>Push at 11:11, 2:22, 5:55</Text>
                 </View>
               </View>
               <Switch
@@ -153,8 +210,8 @@ export default function ProfileScreen() {
                   <Vibrate size={16} color={PALETTE.bronze.base} />
                 </View>
                 <View>
-                  <Text style={styles.settingLabel}>Haptic Feedback</Text>
-                  <Text style={styles.settingValue}>Subtle tactile breath</Text>
+                  <Text style={styles.settingLabel}>Haptic Sacred Breath</Text>
+                  <Text style={styles.settingValue}>Subtle tactile vibration on unlock</Text>
                 </View>
               </View>
               <Switch
@@ -176,13 +233,20 @@ export default function ProfileScreen() {
         <View style={styles.ethicsContainer}>
           <Shield size={14} color={PALETTE.bronze.tint} />
           <Text style={styles.ethicsText}>
-            Verity is an intentional mindfulness and cognitive framing tool
-            designed to nurture conscious clarity and inner stillness.
+            Portal 11:11 by Verity is an AI-powered manifestation engine designed to align conscious intention, emotional grounding, and synchronicity.
           </Text>
         </View>
 
         <View style={{ height: 40 }} />
       </ScrollView>
+
+      {/* 15-Question Onboarding / Personalization Modal */}
+      <PortalOnboardingModal
+        visible={onboardingVisible}
+        onClose={() => setOnboardingVisible(false)}
+        onComplete={handleProfileUpdated}
+        currentProfile={profile}
+      />
     </SafeAreaView>
   );
 }
@@ -241,18 +305,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: PALETTE.prosecco.light,
+    backgroundColor: '#FFFBEB',
     borderWidth: 1,
-    borderColor: PALETTE.prosecco.border,
+    borderColor: '#FCD34D',
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: 16,
     marginTop: 10,
   },
   membershipPillText: {
-    fontFamily: FONTS.sansMedium,
+    fontFamily: FONTS.sansSemiBold,
     fontSize: 11,
-    color: PALETTE.bronze.base,
+    color: '#B45309',
   },
   sectionCard: {
     backgroundColor: '#FFFFFF',
@@ -279,6 +343,14 @@ const styles = StyleSheet.create({
     color: PALETTE.ink.body,
     marginVertical: SPACING.sm,
   },
+  intentMetaRow: {
+    marginBottom: 8,
+  },
+  intentMetaText: {
+    fontFamily: FONTS.sans,
+    fontSize: 11,
+    color: PALETTE.ink.muted,
+  },
   changeIntentionBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -294,6 +366,33 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.sansMedium,
     fontSize: 11,
     color: PALETTE.bronze.base,
+  },
+  portalTimesSub: {
+    fontFamily: FONTS.sans,
+    fontSize: 11,
+    color: PALETTE.ink.muted,
+    marginBottom: 10,
+  },
+  portalChipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  portalChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: PALETTE.prosecco.light,
+    borderWidth: 1,
+    borderColor: PALETTE.prosecco.border,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  portalChipText: {
+    fontFamily: FONTS.sansSemiBold,
+    fontSize: 12,
+    color: PALETTE.bronze.rich,
   },
   settingsList: {
     marginTop: SPACING.md,
