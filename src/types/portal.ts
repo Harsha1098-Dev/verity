@@ -189,15 +189,22 @@ export interface UserPortalProfile {
   messageLength?: string;
   confidenceLevel?: number;
   incomeGoal?: string;
+  relationshipStatus?: string;
+  careerStage?: string;
+  currentChallenge?: string;
 }
 
 export type AffirmationCategory =
+  | 'Self-Worth'
   | 'Wealth'
-  | 'Love'
   | 'Career'
+  | 'Love'
   | 'Health'
   | 'Confidence'
   | 'Spiritual'
+  | 'Productivity'
+  | 'Happiness'
+  | 'Purpose'
   | 'Peace'
   | 'Luxury'
   | 'Gratitude'

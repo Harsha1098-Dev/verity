@@ -17,14 +17,13 @@ import {
   Volume2,
   Share2,
   Sparkles,
-  ChevronUp,
-  ChevronDown,
   Bookmark,
   X,
   Play,
-  RotateCcw,
-  Sliders,
+  ArrowLeft,
+  ArrowRight,
   Flame,
+  Zap,
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { PALETTE, FONTS } from '@/constants/theme';
@@ -37,6 +36,7 @@ import {
   buildAffirmationFeed,
   generateDynamicAffirmation,
   THEMED_BACKGROUNDS,
+  MASTER_CATEGORIES_LIST,
 } from '@/utils/portalEngine';
 import {
   loadPortalProfile,
@@ -45,17 +45,9 @@ import {
 } from '@/utils/portalStore';
 import { AudioPlayerModal } from '@/components/AudioPlayerModal';
 
-const CATEGORIES: ('All' | AffirmationCategory)[] = [
+const ALL_CATEGORIES: ('All' | AffirmationCategory)[] = [
   'All',
-  'Wealth',
-  'Career',
-  'Love',
-  'Confidence',
-  'Spiritual',
-  'Luxury',
-  'Health',
-  'Peace',
-  'Freedom',
+  ...MASTER_CATEGORIES_LIST,
 ];
 
 export default function AffirmationsScreen() {
@@ -124,7 +116,7 @@ export default function AffirmationsScreen() {
 
   const handleShare = async (item: AffirmationItem) => {
     triggerHaptic('light');
-    const message = `✨ Portal 11:11 Affirmation:\n\n“${item.text}”\n\nAttuned to sacred reality. #Portal1111`;
+    const message = `✨ Portal 11:11 Affirmation:\n\n“${item.text}”\n\nAttuned to sovereign reality. #Portal1111`;
     try {
       if (Platform.OS === 'web') {
         if (navigator.clipboard) {
@@ -169,14 +161,32 @@ export default function AffirmationsScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Top Floating Category Selector Bar */}
+      {/* Top Floating Header & Category Bar */}
       <View style={styles.topControlOverlay}>
+        <View style={styles.portalHeaderRow}>
+          <View style={styles.activePortalTag}>
+            <Zap size={13} color={PALETTE.gold.base} />
+            <Text style={styles.activePortalTagText}>
+              {filteredFeed[activeIndex]?.portalTime || '11:11'} Portal
+            </Text>
+          </View>
+
+          <Pressable
+            onPress={() => setFavoritesModalVisible(true)}
+            style={styles.favoritesBtn}
+            hitSlop={8}
+          >
+            <Bookmark size={14} color={PALETTE.gold.base} />
+            <Text style={styles.favoritesCountText}>{favorites.length}</Text>
+          </Pressable>
+        </View>
+
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.categoryScroll}
         >
-          {CATEGORIES.map((cat) => {
+          {ALL_CATEGORIES.map((cat) => {
             const isSelected = selectedCategory === cat;
             return (
               <Pressable
@@ -203,15 +213,6 @@ export default function AffirmationsScreen() {
             );
           })}
         </ScrollView>
-
-        <Pressable
-          onPress={() => setFavoritesModalVisible(true)}
-          style={styles.favoritesBtn}
-          hitSlop={8}
-        >
-          <Bookmark size={15} color={PALETTE.gold.base} />
-          <Text style={styles.favoritesCountText}>{favorites.length}</Text>
-        </Pressable>
       </View>
 
       {/* Share Toast Notice */}
@@ -275,7 +276,7 @@ export default function AffirmationsScreen() {
                         { color: bg.particleColor },
                       ]}
                     >
-                      {item.portalTime || '11:11'} PORTAL • {item.patternType ? item.patternType.toUpperCase() + ' • ' : ''}{item.category.toUpperCase()}
+                      {item.category.toUpperCase()}
                     </Text>
                   </View>
                 </View>
@@ -283,7 +284,7 @@ export default function AffirmationsScreen() {
                 {/* Large Present-Tense Affirmation Text */}
                 <Text style={styles.affirmationText}>“{item.text}”</Text>
 
-                {/* Identity Reality Note */}
+                {/* Sub-Insight Reality Note */}
                 <Text style={styles.affirmationNoteText}>
                   {item.authorNote}
                 </Text>
@@ -291,88 +292,115 @@ export default function AffirmationsScreen() {
               </View>
 
               {/* Bottom Actions Floating Bar */}
-              <View style={styles.bottomControlsBar}>
-                {/* Like / Save Favorite */}
-                <Pressable
-                  onPress={() => handleToggleFavorite(item)}
-                  style={styles.actionBtn}
-                >
-                  <View
-                    style={[
-                      styles.actionIconCircle,
-                      isFav && styles.actionIconCircleActive,
-                    ]}
+              <View style={styles.bottomControlsContainer}>
+                {/* Primary Actions: Save, Listen, Regenerate, Share */}
+                <View style={styles.bottomActionsBar}>
+                  {/* Like / Save Favorite */}
+                  <Pressable
+                    onPress={() => handleToggleFavorite(item)}
+                    style={styles.actionBtn}
                   >
-                    <Heart
-                      size={20}
-                      color={isFav ? '#FF4D6D' : '#FFFFFF'}
-                      fill={isFav ? '#FF4D6D' : 'transparent'}
-                    />
-                  </View>
-                  <Text style={styles.actionLabel}>
-                    {isFav ? 'Saved' : 'Save'}
-                  </Text>
-                </Pressable>
+                    <View
+                      style={[
+                        styles.actionIconCircle,
+                        isFav && styles.actionIconCircleActive,
+                      ]}
+                    >
+                      <Heart
+                        size={20}
+                        color={isFav ? '#FF4D6D' : '#FFFFFF'}
+                        fill={isFav ? '#FF4D6D' : 'transparent'}
+                      />
+                    </View>
+                    <Text style={styles.actionLabel}>
+                      {isFav ? 'Saved' : 'Save'}
+                    </Text>
+                  </Pressable>
 
-                {/* Listen to Voice Narration */}
-                <Pressable
-                  onPress={() => {
-                    triggerHaptic('light');
-                    setAudioModalVisible(true);
-                  }}
-                  style={styles.actionBtn}
-                >
-                  <View style={styles.actionIconCircle}>
-                    <Volume2 size={20} color="#FFFFFF" />
-                  </View>
-                  <Text style={styles.actionLabel}>Listen</Text>
-                </Pressable>
-
-                {/* Regenerate AI Affirmation */}
-                <Pressable
-                  onPress={handleRegenerateCurrent}
-                  style={styles.actionBtn}
-                >
-                  <View
-                    style={[
-                      styles.actionIconCircle,
-                      { backgroundColor: 'rgba(245, 208, 97, 0.25)' },
-                    ]}
+                  {/* Listen to Voice Narration */}
+                  <Pressable
+                    onPress={() => {
+                      triggerHaptic('light');
+                      setAudioModalVisible(true);
+                    }}
+                    style={styles.actionBtn}
                   >
-                    <Sparkles size={20} color={PALETTE.gold.base} />
-                  </View>
-                  <Text style={[styles.actionLabel, { color: PALETTE.gold.base }]}>
-                    Regenerate
-                  </Text>
-                </Pressable>
+                    <View style={styles.actionIconCircle}>
+                      <Volume2 size={20} color="#FFFFFF" />
+                    </View>
+                    <Text style={styles.actionLabel}>Listen</Text>
+                  </Pressable>
 
-                {/* Share Quote Card */}
-                <Pressable
-                  onPress={() => handleShare(item)}
-                  style={styles.actionBtn}
-                >
-                  <View style={styles.actionIconCircle}>
-                    <Share2 size={20} color="#FFFFFF" />
-                  </View>
-                  <Text style={styles.actionLabel}>Share</Text>
-                </Pressable>
-              </View>
+                  {/* Regenerate AI Affirmation */}
+                  <Pressable
+                    onPress={handleRegenerateCurrent}
+                    style={styles.actionBtn}
+                  >
+                    <View
+                      style={[
+                        styles.actionIconCircle,
+                        { backgroundColor: 'rgba(245, 208, 97, 0.25)' },
+                      ]}
+                    >
+                      <Sparkles size={20} color={PALETTE.gold.base} />
+                    </View>
+                    <Text style={[styles.actionLabel, { color: PALETTE.gold.base }]}>
+                      Regenerate
+                    </Text>
+                  </Pressable>
 
-              {/* Prev / Next Swipe Assist Arrows */}
-              <View style={styles.verticalNavAssist}>
-                {index > 0 && (
+                  {/* Share Quote Card */}
+                  <Pressable
+                    onPress={() => handleShare(item)}
+                    style={styles.actionBtn}
+                  >
+                    <View style={styles.actionIconCircle}>
+                      <Share2 size={20} color="#FFFFFF" />
+                    </View>
+                    <Text style={styles.actionLabel}>Share</Text>
+                  </Pressable>
+                </View>
+
+                {/* Previous & Next Tap Buttons */}
+                <View style={styles.prevNextRow}>
                   <Pressable
                     onPress={handlePrevious}
-                    style={styles.navAssistBtn}
+                    disabled={index === 0}
+                    style={[
+                      styles.prevNextBtn,
+                      index === 0 && styles.prevNextBtnDisabled,
+                    ]}
                   >
-                    <ChevronUp size={20} color="rgba(255, 255, 255, 0.6)" />
+                    <Text
+                      style={[
+                        styles.prevNextBtnText,
+                        index === 0 && styles.prevNextBtnTextDisabled,
+                      ]}
+                    >
+                      ← Previous
+                    </Text>
                   </Pressable>
-                )}
-                {index < filteredFeed.length - 1 && (
-                  <Pressable onPress={handleNext} style={styles.navAssistBtn}>
-                    <ChevronDown size={20} color="rgba(255, 255, 255, 0.6)" />
+
+                  <Pressable
+                    onPress={handleNext}
+                    disabled={index === filteredFeed.length - 1}
+                    style={[
+                      styles.prevNextBtn,
+                      index === filteredFeed.length - 1 &&
+                        styles.prevNextBtnDisabled,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.prevNextBtnText,
+                        index === filteredFeed.length - 1 &&
+                          styles.prevNextBtnTextDisabled,
+                      ]}
+                    >
+                      Next →
+                    </Text>
                   </Pressable>
-                )}
+                </View>
               </View>
             </View>
           );
@@ -461,18 +489,39 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 20,
+    paddingHorizontal: 16,
+    gap: 8,
+  },
+  portalHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    justifyContent: 'space-between',
+  },
+  activePortalTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(5, 4, 10, 0.75)',
+    borderWidth: 1,
+    borderColor: PALETTE.gold.border,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  activePortalTagText: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 12,
+    color: PALETTE.gold.base,
+    letterSpacing: 0.8,
   },
   categoryScroll: {
     gap: 8,
     paddingRight: 12,
   },
   categoryPill: {
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 20,
+    paddingHorizontal: 13,
+    paddingVertical: 6,
+    borderRadius: 18,
     backgroundColor: 'rgba(5, 4, 10, 0.65)',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.15)',
@@ -483,7 +532,7 @@ const styles = StyleSheet.create({
   },
   categoryPillText: {
     fontFamily: FONTS.sansMedium,
-    fontSize: 12,
+    fontSize: 11.5,
     color: '#D1CDDA',
   },
   categoryPillTextSelected: {
@@ -495,8 +544,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
     paddingHorizontal: 10,
-    paddingVertical: 7,
-    borderRadius: 18,
+    paddingVertical: 6,
+    borderRadius: 16,
     backgroundColor: 'rgba(5, 4, 10, 0.7)',
     borderWidth: 1,
     borderColor: PALETTE.gold.border,
@@ -508,7 +557,7 @@ const styles = StyleSheet.create({
   },
   toastNotice: {
     position: 'absolute',
-    top: 90,
+    top: 96,
     alignSelf: 'center',
     zIndex: 25,
     flexDirection: 'row',
@@ -596,17 +645,20 @@ const styles = StyleSheet.create({
     marginTop: 6,
     textTransform: 'uppercase',
   },
-  bottomControlsBar: {
+  bottomControlsContainer: {
     position: 'absolute',
     bottom: Platform.OS === 'ios' ? 70 : 40,
     left: 20,
     right: 20,
+    gap: 10,
+  },
+  bottomActionsBar: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    paddingVertical: 12,
-    backgroundColor: 'rgba(5, 4, 10, 0.55)',
-    borderRadius: 28,
+    paddingVertical: 10,
+    backgroundColor: 'rgba(5, 4, 10, 0.65)',
+    borderRadius: 26,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.1)',
   },
@@ -615,9 +667,9 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   actionIconCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     backgroundColor: 'rgba(255, 255, 255, 0.12)',
     alignItems: 'center',
     justifyContent: 'center',
@@ -630,16 +682,31 @@ const styles = StyleSheet.create({
     fontSize: 10.5,
     color: '#D1CDDA',
   },
-  verticalNavAssist: {
-    position: 'absolute',
-    right: 12,
-    top: '45%',
-    gap: 16,
+  prevNextRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 6,
   },
-  navAssistBtn: {
-    padding: 6,
-    borderRadius: 16,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+  prevNextBtn: {
+    backgroundColor: 'rgba(26, 20, 56, 0.8)',
+    borderWidth: 1,
+    borderColor: 'rgba(245, 208, 97, 0.25)',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 18,
+  },
+  prevNextBtnDisabled: {
+    opacity: 0.35,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  prevNextBtnText: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 12,
+    color: PALETTE.gold.base,
+    letterSpacing: 0.5,
+  },
+  prevNextBtnTextDisabled: {
+    color: '#9CA3AF',
   },
   favoritesModalContainer: {
     flex: 1,
