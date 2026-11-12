@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Modal,
   View,
@@ -173,6 +173,20 @@ export const PortalOnboardingModal: React.FC<PortalOnboardingModalProps> = ({
     manifestationObstacle: currentProfile.manifestationObstacle || 'Doubt & Overthinking',
     commitmentLevel: currentProfile.commitmentLevel || 'Daily Sacred Devotion',
   });
+
+  useEffect(() => {
+    if (visible) {
+      setStep(1);
+      setFormData({
+        ...currentProfile,
+        voiceTone: currentProfile.voiceTone || 'Sovereign & Empowering',
+        primePortalWindow: currentProfile.primePortalWindow || 'Midday Alignment (11:11 AM)',
+        preferred3DAtmosphere: currentProfile.preferred3DAtmosphere || 'Molten Gold & Obsidian Waves',
+        manifestationObstacle: currentProfile.manifestationObstacle || 'Doubt & Overthinking',
+        commitmentLevel: currentProfile.commitmentLevel || 'Daily Sacred Devotion',
+      });
+    }
+  }, [visible, currentProfile]);
 
   const triggerHaptic = () => {
     if (Platform.OS !== 'web') {

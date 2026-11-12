@@ -72,7 +72,7 @@ export default function RootLayout() {
     return unsubscribe;
   }, []);
 
-  if (!fontsLoaded && !fontError) {
+  if ((!fontsLoaded && !fontError) || portalProfile === null) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="small" color={PALETTE.gold.base} />
@@ -120,6 +120,7 @@ export default function RootLayout() {
                   phoneNumber: cred.phoneNumber,
                   authMethod: cred.authMethod,
                   name: cred.name || portalProfile.name || 'Harsha',
+                  ...(cred.isNewUser ? { onboardingCompleted: false } : {}),
                 });
                 setPortalProfile(updated);
               }}

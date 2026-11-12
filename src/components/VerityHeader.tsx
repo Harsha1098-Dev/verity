@@ -12,7 +12,7 @@ interface VerityHeaderProps {
 }
 
 export const VerityHeader: React.FC<VerityHeaderProps> = ({
-  title = 'VERITY',
+  title = 'PORTAL 11:11',
   subtitle,
   streakDays,
   showLogo = true,
@@ -26,8 +26,8 @@ export const VerityHeader: React.FC<VerityHeaderProps> = ({
             source={require('../../assets/images/verity_logo.jpg')}
             style={styles.logo}
             resizeMode="cover"
-            alt="Verity Logo"
-            accessibilityLabel="Verity Logo"
+            alt="Portal 11:11 Logo"
+            accessibilityLabel="Portal 11:11 Logo"
           />
         )}
         <View style={styles.textContainer}>
@@ -35,7 +35,7 @@ export const VerityHeader: React.FC<VerityHeaderProps> = ({
           {subtitle ? (
             <Text style={styles.subtitle}>{subtitle}</Text>
           ) : (
-            <Text style={styles.tagline}>MIND & INTENTION</Text>
+            <Text style={styles.tagline}>MANIFESTATION ENGINE</Text>
           )}
         </View>
       </View>
