@@ -22,7 +22,6 @@ import {
   X,
   Zap,
   Layers,
-  Eye,
   Check,
   Shuffle,
 } from 'lucide-react-native';
@@ -351,11 +350,6 @@ export default function AffirmationsScreen() {
             item.backgroundTheme?.accentGlow ||
             'rgba(245, 208, 97, 0.45)';
 
-          const atmosphereName =
-            activeScene?.name ||
-            item.backgroundTheme?.atmosphereName ||
-            'Cosmic Portal';
-
           return (
             <View style={[styles.reelPage, { height: windowHeight }]}>
               {/* Dynamic Photorealistic AI 3D Scene Background */}
@@ -433,18 +427,6 @@ export default function AffirmationsScreen() {
                 <Text style={styles.affirmationNoteText}>
                   {item.authorNote}
                 </Text>
-
-                {/* Interactive 3D Scene Cycle Bar on Card */}
-                <Pressable
-                  onPress={() => handleCycleSceneForCard(item.id)}
-                  style={styles.sceneCycleButton}
-                  hitSlop={8}
-                >
-                  <Eye size={12} color={PALETTE.gold.base} />
-                  <Text style={styles.sceneCycleText}>
-                    {atmosphereName} • Tap to Rotate 3D Scene
-                  </Text>
-                </Pressable>
               </View>
 
               {/* Bottom Actions Floating Bar */}
