@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Modal,
   View,
@@ -10,6 +10,7 @@ import {
   Platform,
   ScrollView,
   KeyboardAvoidingView,
+  ActivityIndicator,
 } from 'react-native';
 import {
   Sparkles,
@@ -17,16 +18,23 @@ import {
   Phone,
   ArrowRight,
   X,
-  KeyRound,
   ShieldCheck,
   Eye,
   EyeOff,
   User,
   Zap,
+  RotateCcw,
+  CheckCircle2,
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { PALETTE, FONTS } from '@/constants/theme';
 import { signInWithPhone } from '@/utils/portalStore';
+import {
+  validateIndianMobileNumber,
+  sendPhoneOTP,
+  resendPhoneOTP,
+  verifyPhoneOTP,
+} from '@/services/phoneAuthService';
 
 interface WelcomeAuthModalProps {
   visible: boolean;
@@ -37,16 +45,9 @@ interface WelcomeAuthModalProps {
     authMethod: 'password' | 'otp';
     name?: string;
     isNewUser?: boolean;
+    redirectUrl?: string;
   }) => void;
 }
-
-const COUNTRY_CODES = [
-  { code: '+1', flag: '🇺🇸', label: 'US/CA' },
-  { code: '+91', flag: '🇮🇳', label: 'IN' },
-  { code: '+44', flag: '🇬🇧', label: 'UK' },
-  { code: '+61', flag: '🇦🇺', label: 'AU' },
-  { code: '+971', flag: '🇦🇪', label: 'UAE' },
-];
 
 export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
   visible,
@@ -54,31 +55,34 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
   onClose,
   onSuccess,
 }) => {
-  // Mode: Default to 'signin', or toggle to 'signup'
+  // Mode: Default to 'signin', toggle to 'signup'
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
-  // Signin method: 'password' vs 'otp'
-  const [loginMethod, setLoginMethod] = useState<'password' | 'otp'>('otp');
+  // Login method: 'otp' vs 'password'
+  const [loginMethod, setLoginMethod] = useState<'otp' | 'password'>('otp');
 
-  // Form states
-  const [countryCode, setCountryCode] = useState('+1');
-  const [phoneNumber, setPhoneNumber] = useState('');
+  // Phone number (Indian 10-digit)
+  const [phoneDigits, setPhoneDigits] = useState('');
+  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [name, setName] = useState('');
 
-  // OTP state
-  const [otpCode, setOtpCode] = useState('');
+  // OTP flow state
   const [otpSent, setOtpSent] = useState(false);
-  const [otpCountdown, setOtpCountdown] = useState(0);
-  const [generatedOtp, setGeneratedOtp] = useState('111111');
+  const [otpArray, setOtpArray] = useState<string[]>(['', '', '', '', '', '']);
+  const [otpCountdown, setOtpCountdown] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successNotice, setSuccessNotice] = useState<string | null>(null);
 
-  // OTP countdown timer
+  // 6-box OTP input refs
+  const otpInputRefs = useRef<any[]>([]);
+
+  // 30-Second Resend Countdown Timer
   useEffect(() => {
     let timer: any;
     if (otpCountdown > 0) {
       timer = setInterval(() => {
-        setOtpCountdown((prev) => prev - 1);
+        setOtpCountdown((prev) => (prev > 0 ? prev - 1 : 0));
       }, 1000);
     }
     return () => clearInterval(timer);
@@ -100,25 +104,162 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
     }
   };
 
-  const handleSendOtp = () => {
-    if (!phoneNumber || phoneNumber.trim().length < 6) {
-      setErrorMessage('Please enter a valid phone number');
+  // Format 10 digits as user types: "98765 43210"
+  const handlePhoneChange = (text: string) => {
+    const cleaned = text.replace(/\D/g, '').slice(0, 10);
+    setPhoneDigits(cleaned);
+    if (errorMessage) setErrorMessage(null);
+  };
+
+  const formattedDisplayPhone =
+    phoneDigits.length > 5
+      ? `${phoneDigits.slice(0, 5)} ${phoneDigits.slice(5)}`
+      : phoneDigits;
+
+  // Send OTP handler
+  const handleSendOtp = async () => {
+    const validation = validateIndianMobileNumber(phoneDigits);
+    if (!validation.isValid) {
+      setErrorMessage(validation.error || 'Please enter a valid 10-digit Indian mobile number');
       triggerHaptic('error');
       return;
     }
+
     setErrorMessage(null);
+    setIsLoading(true);
     triggerHaptic('medium');
 
-    // Generate 6-digit sacred OTP
-    const code = '111111'; // Sacred portal code
-    setGeneratedOtp(code);
-    setOtpSent(true);
-    setOtpCountdown(30);
+    const result = await sendPhoneOTP(phoneDigits);
+    setIsLoading(false);
+
+    if (result.success) {
+      setOtpSent(true);
+      setOtpCountdown(result.cooldownSeconds || 30);
+      setSuccessNotice(`Sacred OTP sent to +91 ${validation.cleaned10Digit.slice(0, 5)} ${validation.cleaned10Digit.slice(5)}`);
+      triggerHaptic('success');
+      // Focus first OTP box
+      setTimeout(() => {
+        otpInputRefs.current[0]?.focus();
+      }, 200);
+    } else {
+      setErrorMessage(result.error || 'Failed to send verification code');
+      triggerHaptic('error');
+    }
   };
 
+  // Resend OTP handler (enforces 30s cooldown)
+  const handleResendOtp = async () => {
+    if (otpCountdown > 0) return;
+    setErrorMessage(null);
+    setIsLoading(true);
+    triggerHaptic('medium');
+
+    const result = await resendPhoneOTP(phoneDigits);
+    setIsLoading(false);
+
+    if (result.success) {
+      setOtpCountdown(result.cooldownSeconds || 30);
+      setSuccessNotice('New sacred code dispatched successfully');
+      setOtpArray(['', '', '', '', '', '']);
+      triggerHaptic('success');
+      setTimeout(() => {
+        otpInputRefs.current[0]?.focus();
+      }, 150);
+    } else {
+      setErrorMessage(result.error || 'Please wait before requesting a new OTP');
+      if (result.cooldownSeconds) setOtpCountdown(result.cooldownSeconds);
+      triggerHaptic('error');
+    }
+  };
+
+  // Handle individual OTP digit box changes
+  const handleOtpDigitChange = (value: string, index: number) => {
+    // Handle paste of 6 digits
+    const cleaned = value.replace(/\D/g, '');
+    if (cleaned.length >= 6) {
+      const newArray = cleaned.slice(0, 6).split('');
+      setOtpArray(newArray);
+      otpInputRefs.current[5]?.focus();
+      triggerHaptic('light');
+      handleVerifyCode(newArray.join(''));
+      return;
+    }
+
+    const digit = cleaned.slice(-1);
+    const updated = [...otpArray];
+    updated[index] = digit;
+    setOtpArray(updated);
+
+    if (digit && index < 5) {
+      otpInputRefs.current[index + 1]?.focus();
+    }
+
+    // Auto submit if all 6 boxes filled
+    if (digit && index === 5) {
+      const fullCode = updated.join('');
+      if (fullCode.length === 6) {
+        handleVerifyCode(fullCode);
+      }
+    }
+  };
+
+  // Backspace key handling in OTP boxes
+  const handleOtpKeyPress = (e: any, index: number) => {
+    if (e.nativeEvent.key === 'Backspace' && !otpArray[index] && index > 0) {
+      otpInputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  // Verify OTP submission
+  const handleVerifyCode = async (codeToVerify?: string) => {
+    const code = codeToVerify || otpArray.join('');
+    if (code.length !== 6) {
+      setErrorMessage('Please enter all 6 digits of the verification code');
+      triggerHaptic('error');
+      return;
+    }
+
+    setErrorMessage(null);
+    setIsLoading(true);
+    triggerHaptic('medium');
+
+    const result = await verifyPhoneOTP(
+      phoneDigits,
+      code,
+      name.trim() || undefined
+    );
+    setIsLoading(false);
+
+    if (result.success && result.user) {
+      triggerHaptic('success');
+      const fullPhone = result.user.displayNumber || `+91 ${phoneDigits}`;
+
+      // Update local profile state
+      await signInWithPhone(
+        fullPhone,
+        'otp',
+        result.user.displayName || name || 'Harsha'
+      );
+
+      // Trigger root gate navigation (Dashboard / Onboarding)
+      onSuccess({
+        phoneNumber: fullPhone,
+        authMethod: 'otp',
+        name: result.user.displayName,
+        isNewUser: result.isNewUser ?? false,
+        redirectUrl: result.redirectUrl,
+      });
+    } else {
+      setErrorMessage(result.error || 'Invalid verification code. Please check and retry.');
+      triggerHaptic('error');
+    }
+  };
+
+  // Sign In with Password handler
   const handleSignInWithPassword = async () => {
-    if (!phoneNumber || phoneNumber.trim().length < 6) {
-      setErrorMessage('Please enter your registered phone number');
+    const validation = validateIndianMobileNumber(phoneDigits);
+    if (!validation.isValid) {
+      setErrorMessage(validation.error || 'Please enter a valid 10-digit Indian phone number');
       triggerHaptic('error');
       return;
     }
@@ -127,92 +268,57 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
       triggerHaptic('error');
       return;
     }
+
     setErrorMessage(null);
+    setIsLoading(true);
     triggerHaptic('success');
 
-    const fullPhone = `${countryCode} ${phoneNumber.trim()}`;
-    await signInWithPhone(fullPhone, 'password');
+    const fullPhone = validation.displayFormatted;
+    await signInWithPhone(fullPhone, 'password', name.trim() || 'Harsha');
+    setIsLoading(false);
+
     onSuccess({
       phoneNumber: fullPhone,
       authMethod: 'password',
       isNewUser: false,
+      redirectUrl: '/home',
     });
   };
 
-  const handleSignInWithOtp = async () => {
-    if (!phoneNumber || phoneNumber.trim().length < 6) {
-      setErrorMessage('Please enter your phone number');
-      triggerHaptic('error');
-      return;
-    }
-    if (!otpSent) {
-      handleSendOtp();
-      return;
-    }
-    if (otpCode.trim() !== generatedOtp && otpCode.trim() !== '111111' && otpCode.trim() !== '123456') {
-      setErrorMessage(`Invalid sacred code. Use ${generatedOtp} or tap Resend.`);
-      triggerHaptic('error');
-      return;
-    }
-    setErrorMessage(null);
-    triggerHaptic('success');
-
-    const fullPhone = `${countryCode} ${phoneNumber.trim()}`;
-    await signInWithPhone(fullPhone, 'otp');
-    onSuccess({
-      phoneNumber: fullPhone,
-      authMethod: 'otp',
-      isNewUser: false,
-    });
-  };
-
-  const handleSignUp = async () => {
+  // Sign Up with Password + OTP flow
+  const handleSignUpStart = async () => {
     if (!name || name.trim().length < 2) {
-      setErrorMessage('Please enter your name');
+      setErrorMessage('Please enter your sacred name');
       triggerHaptic('error');
       return;
     }
-    if (!phoneNumber || phoneNumber.trim().length < 6) {
-      setErrorMessage('Please enter a valid phone number');
+    const validation = validateIndianMobileNumber(phoneDigits);
+    if (!validation.isValid) {
+      setErrorMessage(validation.error || 'Please enter a valid 10-digit Indian phone number');
       triggerHaptic('error');
       return;
     }
     if (!password || password.length < 4) {
-      setErrorMessage('Please create a password (at least 4 characters)');
+      setErrorMessage('Please create a password with at least 4 characters');
       triggerHaptic('error');
       return;
     }
-    if (!otpSent) {
-      handleSendOtp();
-      return;
-    }
-    if (otpCode.trim() !== generatedOtp && otpCode.trim() !== '111111' && otpCode.trim() !== '123456') {
-      setErrorMessage(`Invalid verification code. Use ${generatedOtp}.`);
-      triggerHaptic('error');
-      return;
-    }
-    setErrorMessage(null);
-    triggerHaptic('success');
 
-    const fullPhone = `${countryCode} ${phoneNumber.trim()}`;
-    await signInWithPhone(fullPhone, 'otp', name.trim());
-    onSuccess({
-      phoneNumber: fullPhone,
-      authMethod: 'otp',
-      name: name.trim(),
-      isNewUser: true,
-    });
+    // Trigger OTP for verification
+    await handleSendOtp();
   };
 
+  // Quick Demo Bypass
   const handleQuickDemoBypass = async () => {
     triggerHaptic('success');
-    const demoPhone = '+1 555-019-1111';
+    const demoPhone = '+91 98765 43210';
     await signInWithPhone(demoPhone, 'otp', 'Harsha');
     onSuccess({
       phoneNumber: demoPhone,
       authMethod: 'otp',
       name: 'Harsha',
       isNewUser: false,
+      redirectUrl: '/home',
     });
   };
 
@@ -221,7 +327,7 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
       visible={visible}
       animationType="fade"
       transparent
-      onRequestClose={dismissible ? onClose : () => {}}
+      onRequestClose={dismissible && onClose ? onClose : () => {}}
     >
       <View style={styles.overlay}>
         <KeyboardAvoidingView
@@ -239,8 +345,9 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
             <ScrollView
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.scrollInside}
+              keyboardShouldPersistTaps="handled"
             >
-              {/* Brand Logo & Cosmic Emblem */}
+              {/* Brand Logo & Glowing Halo */}
               <View style={styles.logoRing}>
                 <Image
                   source={require('../../assets/images/verity_logo.jpg')}
@@ -250,115 +357,154 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
               </View>
 
               <Text style={styles.appTitle}>PORTAL 11:11</Text>
-              <Text style={styles.appSub}>AI-POWERED MANIFESTATION ENGINE</Text>
+              <Text style={styles.appSub}>FIREBASE MOBILE OTP AUTHENTICATION</Text>
 
               {/* Header Mode Title */}
               <Text style={styles.authModeTitle}>
-                {mode === 'signin' ? 'Sign In to Your Reality' : 'Create Sacred Account'}
+                {otpSent
+                  ? 'Verify Sacred Code'
+                  : mode === 'signin'
+                  ? 'Sign In to Your Reality'
+                  : 'Create Sacred Account'}
               </Text>
               <Text style={styles.authModeSub}>
-                {mode === 'signin'
-                  ? 'Access your personalized affirmations and sacred portal synchronicity.'
-                  : 'Step through the threshold into sovereign abundance and self-belief.'}
+                {otpSent
+                  ? `Enter the 6-digit OTP delivered to +91 ${formattedDisplayPhone}`
+                  : mode === 'signin'
+                  ? 'Enter your Indian mobile number to access your portal affirmations.'
+                  : 'Register with your Indian mobile number for personalized manifestation synchronicity.'}
               </Text>
 
-              {/* Error Banner */}
+              {/* Error Notice */}
               {errorMessage && (
                 <View style={styles.errorBox}>
                   <Text style={styles.errorText}>{errorMessage}</Text>
                 </View>
               )}
 
+              {/* Success Notice */}
+              {successNotice && !errorMessage && (
+                <View style={styles.successBox}>
+                  <CheckCircle2 size={13} color="#059669" />
+                  <Text style={styles.successText}>{successNotice}</Text>
+                </View>
+              )}
+
               {/* ========================================================
-                  MODE: SIGN IN
+                  STEP A: ENTER INDIAN PHONE NUMBER & CHOOSE METHOD
                  ======================================================== */}
-              {mode === 'signin' && (
+              {!otpSent && (
                 <View style={styles.formContainer}>
-                  {/* Toggle: Login via OTP vs Password */}
-                  <View style={styles.methodToggleRow}>
-                    <Pressable
-                      onPress={() => {
-                        triggerHaptic('light');
-                        setLoginMethod('otp');
-                        setErrorMessage(null);
-                      }}
-                      style={[
-                        styles.methodToggleBtn,
-                        loginMethod === 'otp' && styles.methodToggleBtnActive,
-                      ]}
-                    >
-                      <Zap
-                        size={14}
-                        color={loginMethod === 'otp' ? PALETTE.bronze.base : PALETTE.ink.muted}
-                      />
-                      <Text
+                  {/* Method Toggle: OTP vs Password */}
+                  {mode === 'signin' && (
+                    <View style={styles.methodToggleRow}>
+                      <Pressable
+                        onPress={() => {
+                          triggerHaptic('light');
+                          setLoginMethod('otp');
+                          setErrorMessage(null);
+                        }}
                         style={[
-                          styles.methodToggleText,
-                          loginMethod === 'otp' && styles.methodToggleTextActive,
+                          styles.methodToggleBtn,
+                          loginMethod === 'otp' && styles.methodToggleBtnActive,
                         ]}
                       >
-                        Login via OTP
-                      </Text>
-                    </Pressable>
+                        <Zap
+                          size={14}
+                          color={loginMethod === 'otp' ? PALETTE.bronze.base : PALETTE.ink.muted}
+                        />
+                        <Text
+                          style={[
+                            styles.methodToggleText,
+                            loginMethod === 'otp' && styles.methodToggleTextActive,
+                          ]}
+                        >
+                          Login via OTP
+                        </Text>
+                      </Pressable>
 
-                    <Pressable
-                      onPress={() => {
-                        triggerHaptic('light');
-                        setLoginMethod('password');
-                        setErrorMessage(null);
-                      }}
-                      style={[
-                        styles.methodToggleBtn,
-                        loginMethod === 'password' && styles.methodToggleBtnActive,
-                      ]}
-                    >
-                      <Lock
-                        size={14}
-                        color={loginMethod === 'password' ? PALETTE.bronze.base : PALETTE.ink.muted}
-                      />
-                      <Text
+                      <Pressable
+                        onPress={() => {
+                          triggerHaptic('light');
+                          setLoginMethod('password');
+                          setErrorMessage(null);
+                        }}
                         style={[
-                          styles.methodToggleText,
-                          loginMethod === 'password' && styles.methodToggleTextActive,
+                          styles.methodToggleBtn,
+                          loginMethod === 'password' && styles.methodToggleBtnActive,
                         ]}
                       >
-                        Login via Password
-                      </Text>
-                    </Pressable>
-                  </View>
-
-                  {/* Phone Number Input with Country Code */}
-                  <View style={styles.inputLabelRow}>
-                    <Text style={styles.inputLabel}>Mobile Phone Number</Text>
-                  </View>
-                  <View style={styles.phoneInputRow}>
-                    {/* Country Code Picker Pill */}
-                    <View style={styles.countryCodeBadge}>
-                      <Text style={styles.countryCodeText}>{countryCode}</Text>
+                        <Lock
+                          size={14}
+                          color={loginMethod === 'password' ? PALETTE.bronze.base : PALETTE.ink.muted}
+                        />
+                        <Text
+                          style={[
+                            styles.methodToggleText,
+                            loginMethod === 'password' && styles.methodToggleTextActive,
+                          ]}
+                        >
+                          Login via Password
+                        </Text>
+                      </Pressable>
                     </View>
-                    <View style={styles.phoneFieldWrapper}>
-                      <Phone size={16} color={PALETTE.bronze.base} />
-                      <TextInput
-                        value={phoneNumber}
-                        onChangeText={setPhoneNumber}
-                        placeholder="Enter mobile number"
-                        placeholderTextColor={PALETTE.ink.muted}
-                        keyboardType="phone-pad"
-                        style={styles.textInput}
-                      />
-                    </View>
-                  </View>
+                  )}
 
-                  {/* Password Input (if loginMethod === 'password') */}
-                  {loginMethod === 'password' && (
+                  {/* Name Input (Sign Up mode) */}
+                  {mode === 'signup' && (
                     <View style={styles.fieldSection}>
-                      <Text style={styles.inputLabel}>Portal Password</Text>
+                      <Text style={styles.inputLabel}>Your Sacred Name</Text>
+                      <View style={styles.inputWrapper}>
+                        <User size={16} color={PALETTE.bronze.base} />
+                        <TextInput
+                          value={name}
+                          onChangeText={setName}
+                          placeholder="e.g. Harsha Vardhan"
+                          placeholderTextColor={PALETTE.ink.muted}
+                          style={styles.textInput}
+                        />
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Indian Mobile Number Input */}
+                  <View style={styles.fieldSection}>
+                    <Text style={styles.inputLabel}>Indian Mobile Number</Text>
+                    <View style={styles.phoneInputRow}>
+                      {/* Flag & Country Code Badge */}
+                      <View style={styles.countryCodeBadge}>
+                        <Text style={styles.countryFlagText}>🇮🇳</Text>
+                        <Text style={styles.countryCodeText}>+91</Text>
+                      </View>
+
+                      {/* 10-digit number input */}
+                      <View style={styles.phoneFieldWrapper}>
+                        <Phone size={16} color={PALETTE.bronze.base} />
+                        <TextInput
+                          value={formattedDisplayPhone}
+                          onChangeText={handlePhoneChange}
+                          placeholder="98765 43210"
+                          placeholderTextColor={PALETTE.ink.muted}
+                          keyboardType="phone-pad"
+                          maxLength={11} // 10 digits + 1 space
+                          style={styles.textInput}
+                        />
+                      </View>
+                    </View>
+                  </View>
+
+                  {/* Password Input (if Password method or Sign Up) */}
+                  {(loginMethod === 'password' || mode === 'signup') && (
+                    <View style={styles.fieldSection}>
+                      <Text style={styles.inputLabel}>
+                        {mode === 'signup' ? 'Create Portal Password' : 'Password'}
+                      </Text>
                       <View style={styles.inputWrapper}>
                         <Lock size={16} color={PALETTE.bronze.base} />
                         <TextInput
                           value={password}
                           onChangeText={setPassword}
-                          placeholder="Enter your password"
+                          placeholder="At least 4 characters"
                           placeholderTextColor={PALETTE.ink.muted}
                           secureTextEntry={!showPassword}
                           style={styles.textInput}
@@ -374,224 +520,156 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
                           )}
                         </Pressable>
                       </View>
+                    </View>
+                  )}
 
-                      <Pressable
-                        onPress={handleSignInWithPassword}
-                        style={styles.primaryActionBtn}
-                      >
-                        <Text style={styles.primaryActionBtnText}>Sign In to Portal</Text>
+                  {/* Primary Action Button */}
+                  <Pressable
+                    onPress={
+                      mode === 'signup'
+                        ? handleSignUpStart
+                        : loginMethod === 'otp'
+                        ? handleSendOtp
+                        : handleSignInWithPassword
+                    }
+                    disabled={isLoading}
+                    style={[styles.primaryActionBtn, isLoading && styles.btnDisabled]}
+                  >
+                    {isLoading ? (
+                      <ActivityIndicator size="small" color="#FFFFFF" />
+                    ) : (
+                      <>
+                        <Zap size={16} color="#FFFFFF" />
+                        <Text style={styles.primaryActionBtnText}>
+                          {mode === 'signup'
+                            ? 'Send Verification OTP'
+                            : loginMethod === 'otp'
+                            ? 'Send Sacred OTP'
+                            : 'Sign In to Portal'}
+                        </Text>
                         <ArrowRight size={16} color="#FFFFFF" />
-                      </Pressable>
-                    </View>
-                  )}
+                      </>
+                    )}
+                  </Pressable>
 
-                  {/* OTP Input & Flow (if loginMethod === 'otp') */}
-                  {loginMethod === 'otp' && (
-                    <View style={styles.fieldSection}>
-                      {!otpSent ? (
-                        <Pressable
-                          onPress={handleSendOtp}
-                          style={styles.primaryActionBtn}
-                        >
-                          <Zap size={16} color="#FFFFFF" />
-                          <Text style={styles.primaryActionBtnText}>Send Sacred OTP</Text>
-                        </Pressable>
-                      ) : (
-                        <View style={styles.otpActiveSection}>
-                          <View style={styles.otpSentBanner}>
-                            <ShieldCheck size={14} color={PALETTE.bronze.base} />
-                            <Text style={styles.otpSentBannerText}>
-                              Sacred code sent to {countryCode} {phoneNumber} (Dev code: <Text style={{ fontFamily: FONTS.sansBold }}>111111</Text>)
-                            </Text>
-                          </View>
-
-                          <Text style={styles.inputLabel}>Enter 6-Digit OTP</Text>
-                          <View style={styles.inputWrapper}>
-                            <KeyRound size={16} color={PALETTE.bronze.base} />
-                            <TextInput
-                              value={otpCode}
-                              onChangeText={setOtpCode}
-                              placeholder="111111"
-                              placeholderTextColor={PALETTE.ink.muted}
-                              keyboardType="number-pad"
-                              maxLength={6}
-                              style={[styles.textInput, styles.otpTextInput]}
-                            />
-                          </View>
-
-                          <Pressable
-                            onPress={handleSignInWithOtp}
-                            style={styles.primaryActionBtn}
-                          >
-                            <Text style={styles.primaryActionBtnText}>Verify OTP & Enter</Text>
-                            <ArrowRight size={16} color="#FFFFFF" />
-                          </Pressable>
-
-                          <View style={styles.resendRow}>
-                            {otpCountdown > 0 ? (
-                              <Text style={styles.resendTimerText}>
-                                Resend code in {otpCountdown}s
-                              </Text>
-                            ) : (
-                              <Pressable onPress={handleSendOtp}>
-                                <Text style={styles.resendBtnText}>Resend Sacred Code</Text>
-                              </Pressable>
-                            )}
-                          </View>
-                        </View>
-                      )}
-                    </View>
-                  )}
-
-                  {/* Divider & Switch to Sign Up */}
+                  {/* Switch between Sign In and Sign Up */}
                   <View style={styles.switchAuthRow}>
-                    <Text style={styles.switchAuthLabel}>Don't have an account?</Text>
+                    <Text style={styles.switchAuthLabel}>
+                      {mode === 'signin' ? "Don't have an account?" : 'Already registered?'}
+                    </Text>
                     <Pressable
                       onPress={() => {
                         triggerHaptic('light');
-                        setMode('signup');
-                        setOtpSent(false);
+                        setMode(mode === 'signin' ? 'signup' : 'signin');
                         setErrorMessage(null);
+                        setSuccessNotice(null);
                       }}
                       hitSlop={8}
                     >
-                      <Text style={styles.switchAuthAction}>Sign Up</Text>
+                      <Text style={styles.switchAuthAction}>
+                        {mode === 'signin' ? 'Sign Up' : 'Sign In'}
+                      </Text>
                     </Pressable>
                   </View>
                 </View>
               )}
 
               {/* ========================================================
-                  MODE: SIGN UP
+                  STEP B: 6-BOX OTP VERIFICATION & 30S RESEND
                  ======================================================== */}
-              {mode === 'signup' && (
-                <View style={styles.formContainer}>
-                  {/* Name Input */}
-                  <Text style={styles.inputLabel}>Your Sacred Name</Text>
-                  <View style={styles.inputWrapper}>
-                    <User size={16} color={PALETTE.bronze.base} />
-                    <TextInput
-                      value={name}
-                      onChangeText={setName}
-                      placeholder="Enter your name"
-                      placeholderTextColor={PALETTE.ink.muted}
-                      style={styles.textInput}
-                    />
-                  </View>
-
-                  {/* Phone Number Input */}
-                  <Text style={styles.inputLabel}>Mobile Phone Number</Text>
-                  <View style={styles.phoneInputRow}>
-                    <View style={styles.countryCodeBadge}>
-                      <Text style={styles.countryCodeText}>{countryCode}</Text>
-                    </View>
-                    <View style={styles.phoneFieldWrapper}>
-                      <Phone size={16} color={PALETTE.bronze.base} />
-                      <TextInput
-                        value={phoneNumber}
-                        onChangeText={setPhoneNumber}
-                        placeholder="Enter mobile number"
-                        placeholderTextColor={PALETTE.ink.muted}
-                        keyboardType="phone-pad"
-                        style={styles.textInput}
-                      />
-                    </View>
-                  </View>
-
-                  {/* Password Input */}
-                  <Text style={styles.inputLabel}>Create Password</Text>
-                  <View style={styles.inputWrapper}>
-                    <Lock size={16} color={PALETTE.bronze.base} />
-                    <TextInput
-                      value={password}
-                      onChangeText={setPassword}
-                      placeholder="At least 4 characters"
-                      placeholderTextColor={PALETTE.ink.muted}
-                      secureTextEntry={!showPassword}
-                      style={styles.textInput}
-                    />
-                    <Pressable
-                      onPress={() => setShowPassword(!showPassword)}
-                      style={{ padding: 4 }}
-                    >
-                      {showPassword ? (
-                        <EyeOff size={16} color={PALETTE.ink.muted} />
-                      ) : (
-                        <Eye size={16} color={PALETTE.ink.muted} />
-                      )}
-                    </Pressable>
-                  </View>
-
-                  {/* OTP Verification for Sign Up */}
-                  {!otpSent ? (
-                    <Pressable
-                      onPress={handleSendOtp}
-                      style={styles.primaryActionBtn}
-                    >
-                      <Zap size={16} color="#FFFFFF" />
-                      <Text style={styles.primaryActionBtnText}>Send Verification OTP</Text>
-                    </Pressable>
-                  ) : (
-                    <View style={styles.otpActiveSection}>
-                      <View style={styles.otpSentBanner}>
-                        <ShieldCheck size={14} color={PALETTE.bronze.base} />
-                        <Text style={styles.otpSentBannerText}>
-                          Verification code sent to {countryCode} {phoneNumber} (Dev code: <Text style={{ fontFamily: FONTS.sansBold }}>111111</Text>)
-                        </Text>
-                      </View>
-
-                      <Text style={styles.inputLabel}>Enter 6-Digit Verification Code</Text>
-                      <View style={styles.inputWrapper}>
-                        <KeyRound size={16} color={PALETTE.bronze.base} />
-                        <TextInput
-                          value={otpCode}
-                          onChangeText={setOtpCode}
-                          placeholder="111111"
-                          placeholderTextColor={PALETTE.ink.muted}
-                          keyboardType="number-pad"
-                          maxLength={6}
-                          style={[styles.textInput, styles.otpTextInput]}
-                        />
-                      </View>
-
-                      <Pressable
-                        onPress={handleSignUp}
-                        style={styles.primaryActionBtn}
-                      >
-                        <Text style={styles.primaryActionBtnText}>
-                          Create Account & Begin
-                        </Text>
-                        <ArrowRight size={16} color="#FFFFFF" />
-                      </Pressable>
-                    </View>
-                  )}
-
-                  {/* Switch to Sign In */}
-                  <View style={styles.switchAuthRow}>
-                    <Text style={styles.switchAuthLabel}>Already have an account?</Text>
+              {otpSent && (
+                <View style={styles.otpVerifyContainer}>
+                  {/* Phone Pill Header */}
+                  <View style={styles.verifyPhonePill}>
+                    <ShieldCheck size={14} color={PALETTE.bronze.base} />
+                    <Text style={styles.verifyPhoneText}>
+                      Sent to +91 {formattedDisplayPhone}
+                    </Text>
                     <Pressable
                       onPress={() => {
                         triggerHaptic('light');
-                        setMode('signin');
                         setOtpSent(false);
-                        setErrorMessage(null);
+                        setOtpArray(['', '', '', '', '', '']);
                       }}
-                      hitSlop={8}
+                      hitSlop={6}
                     >
-                      <Text style={styles.switchAuthAction}>Sign In</Text>
+                      <Text style={styles.editPhoneLink}>Change</Text>
                     </Pressable>
+                  </View>
+
+                  {/* 6 Individual OTP Digit Input Boxes */}
+                  <Text style={styles.inputLabelCenter}>Enter 6-Digit Sacred OTP</Text>
+                  <View style={styles.otpBoxesRow}>
+                    {otpArray.map((digit, index) => (
+                      <TextInput
+                        key={index}
+                        ref={(ref) => {
+                          otpInputRefs.current[index] = ref;
+                        }}
+                        value={digit}
+                        onChangeText={(val) => handleOtpDigitChange(val, index)}
+                        onKeyPress={(e) => handleOtpKeyPress(e, index)}
+                        keyboardType="number-pad"
+                        maxLength={1}
+                        selectTextOnFocus
+                        style={[
+                          styles.otpDigitBox,
+                          digit ? styles.otpDigitBoxFilled : null,
+                        ]}
+                      />
+                    ))}
+                  </View>
+
+                  {/* Verify Code Button */}
+                  <Pressable
+                    onPress={() => handleVerifyCode()}
+                    disabled={isLoading}
+                    style={[styles.primaryActionBtn, isLoading && styles.btnDisabled]}
+                  >
+                    {isLoading ? (
+                      <ActivityIndicator size="small" color="#FFFFFF" />
+                    ) : (
+                      <>
+                        <Text style={styles.primaryActionBtnText}>Verify OTP & Enter</Text>
+                        <ArrowRight size={16} color="#FFFFFF" />
+                      </>
+                    )}
+                  </Pressable>
+
+                  {/* 30-Second Resend Countdown Section */}
+                  <View style={styles.resendSection}>
+                    {otpCountdown > 0 ? (
+                      <View style={styles.resendCountdownRow}>
+                        <RotateCcw size={13} color={PALETTE.ink.muted} />
+                        <Text style={styles.resendCountdownText}>
+                          Resend sacred OTP in{' '}
+                          <Text style={{ fontFamily: FONTS.sansBold, color: PALETTE.bronze.base }}>
+                            {otpCountdown}s
+                          </Text>
+                        </Text>
+                      </View>
+                    ) : (
+                      <Pressable
+                        onPress={handleResendOtp}
+                        disabled={isLoading}
+                        style={styles.resendActiveBtn}
+                      >
+                        <RotateCcw size={14} color={PALETTE.bronze.base} />
+                        <Text style={styles.resendActiveBtnText}>Resend Sacred Code</Text>
+                      </Pressable>
+                    )}
                   </View>
                 </View>
               )}
 
-              {/* Quick Evaluation / One-Tap Access for User */}
+              {/* Quick Evaluation / Demo Bypass Button */}
               <Pressable
                 onPress={handleQuickDemoBypass}
                 style={styles.quickDemoLink}
                 hitSlop={6}
               >
                 <Sparkles size={13} color={PALETTE.bronze.base} />
-                <Text style={styles.quickDemoText}>Quick Test: Sign In as Harsha</Text>
+                <Text style={styles.quickDemoText}>🧪 Quick Demo: Instant Login (+91 98765 43210)</Text>
               </Pressable>
             </ScrollView>
           </View>
@@ -604,7 +682,7 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(26, 22, 20, 0.7)',
+    backgroundColor: 'rgba(26, 22, 20, 0.72)',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 16,
@@ -675,7 +753,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.serifBold,
     fontSize: 18,
     color: PALETTE.ink.charcoal,
-    marginTop: 18,
+    marginTop: 16,
     textAlign: 'center',
   },
   authModeSub: {
@@ -703,6 +781,25 @@ const styles = StyleSheet.create({
     fontSize: 11.5,
     color: '#DC2626',
     textAlign: 'center',
+  },
+  successBox: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: '#ECFDF5',
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    marginBottom: 14,
+  },
+  successText: {
+    fontFamily: FONTS.sansMedium,
+    fontSize: 11.5,
+    color: '#059669',
   },
   formContainer: {
     width: '100%',
@@ -743,32 +840,42 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.sansBold,
     color: PALETTE.ink.charcoal,
   },
-  inputLabelRow: {
-    marginTop: 4,
+  fieldSection: {
+    gap: 6,
   },
   inputLabel: {
     fontFamily: FONTS.sansSemiBold,
     fontSize: 11.5,
     color: PALETTE.ink.charcoal,
-    marginBottom: 6,
     letterSpacing: 0.3,
+  },
+  inputLabelCenter: {
+    fontFamily: FONTS.sansSemiBold,
+    fontSize: 12,
+    color: PALETTE.ink.charcoal,
+    textAlign: 'center',
+    marginBottom: 4,
   },
   phoneInputRow: {
     flexDirection: 'row',
     gap: 8,
   },
   countryCodeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     backgroundColor: PALETTE.paper.linen,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: 'rgba(122, 82, 48, 0.16)',
     paddingHorizontal: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
+  },
+  countryFlagText: {
+    fontSize: 16,
   },
   countryCodeText: {
     fontFamily: FONTS.sansBold,
-    fontSize: 13,
+    fontSize: 13.5,
     color: PALETTE.ink.charcoal,
   },
   phoneFieldWrapper: {
@@ -782,10 +889,6 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(122, 82, 48, 0.16)',
     paddingHorizontal: 14,
     paddingVertical: 12,
-  },
-  fieldSection: {
-    gap: 12,
-    marginTop: 4,
   },
   inputWrapper: {
     flexDirection: 'row',
@@ -801,14 +904,9 @@ const styles = StyleSheet.create({
   textInput: {
     flex: 1,
     fontFamily: FONTS.sansMedium,
-    fontSize: 13,
+    fontSize: 13.5,
     color: PALETTE.ink.charcoal,
     padding: 0,
-  },
-  otpTextInput: {
-    letterSpacing: 6,
-    fontSize: 16,
-    fontFamily: FONTS.sansBold,
   },
   primaryActionBtn: {
     flexDirection: 'row',
@@ -818,7 +916,7 @@ const styles = StyleSheet.create({
     backgroundColor: PALETTE.bronze.base,
     borderRadius: 18,
     paddingVertical: 14,
-    marginTop: 4,
+    marginTop: 6,
     shadowColor: '#7A5230',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.18,
@@ -831,47 +929,15 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     letterSpacing: 0.5,
   },
-  otpActiveSection: {
-    gap: 10,
-  },
-  otpSentBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: 'rgba(122, 82, 48, 0.08)',
-    borderWidth: 1,
-    borderColor: 'rgba(122, 82, 48, 0.18)',
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  otpSentBannerText: {
-    fontFamily: FONTS.sansMedium,
-    fontSize: 11,
-    color: PALETTE.ink.charcoal,
-    flex: 1,
-    lineHeight: 16,
-  },
-  resendRow: {
-    alignItems: 'center',
-    paddingVertical: 4,
-  },
-  resendTimerText: {
-    fontFamily: FONTS.sans,
-    fontSize: 11.5,
-    color: PALETTE.ink.muted,
-  },
-  resendBtnText: {
-    fontFamily: FONTS.sansBold,
-    fontSize: 12,
-    color: PALETTE.bronze.base,
+  btnDisabled: {
+    opacity: 0.65,
   },
   switchAuthRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    marginTop: 8,
+    marginTop: 6,
   },
   switchAuthLabel: {
     fontFamily: FONTS.sans,
@@ -884,13 +950,92 @@ const styles = StyleSheet.create({
     color: PALETTE.bronze.base,
     textDecorationLine: 'underline',
   },
+  otpVerifyContainer: {
+    width: '100%',
+    gap: 14,
+  },
+  verifyPhonePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(122, 82, 48, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(122, 82, 48, 0.18)',
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+  },
+  verifyPhoneText: {
+    fontFamily: FONTS.sansMedium,
+    fontSize: 12,
+    color: PALETTE.ink.charcoal,
+  },
+  editPhoneLink: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 11.5,
+    color: PALETTE.bronze.base,
+    textDecorationLine: 'underline',
+  },
+  otpBoxesRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 8,
+    marginVertical: 4,
+  },
+  otpDigitBox: {
+    flex: 1,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: PALETTE.paper.linen,
+    borderWidth: 1.5,
+    borderColor: 'rgba(122, 82, 48, 0.18)',
+    textAlign: 'center',
+    fontFamily: FONTS.sansBold,
+    fontSize: 20,
+    color: PALETTE.ink.charcoal,
+  },
+  otpDigitBoxFilled: {
+    borderColor: PALETTE.bronze.base,
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#7A5230',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  resendSection: {
+    alignItems: 'center',
+    paddingVertical: 4,
+  },
+  resendCountdownRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  resendCountdownText: {
+    fontFamily: FONTS.sans,
+    fontSize: 12,
+    color: PALETTE.ink.muted,
+  },
+  resendActiveBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+  },
+  resendActiveBtnText: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 12.5,
+    color: PALETTE.bronze.base,
+  },
   quickDemoLink: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
     marginTop: 18,
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 7,
     borderRadius: 14,
     backgroundColor: 'rgba(122, 82, 48, 0.06)',
   },
