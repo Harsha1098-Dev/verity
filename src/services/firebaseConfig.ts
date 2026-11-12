@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 
 /**
  * Firebase Web Client Configuration
@@ -15,12 +16,25 @@ export const FIREBASE_CLIENT_CONFIG = {
 };
 
 /**
- * Backend Node.js Server Base URL
- * - Web / Android Emulator / Local: http://localhost:5000 or http://10.0.2.2:5000
- * - Physical mobile device over Wi-Fi: http://192.168.50.178:5000
+ * Resolve Backend Node.js Server Base URL
+ * - Web: http://localhost:5000
+ * - Mobile / Expo Go: Auto-detects host machine IP from Expo hostUri or falls back to LAN IP
  */
-export const AUTH_SERVER_BASE_URL =
-  process.env.EXPO_PUBLIC_AUTH_SERVER_URL ||
-  (Platform.OS === 'android'
-    ? 'http://10.0.2.2:5000'
-    : 'http://localhost:5000');
+function resolveBackendUrl(): string {
+  if (process.env.EXPO_PUBLIC_AUTH_SERVER_URL) {
+    return process.env.EXPO_PUBLIC_AUTH_SERVER_URL;
+  }
+  if (Platform.OS === 'web') {
+    return 'http://localhost:5000';
+  }
+  const hostUri = Constants.expoConfig?.hostUri || (Constants as any)?.manifest2?.extra?.expoClient?.hostUri;
+  if (hostUri) {
+    const ip = hostUri.split(':')[0];
+    if (ip) {
+      return `http://${ip}:5000`;
+    }
+  }
+  return 'http://192.168.50.178:5000';
+}
+
+export const AUTH_SERVER_BASE_URL = resolveBackendUrl();
