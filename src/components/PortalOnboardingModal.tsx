@@ -183,14 +183,11 @@ export const PortalOnboardingModal: React.FC<PortalOnboardingModalProps> = ({
       presentationStyle="pageSheet"
       onRequestClose={onClose}
     >
-      <LinearGradient
-        colors={['#07040E', '#100B22', '#1B1238']}
-        style={styles.container}
-      >
+      <View style={styles.container}>
         {/* Top Header & Progress */}
         <View style={styles.topBar}>
           <Pressable onPress={onClose} style={styles.closeBtn} hitSlop={10}>
-            <X size={20} color="#D1CDDA" />
+            <X size={20} color={PALETTE.ink.charcoal} />
           </Pressable>
 
           <View style={styles.stepIndicatorGroup}>
@@ -205,7 +202,7 @@ export const PortalOnboardingModal: React.FC<PortalOnboardingModalProps> = ({
           </View>
 
           <View style={styles.sparkleIcon}>
-            <Sparkles size={18} color={PALETTE.gold.base} />
+            <Sparkles size={18} color={PALETTE.bronze.base} />
           </View>
         </View>
 
@@ -250,7 +247,7 @@ export const PortalOnboardingModal: React.FC<PortalOnboardingModalProps> = ({
                         {goal}
                       </Text>
                       {isSelected && (
-                        <Check size={14} color="#07040E" strokeWidth={2.5} />
+                        <Check size={14} color="#FFFFFF" strokeWidth={2.5} />
                       )}
                     </Pressable>
                   );
@@ -343,7 +340,7 @@ export const PortalOnboardingModal: React.FC<PortalOnboardingModalProps> = ({
                         {area}
                       </Text>
                       {isSelected && (
-                        <Check size={14} color="#07040E" strokeWidth={2.5} />
+                        <Check size={14} color="#FFFFFF" strokeWidth={2.5} />
                       )}
                     </Pressable>
                   );
@@ -631,7 +628,7 @@ export const PortalOnboardingModal: React.FC<PortalOnboardingModalProps> = ({
                         {intention}
                       </Text>
                       {isSelected && (
-                        <Check size={14} color="#07040E" strokeWidth={2.5} />
+                        <Check size={14} color="#FFFFFF" strokeWidth={2.5} />
                       )}
                     </Pressable>
                   );
@@ -700,7 +697,7 @@ export const PortalOnboardingModal: React.FC<PortalOnboardingModalProps> = ({
         <View style={styles.footerRow}>
           {step > 1 ? (
             <Pressable onPress={handleBack} style={styles.backBtn} hitSlop={10}>
-              <ArrowLeft size={18} color="#D1CDDA" />
+              <ArrowLeft size={18} color={PALETTE.ink.muted} />
               <Text style={styles.backBtnText}>Back</Text>
             </Pressable>
           ) : (
@@ -711,10 +708,10 @@ export const PortalOnboardingModal: React.FC<PortalOnboardingModalProps> = ({
             <Text style={styles.nextBtnText}>
               {step === totalSteps ? 'Activate Portal' : 'Continue'}
             </Text>
-            <ArrowRight size={18} color="#07040E" />
+            <ArrowRight size={18} color="#FFFFFF" />
           </Pressable>
         </View>
-      </LinearGradient>
+      </View>
     </Modal>
   );
 };
@@ -722,6 +719,7 @@ export const PortalOnboardingModal: React.FC<PortalOnboardingModalProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: PALETTE.paper.linen,
     paddingTop: Platform.OS === 'ios' ? 20 : 12,
   },
   topBar: {
@@ -731,7 +729,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 14,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(245, 208, 97, 0.12)',
+    borderBottomColor: 'rgba(122, 82, 48, 0.12)',
   },
   closeBtn: {
     padding: 6,
@@ -745,19 +743,19 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.sansSemiBold,
     fontSize: 11,
     letterSpacing: 1.5,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.base,
     marginBottom: 6,
   },
   progressBarTrack: {
     width: '100%',
     height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(122, 82, 48, 0.12)',
     borderRadius: 2,
     overflow: 'hidden',
   },
   progressBarFill: {
     height: '100%',
-    backgroundColor: PALETTE.gold.base,
+    backgroundColor: PALETTE.bronze.base,
     borderRadius: 2,
   },
   sparkleIcon: {
@@ -778,18 +776,18 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.sansSemiBold,
     fontSize: 10,
     letterSpacing: 1.8,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.base,
   },
   questionTitle: {
     fontFamily: FONTS.serifBold,
     fontSize: 22,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
     lineHeight: 30,
   },
   questionSubtitle: {
     fontFamily: FONTS.sans,
     fontSize: 13,
-    color: '#9CA3AF',
+    color: PALETTE.ink.muted,
     lineHeight: 19,
     marginBottom: 8,
   },
@@ -806,21 +804,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
+    borderColor: 'rgba(122, 82, 48, 0.12)',
   },
   optionChipSelected: {
-    backgroundColor: PALETTE.gold.base,
-    borderColor: PALETTE.gold.rich,
+    backgroundColor: PALETTE.bronze.base,
+    borderColor: PALETTE.bronze.base,
   },
   optionChipText: {
     fontFamily: FONTS.sansMedium,
     fontSize: 13,
-    color: '#E5E7EB',
+    color: PALETTE.ink.body,
   },
   optionChipTextSelected: {
-    color: '#07040E',
+    color: '#FFFFFF',
     fontFamily: FONTS.sansBold,
   },
   optionsList: {
@@ -834,21 +832,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
+    borderColor: 'rgba(122, 82, 48, 0.12)',
   },
   fullWidthOptionSelected: {
-    backgroundColor: 'rgba(245, 208, 97, 0.15)',
-    borderColor: PALETTE.gold.base,
+    backgroundColor: PALETTE.prosecco.light,
+    borderColor: PALETTE.bronze.base,
   },
   fullWidthOptionText: {
     fontFamily: FONTS.sansMedium,
     fontSize: 14,
-    color: '#E5E7EB',
+    color: PALETTE.ink.charcoal,
   },
   fullWidthOptionTextSelected: {
-    color: '#FFFFFF',
+    color: PALETTE.bronze.rich,
     fontFamily: FONTS.sansBold,
   },
   radioCircle: {
@@ -856,31 +854,36 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 10,
     borderWidth: 1.5,
-    borderColor: '#6B7280',
+    borderColor: 'rgba(122, 82, 48, 0.25)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   radioCircleSelected: {
-    borderColor: PALETTE.gold.base,
+    borderColor: PALETTE.bronze.base,
   },
   radioDot: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: PALETTE.gold.base,
+    backgroundColor: PALETTE.bronze.base,
   },
   inputCard: {
-    backgroundColor: 'rgba(11, 8, 25, 0.7)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: 'rgba(245, 208, 97, 0.25)',
+    borderColor: 'rgba(122, 82, 48, 0.15)',
     padding: 16,
     marginTop: 6,
+    shadowColor: '#7A5230',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 1,
   },
   textInput: {
     fontFamily: FONTS.sans,
     fontSize: 14,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
     minHeight: 80,
     textAlignVertical: 'top',
   },
@@ -894,14 +897,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: 14,
-    backgroundColor: 'rgba(245, 208, 97, 0.12)',
+    backgroundColor: PALETTE.prosecco.light,
     borderWidth: 1,
-    borderColor: 'rgba(245, 208, 97, 0.25)',
+    borderColor: PALETTE.prosecco.border,
   },
   presetGoalText: {
     fontFamily: FONTS.sansMedium,
     fontSize: 11,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.rich,
   },
   portalGrid: {
     flexDirection: 'row',
@@ -911,15 +914,15 @@ const styles = StyleSheet.create({
   },
   portalTimeCard: {
     width: '48%',
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(122, 82, 48, 0.12)',
     padding: 12,
   },
   portalTimeCardChecked: {
-    backgroundColor: 'rgba(245, 208, 97, 0.18)',
-    borderColor: PALETTE.gold.base,
+    backgroundColor: PALETTE.prosecco.light,
+    borderColor: PALETTE.bronze.base,
   },
   portalTimeTopRow: {
     flexDirection: 'row',
@@ -929,13 +932,13 @@ const styles = StyleSheet.create({
   portalTimeDigits: {
     fontFamily: FONTS.sansBold,
     fontSize: 16,
-    color: '#E5E7EB',
+    color: PALETTE.ink.charcoal,
   },
   portalTimeDigitsChecked: {
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.rich,
   },
   recommendedPill: {
-    backgroundColor: 'rgba(245, 208, 97, 0.2)',
+    backgroundColor: PALETTE.prosecco.light,
     paddingHorizontal: 5,
     paddingVertical: 2,
     borderRadius: 6,
@@ -943,44 +946,44 @@ const styles = StyleSheet.create({
   recommendedPillText: {
     fontFamily: FONTS.sansBold,
     fontSize: 8.5,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.rich,
   },
   portalNameText: {
     fontFamily: FONTS.sans,
     fontSize: 10.5,
-    color: '#9CA3AF',
+    color: PALETTE.ink.muted,
     marginTop: 4,
   },
   portalNameTextChecked: {
-    color: '#FFFFFF',
+    color: PALETTE.bronze.base,
   },
   formatCardsRow: {
     gap: 12,
     marginTop: 8,
   },
   formatCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 18,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(122, 82, 48, 0.12)',
   },
   formatCardSelected: {
-    backgroundColor: 'rgba(245, 208, 97, 0.15)',
-    borderColor: PALETTE.gold.base,
+    backgroundColor: PALETTE.prosecco.light,
+    borderColor: PALETTE.bronze.base,
   },
   formatCardTitle: {
     fontFamily: FONTS.serifBold,
     fontSize: 16,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
   },
   formatCardTitleSelected: {
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.rich,
   },
   formatCardDesc: {
     fontFamily: FONTS.sans,
     fontSize: 12,
-    color: '#9CA3AF',
+    color: PALETTE.ink.muted,
     marginTop: 4,
   },
   sliderPillsGrid: {
@@ -995,28 +998,28 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
+    borderColor: 'rgba(122, 82, 48, 0.12)',
   },
   numberPillSelected: {
-    backgroundColor: PALETTE.gold.base,
-    borderColor: PALETTE.gold.rich,
+    backgroundColor: PALETTE.bronze.base,
+    borderColor: PALETTE.bronze.base,
   },
   numberPillText: {
     fontFamily: FONTS.sansBold,
     fontSize: 15,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
   },
   numberPillTextSelected: {
-    color: '#07040E',
+    color: '#FFFFFF',
   },
   previewCard: {
     marginTop: 20,
-    backgroundColor: 'rgba(245, 208, 97, 0.1)',
+    backgroundColor: PALETTE.prosecco.light,
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: PALETTE.gold.border,
+    borderColor: PALETTE.prosecco.border,
     padding: 16,
   },
   previewHeader: {
@@ -1028,19 +1031,19 @@ const styles = StyleSheet.create({
   previewTag: {
     fontFamily: FONTS.sansSemiBold,
     fontSize: 10,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.base,
     letterSpacing: 1,
   },
   previewAffirmation: {
     fontFamily: FONTS.serifItalic,
     fontSize: 15,
     lineHeight: 22,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
   },
   previewMeta: {
     fontFamily: FONTS.sans,
     fontSize: 10.5,
-    color: '#9CA3AF',
+    color: PALETTE.ink.muted,
     marginTop: 8,
   },
   footerRow: {
@@ -1050,8 +1053,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 14,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(245, 208, 97, 0.12)',
-    backgroundColor: '#07040E',
+    borderTopColor: 'rgba(122, 82, 48, 0.12)',
+    backgroundColor: PALETTE.paper.linen,
   },
   backBtn: {
     flexDirection: 'row',
@@ -1063,13 +1066,13 @@ const styles = StyleSheet.create({
   backBtnText: {
     fontFamily: FONTS.sansMedium,
     fontSize: 13,
-    color: '#D1CDDA',
+    color: PALETTE.ink.muted,
   },
   nextBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: PALETTE.gold.base,
+    backgroundColor: PALETTE.bronze.base,
     paddingHorizontal: 22,
     paddingVertical: 12,
     borderRadius: 24,
@@ -1077,7 +1080,7 @@ const styles = StyleSheet.create({
   nextBtnText: {
     fontFamily: FONTS.sansBold,
     fontSize: 13.5,
-    color: '#07040E',
+    color: '#FFFFFF',
     letterSpacing: 0.5,
   },
 });

@@ -387,14 +387,14 @@ export default function AffirmationsScreen() {
                     style={[
                       styles.prevNextBtn,
                       index === filteredFeed.length - 1 &&
-                        styles.prevNextBtnDisabled,
+                      styles.prevNextBtnDisabled,
                     ]}
                   >
                     <Text
                       style={[
                         styles.prevNextBtnText,
                         index === filteredFeed.length - 1 &&
-                          styles.prevNextBtnTextDisabled,
+                        styles.prevNextBtnTextDisabled,
                       ]}
                     >
                       Next →
@@ -414,20 +414,17 @@ export default function AffirmationsScreen() {
         presentationStyle="pageSheet"
         onRequestClose={() => setFavoritesModalVisible(false)}
       >
-        <LinearGradient
-          colors={['#0F0824', '#0A0518', '#05030C']}
-          style={styles.favoritesModalContainer}
-        >
+        <View style={styles.favoritesModalContainer}>
           <View style={styles.favoritesTopBar}>
             <View style={styles.favoritesTitleRow}>
-              <Bookmark size={18} color={PALETTE.gold.base} />
+              <Bookmark size={18} color={PALETTE.bronze.base} />
               <Text style={styles.favoritesTitle}>SAVED AFFIRMATIONS</Text>
             </View>
             <Pressable
               onPress={() => setFavoritesModalVisible(false)}
               style={{ padding: 6 }}
             >
-              <X size={20} color="#D1CDDA" />
+              <X size={20} color={PALETTE.ink.charcoal} />
             </Pressable>
           </View>
 
@@ -437,7 +434,7 @@ export default function AffirmationsScreen() {
           >
             {favorites.length === 0 ? (
               <View style={styles.emptyFavoritesView}>
-                <Sparkles size={32} color={PALETTE.gold.base} />
+                <Sparkles size={32} color={PALETTE.bronze.base} />
                 <Text style={styles.emptyFavoritesTitle}>No Saved Affirmations Yet</Text>
                 <Text style={styles.emptyFavoritesSub}>
                   Tap the ❤️ heart icon on any portal affirmation to anchor it into your favorites collection.
@@ -459,7 +456,7 @@ export default function AffirmationsScreen() {
               ))
             )}
           </ScrollView>
-        </LinearGradient>
+        </View>
       </Modal>
 
       {/* Voice Narration Audio Player Modal */}
@@ -710,6 +707,7 @@ const styles = StyleSheet.create({
   },
   favoritesModalContainer: {
     flex: 1,
+    backgroundColor: PALETTE.paper.linen,
     paddingTop: Platform.OS === 'ios' ? 24 : 16,
     paddingHorizontal: 20,
   },
@@ -719,7 +717,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(245, 208, 97, 0.15)',
+    borderBottomColor: 'rgba(122, 82, 48, 0.12)',
   },
   favoritesTitleRow: {
     flexDirection: 'row',
@@ -730,7 +728,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.sansSemiBold,
     fontSize: 13,
     letterSpacing: 1.5,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.base,
   },
   favoritesScrollContent: {
     paddingTop: 16,
@@ -746,22 +744,27 @@ const styles = StyleSheet.create({
   emptyFavoritesTitle: {
     fontFamily: FONTS.serifBold,
     fontSize: 18,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
   },
   emptyFavoritesSub: {
     fontFamily: FONTS.sans,
     fontSize: 13,
-    color: '#9CA3AF',
+    color: PALETTE.ink.muted,
     textAlign: 'center',
     lineHeight: 19,
     paddingHorizontal: 24,
   },
   favoriteItemCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: 'rgba(245, 208, 97, 0.2)',
+    borderColor: 'rgba(122, 82, 48, 0.12)',
     padding: 16,
+    shadowColor: '#7A5230',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 1,
   },
   favoriteCardCategoryRow: {
     flexDirection: 'row',
@@ -772,13 +775,13 @@ const styles = StyleSheet.create({
   favoriteCategoryTag: {
     fontFamily: FONTS.sansSemiBold,
     fontSize: 10,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.base,
     letterSpacing: 1,
   },
   favoriteItemText: {
     fontFamily: FONTS.serif,
     fontSize: 15,
     lineHeight: 22,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
   },
 });

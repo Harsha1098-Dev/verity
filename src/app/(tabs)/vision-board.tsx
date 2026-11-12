@@ -133,7 +133,7 @@ export default function VisionBoardScreen() {
             }}
             style={styles.addBtn}
           >
-            <Plus size={16} color="#07040E" strokeWidth={2.5} />
+            <Plus size={16} color="#FFFFFF" strokeWidth={2.5} />
             <Text style={styles.addBtnText}>Add Vision</Text>
           </Pressable>
         </View>
@@ -199,7 +199,7 @@ export default function VisionBoardScreen() {
               style={styles.visionCardWrapper}
             >
               <LinearGradient
-                colors={item.gradientColors}
+                colors={['#FFFFFF', PALETTE.paper.linen]}
                 style={styles.visionCard}
               >
                 <View style={styles.cardHeader}>
@@ -221,8 +221,10 @@ export default function VisionBoardScreen() {
                       size={10}
                       color={
                         item.status === 'Manifested'
-                          ? '#10B981'
-                          : PALETTE.gold.base
+                          ? PALETTE.deltaMint.dark
+                          : item.status === 'In Flow'
+                          ? PALETTE.polarOpposite.dark
+                          : PALETTE.bronze.base
                       }
                     />
                     <Text
@@ -230,6 +232,8 @@ export default function VisionBoardScreen() {
                         styles.statusBadgeText,
                         item.status === 'Manifested' &&
                           styles.statusBadgeTextManifested,
+                        item.status === 'In Flow' &&
+                          styles.statusBadgeTextInFlow,
                       ]}
                     >
                       {item.status}
@@ -242,7 +246,7 @@ export default function VisionBoardScreen() {
 
                 <View style={styles.cardFooter}>
                   <View style={styles.dateRow}>
-                    <Calendar size={12} color="#9CA3AF" />
+                    <Calendar size={12} color={PALETTE.ink.muted} />
                     <Text style={styles.dateText}>{item.targetDate || 'Ongoing'}</Text>
                   </View>
                   <Text style={styles.tapTip}>Tap to cycle status</Text>
@@ -260,13 +264,10 @@ export default function VisionBoardScreen() {
           presentationStyle="pageSheet"
           onRequestClose={() => setIsAddModalVisible(false)}
         >
-          <LinearGradient
-            colors={['#0F0824', '#0A0518', '#05030C']}
-            style={styles.modalContainer}
-          >
+          <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
               <Pressable onPress={() => setIsAddModalVisible(false)} style={{ padding: 6 }}>
-                <X size={20} color="#D1CDDA" />
+                <X size={20} color={PALETTE.ink.charcoal} />
               </Pressable>
               <Text style={styles.modalTitle}>ANCHOR NEW VISION</Text>
               <View style={{ width: 32 }} />
@@ -305,7 +306,7 @@ export default function VisionBoardScreen() {
                 value={newTitle}
                 onChangeText={setNewTitle}
                 placeholder="e.g. Glass Cliffside Residence in Big Sur"
-                placeholderTextColor="#6B7280"
+                placeholderTextColor={PALETTE.ink.muted}
                 style={styles.textInput}
               />
 
@@ -314,7 +315,7 @@ export default function VisionBoardScreen() {
                 value={newIntention}
                 onChangeText={setNewIntention}
                 placeholder="How does it feel to wake up inside this reality?"
-                placeholderTextColor="#6B7280"
+                placeholderTextColor={PALETTE.ink.muted}
                 multiline
                 numberOfLines={3}
                 style={[styles.textInput, { minHeight: 70, textAlignVertical: 'top' }]}
@@ -325,16 +326,16 @@ export default function VisionBoardScreen() {
                 value={newTargetDate}
                 onChangeText={setNewTargetDate}
                 placeholder="e.g. Autumn 2027"
-                placeholderTextColor="#6B7280"
+                placeholderTextColor={PALETTE.ink.muted}
                 style={styles.textInput}
               />
 
               <Pressable onPress={handleAddItem} style={styles.createVisionBtn}>
-                <Check size={18} color="#07040E" strokeWidth={2.5} />
+                <Check size={18} color="#FFFFFF" strokeWidth={2.5} />
                 <Text style={styles.createVisionBtnText}>Materialize on Vision Board</Text>
               </Pressable>
             </ScrollView>
-          </LinearGradient>
+          </View>
         </Modal>
       </View>
     </SafeAreaView>
@@ -344,11 +345,11 @@ export default function VisionBoardScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#05040A',
+    backgroundColor: PALETTE.paper.linen,
   },
   container: {
     flex: 1,
-    backgroundColor: '#05040A',
+    backgroundColor: PALETTE.paper.linen,
   },
   headerRow: {
     flexDirection: 'row',
@@ -358,25 +359,25 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 14,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(245, 208, 97, 0.12)',
+    borderBottomColor: 'rgba(122, 82, 48, 0.12)',
   },
   headerTitle: {
     fontFamily: FONTS.serifBold,
     fontSize: 18,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
     letterSpacing: 1,
   },
   headerSubtitle: {
     fontFamily: FONTS.sans,
     fontSize: 11,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.base,
     marginTop: 2,
   },
   addBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: PALETTE.gold.base,
+    backgroundColor: PALETTE.bronze.base,
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: 18,
@@ -384,7 +385,7 @@ const styles = StyleSheet.create({
   addBtnText: {
     fontFamily: FONTS.sansBold,
     fontSize: 11.5,
-    color: '#07040E',
+    color: '#FFFFFF',
   },
   filterScroll: {
     paddingHorizontal: 18,
@@ -395,21 +396,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(122, 82, 48, 0.12)',
   },
   filterPillSelected: {
-    backgroundColor: PALETTE.gold.base,
-    borderColor: PALETTE.gold.rich,
+    backgroundColor: PALETTE.bronze.base,
+    borderColor: PALETTE.bronze.base,
   },
   filterPillText: {
     fontFamily: FONTS.sansMedium,
     fontSize: 11.5,
-    color: '#D1CDDA',
+    color: PALETTE.ink.body,
   },
   filterPillTextSelected: {
-    color: '#07040E',
+    color: '#FFFFFF',
     fontFamily: FONTS.sansBold,
   },
   cardsGrid: {
@@ -421,7 +422,12 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(245, 208, 97, 0.2)',
+    borderColor: 'rgba(122, 82, 48, 0.12)',
+    shadowColor: '#7A5230',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   visionCard: {
     padding: 18,
@@ -433,7 +439,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   categoryPill: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: PALETTE.prosecco.light,
+    borderWidth: 1,
+    borderColor: PALETTE.prosecco.border,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 8,
@@ -441,47 +449,50 @@ const styles = StyleSheet.create({
   categoryPillText: {
     fontFamily: FONTS.sansBold,
     fontSize: 9,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.rich,
     letterSpacing: 1,
   },
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(245, 208, 97, 0.15)',
+    backgroundColor: PALETTE.prosecco.light,
     borderWidth: 1,
-    borderColor: 'rgba(245, 208, 97, 0.3)',
+    borderColor: PALETTE.prosecco.border,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 10,
   },
   statusBadgeInFlow: {
-    backgroundColor: 'rgba(56, 189, 248, 0.15)',
-    borderColor: '#38BDF8',
+    backgroundColor: PALETTE.polarOpposite.light,
+    borderColor: PALETTE.polarOpposite.border,
   },
   statusBadgeManifested: {
-    backgroundColor: 'rgba(16, 185, 129, 0.2)',
-    borderColor: '#10B981',
+    backgroundColor: PALETTE.deltaMint.light,
+    borderColor: PALETTE.deltaMint.border,
   },
   statusBadgeText: {
     fontFamily: FONTS.sansSemiBold,
     fontSize: 10,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.rich,
+  },
+  statusBadgeTextInFlow: {
+    color: PALETTE.polarOpposite.dark,
   },
   statusBadgeTextManifested: {
-    color: '#10B981',
+    color: PALETTE.deltaMint.dark,
   },
   cardTitle: {
     fontFamily: FONTS.serifBold,
     fontSize: 18,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
     lineHeight: 24,
   },
   cardIntention: {
     fontFamily: FONTS.serifItalic,
     fontSize: 12.5,
     lineHeight: 18,
-    color: '#D1CDDA',
+    color: PALETTE.ink.body,
   },
   cardFooter: {
     flexDirection: 'row',
@@ -489,7 +500,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.08)',
+    borderTopColor: 'rgba(122, 82, 48, 0.08)',
   },
   dateRow: {
     flexDirection: 'row',
@@ -499,15 +510,16 @@ const styles = StyleSheet.create({
   dateText: {
     fontFamily: FONTS.sans,
     fontSize: 11,
-    color: '#9CA3AF',
+    color: PALETTE.ink.muted,
   },
   tapTip: {
     fontFamily: FONTS.sans,
     fontSize: 10,
-    color: 'rgba(245, 208, 97, 0.6)',
+    color: PALETTE.bronze.base,
   },
   modalContainer: {
     flex: 1,
+    backgroundColor: PALETTE.paper.linen,
     paddingTop: Platform.OS === 'ios' ? 24 : 16,
     paddingHorizontal: 20,
   },
@@ -517,13 +529,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(245, 208, 97, 0.15)',
+    borderBottomColor: 'rgba(122, 82, 48, 0.12)',
   },
   modalTitle: {
     fontFamily: FONTS.sansSemiBold,
     fontSize: 12,
     letterSpacing: 1.5,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.base,
   },
   modalScroll: {
     paddingTop: 16,
@@ -534,7 +546,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.sansSemiBold,
     fontSize: 10,
     letterSpacing: 1.2,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.base,
     marginTop: 4,
   },
   categoryPickerRow: {
@@ -546,40 +558,40 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: 14,
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
+    borderColor: 'rgba(122, 82, 48, 0.12)',
   },
   catPickerPillSelected: {
-    backgroundColor: PALETTE.gold.base,
-    borderColor: PALETTE.gold.rich,
+    backgroundColor: PALETTE.bronze.base,
+    borderColor: PALETTE.bronze.base,
   },
   catPickerText: {
     fontFamily: FONTS.sansMedium,
     fontSize: 11.5,
-    color: '#D1CDDA',
+    color: PALETTE.ink.body,
   },
   catPickerTextSelected: {
-    color: '#07040E',
+    color: '#FFFFFF',
     fontFamily: FONTS.sansBold,
   },
   textInput: {
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: 'rgba(245, 208, 97, 0.2)',
+    borderColor: 'rgba(122, 82, 48, 0.15)',
     paddingHorizontal: 14,
     paddingVertical: 10,
     fontFamily: FONTS.sans,
     fontSize: 13,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
   },
   createVisionBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: PALETTE.gold.base,
+    backgroundColor: PALETTE.bronze.base,
     paddingVertical: 14,
     borderRadius: 24,
     marginTop: 14,
@@ -587,6 +599,6 @@ const styles = StyleSheet.create({
   createVisionBtnText: {
     fontFamily: FONTS.sansBold,
     fontSize: 14,
-    color: '#07040E',
+    color: '#FFFFFF',
   },
 });

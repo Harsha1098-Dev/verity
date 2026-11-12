@@ -109,7 +109,7 @@ export default function ProfileScreen() {
             }}
             style={styles.membershipPill}
           >
-            <Crown size={13} color={PALETTE.gold.base} />
+            <Crown size={13} color={PALETTE.bronze.base} />
             <Text style={styles.membershipPillText}>
               Portal 11:11 VIP • Unlimited AI Engine
             </Text>
@@ -129,8 +129,8 @@ export default function ProfileScreen() {
 
           <View style={styles.metaRow}>
             <Text style={styles.metaText}>
-              Emotional Baseline: <Text style={{ color: '#FFFFFF' }}>{profile.emotion}</Text> • Confidence:{' '}
-              <Text style={{ color: PALETTE.gold.base }}>{profile.confidence}/10</Text>
+              Emotional Baseline: <Text style={{ color: PALETTE.ink.charcoal }}>{profile.emotion}</Text> • Confidence:{' '}
+              <Text style={{ color: PALETTE.bronze.base }}>{profile.confidence}/10</Text>
             </Text>
           </View>
 
@@ -141,7 +141,7 @@ export default function ProfileScreen() {
               setOnboardingVisible(true);
             }}
           >
-            <Sliders size={13} color="#07040E" />
+            <Sliders size={13} color="#FFFFFF" />
             <Text style={styles.retuneBtnText}>Retune 10-Step Profile</Text>
           </Pressable>
         </View>
@@ -150,7 +150,7 @@ export default function ProfileScreen() {
         <View style={styles.sectionCard}>
           <View style={styles.sectionTitleRow}>
             <Text style={styles.sectionTitle}>Active Portal Times (10 Gateways)</Text>
-            <Zap size={15} color={PALETTE.gold.base} />
+            <Zap size={15} color={PALETTE.bronze.base} />
           </View>
           <Text style={styles.cardSub}>
             Tap to toggle synchronicity alert times:
@@ -170,7 +170,7 @@ export default function ProfileScreen() {
                 >
                   <Clock
                     size={11}
-                    color={isActive ? '#07040E' : PALETTE.gold.base}
+                    color={isActive ? '#FFFFFF' : PALETTE.bronze.base}
                   />
                   <Text
                     style={[
@@ -190,7 +190,7 @@ export default function ProfileScreen() {
         <View style={styles.sectionCard}>
           <View style={styles.sectionTitleRow}>
             <Text style={styles.sectionTitle}>Manifestation Milestones</Text>
-            <Award size={15} color={PALETTE.gold.base} />
+            <Award size={15} color={PALETTE.bronze.base} />
           </View>
 
           <View style={styles.achievementsList}>
@@ -249,21 +249,21 @@ export default function ProfileScreen() {
             >
               <View style={styles.settingLeft}>
                 <View style={styles.iconCircle}>
-                  <Volume2 size={16} color={PALETTE.gold.base} />
+                  <Volume2 size={16} color={PALETTE.bronze.base} />
                 </View>
                 <View>
                   <Text style={styles.settingLabel}>Narrator Voice</Text>
                   <Text style={styles.settingValue}>{profile.preferredVoice}</Text>
                 </View>
               </View>
-              <ChevronRight size={18} color="#6B7280" />
+              <ChevronRight size={18} color={PALETTE.ink.muted} />
             </Pressable>
 
             {/* Notification Toggle */}
             <View style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.iconCircle}>
-                  <Bell size={16} color={PALETTE.gold.base} />
+                  <Bell size={16} color={PALETTE.bronze.base} />
                 </View>
                 <View>
                   <Text style={styles.settingLabel}>Portal Push Alerts</Text>
@@ -277,10 +277,10 @@ export default function ProfileScreen() {
                   setRemindersEnabled(val);
                 }}
                 trackColor={{
-                  false: 'rgba(255, 255, 255, 0.1)',
-                  true: PALETTE.gold.base,
+                  false: '#E5E7EB',
+                  true: PALETTE.bronze.base,
                 }}
-                thumbColor={remindersEnabled ? '#07040E' : '#FFFFFF'}
+                thumbColor="#FFFFFF"
               />
             </View>
 
@@ -288,7 +288,7 @@ export default function ProfileScreen() {
             <View style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <View style={styles.iconCircle}>
-                  <Vibrate size={16} color={PALETTE.gold.base} />
+                  <Vibrate size={16} color={PALETTE.bronze.base} />
                 </View>
                 <View>
                   <Text style={styles.settingLabel}>Haptic Sacred Breath</Text>
@@ -302,10 +302,10 @@ export default function ProfileScreen() {
                   setHapticsEnabled(val);
                 }}
                 trackColor={{
-                  false: 'rgba(255, 255, 255, 0.1)',
-                  true: PALETTE.gold.base,
+                  false: '#E5E7EB',
+                  true: PALETTE.bronze.base,
                 }}
-                thumbColor={hapticsEnabled ? '#07040E' : '#FFFFFF'}
+                thumbColor="#FFFFFF"
               />
             </View>
           </View>
@@ -313,7 +313,7 @@ export default function ProfileScreen() {
 
         {/* Ethical Statement */}
         <View style={styles.ethicsContainer}>
-          <Shield size={14} color={PALETTE.gold.base} />
+          <Shield size={14} color={PALETTE.bronze.base} />
           <Text style={styles.ethicsText}>
             Portal 11:11 operates on conscious neuroscience and manifestation psychology, creating emotional certainty that transforms your reality.
           </Text>
@@ -344,16 +344,13 @@ export default function ProfileScreen() {
         presentationStyle="pageSheet"
         onRequestClose={() => setPremiumModalVisible(false)}
       >
-        <LinearGradient
-          colors={['#170C33', '#0C061C', '#05030C']}
-          style={styles.premiumModal}
-        >
+        <View style={styles.premiumModal}>
           <View style={styles.premiumHeader}>
             <Pressable onPress={() => setPremiumModalVisible(false)} style={{ padding: 6 }}>
-              <X size={20} color="#D1CDDA" />
+              <X size={20} color={PALETTE.ink.charcoal} />
             </Pressable>
             <View style={styles.crownPill}>
-              <Crown size={14} color={PALETTE.gold.base} />
+              <Crown size={14} color={PALETTE.bronze.base} />
               <Text style={styles.crownPillText}>PORTAL 11:11 VIP</Text>
             </View>
             <View style={{ width: 32 }} />
@@ -383,7 +380,7 @@ export default function ProfileScreen() {
               <Text style={styles.claimVipBtnText}>Sovereign Lifetime Access Active</Text>
             </Pressable>
           </ScrollView>
-        </LinearGradient>
+        </View>
       </Modal>
     </SafeAreaView>
   );
@@ -392,7 +389,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#05040A',
+    backgroundColor: PALETTE.paper.linen,
   },
   scrollContent: {
     paddingHorizontal: 18,
@@ -408,9 +405,9 @@ const styles = StyleSheet.create({
     height: 84,
     borderRadius: 42,
     borderWidth: 2,
-    borderColor: PALETTE.gold.base,
+    borderColor: PALETTE.bronze.border,
     padding: 2,
-    backgroundColor: '#0F0824',
+    backgroundColor: '#FFFFFF',
     marginBottom: 10,
     overflow: 'hidden',
   },
@@ -422,13 +419,13 @@ const styles = StyleSheet.create({
   memberName: {
     fontFamily: FONTS.serifBold,
     fontSize: 22,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
     letterSpacing: 0.5,
   },
   memberStatus: {
     fontFamily: FONTS.sansSemiBold,
     fontSize: 9.5,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.base,
     letterSpacing: 1.5,
     marginTop: 4,
   },
@@ -436,9 +433,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(245, 208, 97, 0.15)',
+    backgroundColor: PALETTE.prosecco.light,
     borderWidth: 1,
-    borderColor: PALETTE.gold.border,
+    borderColor: PALETTE.prosecco.border,
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: 16,
@@ -447,14 +444,19 @@ const styles = StyleSheet.create({
   membershipPillText: {
     fontFamily: FONTS.sansSemiBold,
     fontSize: 11,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.rich,
   },
   sectionCard: {
-    backgroundColor: 'rgba(26, 20, 56, 0.7)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 22,
     padding: 18,
     borderWidth: 1,
-    borderColor: 'rgba(245, 208, 97, 0.18)',
+    borderColor: 'rgba(122, 82, 48, 0.12)',
+    shadowColor: '#7A5230',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 1,
     gap: 8,
   },
   sectionTitleRow: {
@@ -465,10 +467,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: FONTS.serifBold,
     fontSize: 15,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
   },
   tagBadge: {
-    backgroundColor: 'rgba(245, 208, 97, 0.15)',
+    backgroundColor: PALETTE.prosecco.light,
+    borderWidth: 1,
+    borderColor: PALETTE.prosecco.border,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 8,
@@ -476,14 +480,14 @@ const styles = StyleSheet.create({
   tagBadgeText: {
     fontFamily: FONTS.sansBold,
     fontSize: 9,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.rich,
     letterSpacing: 0.8,
   },
   intentionQuote: {
     fontFamily: FONTS.serifItalic,
     fontSize: 13.5,
     lineHeight: 20,
-    color: '#D1CDDA',
+    color: PALETTE.ink.charcoal,
   },
   metaRow: {
     marginTop: 2,
@@ -491,14 +495,14 @@ const styles = StyleSheet.create({
   metaText: {
     fontFamily: FONTS.sans,
     fontSize: 11,
-    color: '#9CA3AF',
+    color: PALETTE.ink.muted,
   },
   retuneBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     alignSelf: 'flex-start',
-    backgroundColor: PALETTE.gold.base,
+    backgroundColor: PALETTE.bronze.base,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 14,
@@ -507,12 +511,12 @@ const styles = StyleSheet.create({
   retuneBtnText: {
     fontFamily: FONTS.sansBold,
     fontSize: 11,
-    color: '#07040E',
+    color: '#FFFFFF',
   },
   cardSub: {
     fontFamily: FONTS.sans,
     fontSize: 11,
-    color: '#9CA3AF',
+    color: PALETTE.ink.muted,
   },
   portalChipsGrid: {
     flexDirection: 'row',
@@ -524,24 +528,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    backgroundColor: PALETTE.paper.linen,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
+    borderColor: 'rgba(122, 82, 48, 0.12)',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 12,
   },
   portalChipActive: {
-    backgroundColor: PALETTE.gold.base,
-    borderColor: PALETTE.gold.rich,
+    backgroundColor: PALETTE.bronze.base,
+    borderColor: PALETTE.bronze.base,
   },
   portalChipText: {
     fontFamily: FONTS.sansSemiBold,
     fontSize: 11.5,
-    color: '#D1CDDA',
+    color: PALETTE.ink.body,
   },
   portalChipTextActive: {
-    color: '#07040E',
+    color: '#FFFFFF',
   },
   achievementsList: {
     gap: 10,
@@ -551,16 +555,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    backgroundColor: PALETTE.paper.linen,
     borderRadius: 14,
     padding: 10,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: 'rgba(122, 82, 48, 0.1)',
     opacity: 0.6,
   },
   achievementItemUnlocked: {
-    backgroundColor: 'rgba(245, 208, 97, 0.12)',
-    borderColor: 'rgba(245, 208, 97, 0.25)',
+    backgroundColor: PALETTE.prosecco.light,
+    borderColor: PALETTE.bronze.border,
     opacity: 1,
   },
   achievementIcon: {
@@ -569,32 +573,32 @@ const styles = StyleSheet.create({
   achievementTitle: {
     fontFamily: FONTS.serifBold,
     fontSize: 13,
-    color: '#D1CDDA',
+    color: PALETTE.ink.muted,
   },
   achievementTitleUnlocked: {
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
   },
   achievementDesc: {
     fontFamily: FONTS.sans,
     fontSize: 10,
-    color: '#9CA3AF',
+    color: PALETTE.ink.muted,
   },
   lockBadge: {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: '#E5E7EB',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 8,
   },
   lockBadgeUnlocked: {
-    backgroundColor: PALETTE.gold.base,
+    backgroundColor: PALETTE.bronze.base,
   },
   lockBadgeText: {
     fontFamily: FONTS.sansBold,
     fontSize: 9,
-    color: '#9CA3AF',
+    color: PALETTE.ink.muted,
   },
   lockBadgeTextUnlocked: {
-    color: '#07040E',
+    color: '#FFFFFF',
   },
   settingsList: {
     gap: 12,
@@ -614,19 +618,19 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: 'rgba(245, 208, 97, 0.12)',
+    backgroundColor: PALETTE.prosecco.light,
     alignItems: 'center',
     justifyContent: 'center',
   },
   settingLabel: {
     fontFamily: FONTS.sansMedium,
     fontSize: 13,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
   },
   settingValue: {
     fontFamily: FONTS.sans,
     fontSize: 10.5,
-    color: '#9CA3AF',
+    color: PALETTE.ink.muted,
     marginTop: 1,
   },
   ethicsContainer: {
@@ -641,10 +645,11 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.sans,
     fontSize: 10.5,
     lineHeight: 16,
-    color: '#9CA3AF',
+    color: PALETTE.ink.muted,
   },
   premiumModal: {
     flex: 1,
+    backgroundColor: PALETTE.paper.linen,
     paddingTop: Platform.OS === 'ios' ? 24 : 16,
     paddingHorizontal: 20,
   },
@@ -653,12 +658,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(122, 82, 48, 0.12)',
   },
   crownPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(245, 208, 97, 0.15)',
+    backgroundColor: PALETTE.prosecco.light,
+    borderWidth: 1,
+    borderColor: PALETTE.prosecco.border,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
@@ -666,7 +675,7 @@ const styles = StyleSheet.create({
   crownPillText: {
     fontFamily: FONTS.sansBold,
     fontSize: 10.5,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.rich,
     letterSpacing: 1,
   },
   premiumScroll: {
@@ -678,36 +687,41 @@ const styles = StyleSheet.create({
   premiumTitle: {
     fontFamily: FONTS.serifBold,
     fontSize: 24,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
     textAlign: 'center',
   },
   premiumSub: {
     fontFamily: FONTS.sans,
     fontSize: 13,
-    color: '#9CA3AF',
+    color: PALETTE.ink.muted,
     textAlign: 'center',
     lineHeight: 19,
     paddingHorizontal: 16,
   },
   featureBox: {
     width: '100%',
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(245, 208, 97, 0.25)',
+    borderColor: 'rgba(122, 82, 48, 0.15)',
     padding: 18,
     gap: 12,
     marginVertical: 12,
+    shadowColor: '#7A5230',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 1,
   },
   featureItem: {
     fontFamily: FONTS.sansMedium,
     fontSize: 13,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
     lineHeight: 20,
   },
   claimVipBtn: {
     width: '100%',
-    backgroundColor: PALETTE.gold.base,
+    backgroundColor: PALETTE.bronze.base,
     paddingVertical: 14,
     borderRadius: 24,
     alignItems: 'center',
@@ -715,6 +729,6 @@ const styles = StyleSheet.create({
   claimVipBtnText: {
     fontFamily: FONTS.sansBold,
     fontSize: 14,
-    color: '#07040E',
+    color: '#FFFFFF',
   },
 });

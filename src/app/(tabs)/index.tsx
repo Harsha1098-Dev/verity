@@ -125,7 +125,7 @@ export default function HomeScreen() {
               }}
               style={styles.tunePill}
             >
-              <Sliders size={12} color={PALETTE.gold.base} />
+              <Sliders size={12} color={PALETTE.bronze.base} />
               <Text style={styles.tunePillText}>Tune</Text>
             </Pressable>
 
@@ -160,7 +160,7 @@ export default function HomeScreen() {
             >
               <Zap
                 size={14}
-                color={countdown.isPortalActive ? '#07040E' : PALETTE.gold.base}
+                color={countdown.isPortalActive ? '#FFFFFF' : PALETTE.bronze.base}
               />
             </View>
             <View style={{ flex: 1 }}>
@@ -194,12 +194,14 @@ export default function HomeScreen() {
             TODAY'S AFFIRMATION GLASS CARD (HERO)
            ======================================================== */}
         <LinearGradient
-          colors={['rgba(42, 22, 77, 0.75)', 'rgba(18, 14, 46, 0.85)']}
+          colors={[PALETTE.prosecco.light, '#FFFFFF', PALETTE.paper.linen]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
           style={styles.heroGlassCard}
         >
           <View style={styles.heroHeader}>
             <View style={styles.heroHeaderLeft}>
-              <Sparkles size={13} color={PALETTE.gold.base} />
+              <Sparkles size={13} color={PALETTE.bronze.base} />
               <Text style={styles.heroHeaderTag}>
                 TODAY'S PORTAL TRANSMISSION • {todayAffirmation.portalTime || '11:11'}
               </Text>
@@ -228,7 +230,7 @@ export default function HomeScreen() {
               }}
               style={styles.heroActionBtn}
             >
-              <Play size={12} color="#07040E" fill="#07040E" />
+              <Play size={12} color="#FFFFFF" fill="#FFFFFF" />
               <Text style={styles.heroActionBtnText}>Listen Voice</Text>
             </Pressable>
 
@@ -239,7 +241,7 @@ export default function HomeScreen() {
               }}
               style={styles.heroSecondaryActionBtn}
             >
-              <Layers size={13} color={PALETTE.gold.base} />
+              <Layers size={13} color={PALETTE.bronze.base} />
               <Text style={styles.heroSecondaryActionBtnText}>
                 Open Portal Feed
               </Text>
@@ -374,23 +376,25 @@ export default function HomeScreen() {
           style={styles.portalReelsBanner}
         >
           <LinearGradient
-            colors={['#2A164D', '#120E2E']}
+            colors={[PALETTE.prosecco.light, PALETTE.paper.ivory]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
             style={styles.portalReelsGradient}
           >
             <View style={{ flex: 1 }}>
               <View style={styles.bannerTagRow}>
-                <Sparkles size={12} color={PALETTE.gold.base} />
+                <Sparkles size={12} color={PALETTE.bronze.base} />
                 <Text style={styles.bannerTag}>IMMERSIVE FEED</Text>
               </View>
               <Text style={styles.bannerTitle}>
                 Swipe Full-Screen Affirmations
               </Text>
               <Text style={styles.bannerSub}>
-                TikTok-style portal stream across Wealth, Love, and Power.
+                Portal stream across Wealth, Love, and Sovereign Power.
               </Text>
             </View>
             <View style={styles.bannerArrowCircle}>
-              <ArrowRight size={18} color="#07040E" />
+              <ArrowRight size={18} color="#FFFFFF" />
             </View>
           </LinearGradient>
         </Pressable>
@@ -428,7 +432,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#05040A',
+    backgroundColor: PALETTE.paper.linen,
   },
   scrollContent: {
     paddingHorizontal: 18,
@@ -451,9 +455,9 @@ const styles = StyleSheet.create({
     height: 38,
     borderRadius: 19,
     borderWidth: 1.5,
-    borderColor: PALETTE.gold.base,
+    borderColor: PALETTE.bronze.border,
     padding: 1.5,
-    backgroundColor: '#0F0824',
+    backgroundColor: '#FFFFFF',
     overflow: 'hidden',
   },
   logoImage: {
@@ -464,13 +468,13 @@ const styles = StyleSheet.create({
   brandTitle: {
     fontFamily: FONTS.serifBold,
     fontSize: 18,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
     letterSpacing: 2,
   },
   brandSubtitle: {
     fontFamily: FONTS.sansSemiBold,
     fontSize: 8.5,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.base,
     letterSpacing: 1.2,
   },
   topActionsRow: {
@@ -482,9 +486,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(245, 208, 97, 0.12)',
+    backgroundColor: PALETTE.prosecco.light,
     borderWidth: 1,
-    borderColor: 'rgba(245, 208, 97, 0.25)',
+    borderColor: PALETTE.prosecco.border,
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 14,
@@ -492,35 +496,40 @@ const styles = StyleSheet.create({
   tunePillText: {
     fontFamily: FONTS.sansMedium,
     fontSize: 11,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.base,
   },
   authBadgePill: {
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: PALETTE.gold.base,
+    backgroundColor: PALETTE.bronze.base,
     alignItems: 'center',
     justifyContent: 'center',
   },
   authBadgeText: {
     fontFamily: FONTS.sansBold,
     fontSize: 13,
-    color: '#07040E',
+    color: '#FFFFFF',
   },
   portalCountdownBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'rgba(26, 20, 56, 0.7)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(245, 208, 97, 0.25)',
+    borderColor: 'rgba(122, 82, 48, 0.12)',
     borderRadius: 20,
     paddingHorizontal: 14,
     paddingVertical: 10,
+    shadowColor: '#7A5230',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
   },
   portalCountdownBarActive: {
-    backgroundColor: 'rgba(245, 208, 97, 0.15)',
-    borderColor: PALETTE.gold.base,
+    backgroundColor: PALETTE.prosecco.light,
+    borderColor: PALETTE.bronze.base,
   },
   portalBarLeft: {
     flexDirection: 'row',
@@ -532,12 +541,12 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: 'rgba(245, 208, 97, 0.15)',
+    backgroundColor: PALETTE.prosecco.light,
     alignItems: 'center',
     justifyContent: 'center',
   },
   portalIconCircleActive: {
-    backgroundColor: PALETTE.gold.base,
+    backgroundColor: PALETTE.bronze.base,
   },
   portalTitleRow: {
     flexDirection: 'row',
@@ -547,11 +556,11 @@ const styles = StyleSheet.create({
   portalNextLabel: {
     fontFamily: FONTS.sansSemiBold,
     fontSize: 11,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
     letterSpacing: 0.6,
   },
   keyTag: {
-    backgroundColor: 'rgba(245, 208, 97, 0.2)',
+    backgroundColor: PALETTE.prosecco.light,
     paddingHorizontal: 5,
     paddingVertical: 1,
     borderRadius: 6,
@@ -559,41 +568,41 @@ const styles = StyleSheet.create({
   keyTagText: {
     fontFamily: FONTS.sansBold,
     fontSize: 9,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.rich,
   },
   portalSubText: {
     fontFamily: FONTS.sans,
     fontSize: 10,
-    color: '#9CA3AF',
+    color: PALETTE.ink.muted,
     marginTop: 1,
   },
   countdownPill: {
-    backgroundColor: 'rgba(5, 4, 10, 0.6)',
+    backgroundColor: PALETTE.paper.linen,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(245, 208, 97, 0.2)',
+    borderColor: 'rgba(122, 82, 48, 0.15)',
     paddingHorizontal: 9,
     paddingVertical: 5,
   },
   countdownDigits: {
     fontFamily: FONTS.sansBold,
     fontSize: 11.5,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.base,
     letterSpacing: 0.6,
   },
   countdownDigitsActive: {
-    color: '#10B981',
+    color: PALETTE.deltaMint.dark,
   },
   heroGlassCard: {
     borderRadius: 26,
     borderWidth: 1,
-    borderColor: 'rgba(245, 208, 97, 0.22)',
+    borderColor: PALETTE.bronze.border,
     padding: 20,
-    shadowColor: PALETTE.gold.base,
+    shadowColor: '#7A5230',
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.12,
+    shadowOpacity: 0.08,
     shadowRadius: 20,
-    elevation: 4,
+    elevation: 3,
   },
   heroHeader: {
     flexDirection: 'row',
@@ -609,11 +618,13 @@ const styles = StyleSheet.create({
   heroHeaderTag: {
     fontFamily: FONTS.sansBold,
     fontSize: 9.5,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.base,
     letterSpacing: 1.2,
   },
   heroCategoryBadge: {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: PALETTE.prosecco.light,
+    borderWidth: 1,
+    borderColor: PALETTE.prosecco.border,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 8,
@@ -621,20 +632,20 @@ const styles = StyleSheet.create({
   heroCategoryText: {
     fontFamily: FONTS.sansMedium,
     fontSize: 9.5,
-    color: '#FFFFFF',
+    color: PALETTE.bronze.rich,
   },
   heroAffirmationText: {
     fontFamily: FONTS.serifBold,
     fontSize: 21,
     lineHeight: 31,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
     letterSpacing: 0.2,
   },
   heroNoteText: {
     fontFamily: FONTS.serifItalic,
     fontSize: 12,
     lineHeight: 18,
-    color: '#D1CDDA',
+    color: PALETTE.ink.muted,
     marginTop: 12,
   },
   heroActionsRow: {
@@ -646,7 +657,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: PALETTE.gold.base,
+    backgroundColor: PALETTE.bronze.base,
     paddingHorizontal: 16,
     paddingVertical: 9,
     borderRadius: 18,
@@ -654,15 +665,15 @@ const styles = StyleSheet.create({
   heroActionBtnText: {
     fontFamily: FONTS.sansBold,
     fontSize: 12,
-    color: '#07040E',
+    color: '#FFFFFF',
   },
   heroSecondaryActionBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(245, 208, 97, 0.25)',
+    borderColor: PALETTE.bronze.border,
     paddingHorizontal: 14,
     paddingVertical: 9,
     borderRadius: 18,
@@ -670,7 +681,7 @@ const styles = StyleSheet.create({
   heroSecondaryActionBtnText: {
     fontFamily: FONTS.sansMedium,
     fontSize: 12,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
   },
   statsRow: {
     flexDirection: 'row',
@@ -678,11 +689,16 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: 'rgba(26, 20, 56, 0.65)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: 'rgba(245, 208, 97, 0.15)',
+    borderColor: 'rgba(122, 82, 48, 0.12)',
     padding: 12,
+    shadowColor: '#7A5230',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 1,
   },
   statCardTop: {
     flexDirection: 'row',
@@ -693,18 +709,18 @@ const styles = StyleSheet.create({
   statCardValue: {
     fontFamily: FONTS.sansBold,
     fontSize: 15,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
   },
   statCardLabel: {
     fontFamily: FONTS.sansSemiBold,
     fontSize: 10,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.base,
     marginTop: 2,
   },
   statCardSub: {
     fontFamily: FONTS.sans,
     fontSize: 9.5,
-    color: '#9CA3AF',
+    color: PALETTE.ink.muted,
   },
   scheduleSection: {
     gap: 10,
@@ -713,7 +729,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.sansSemiBold,
     fontSize: 10,
     letterSpacing: 1.5,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.base,
   },
   scheduleList: {
     gap: 10,
@@ -722,36 +738,46 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: 'rgba(26, 20, 56, 0.65)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: 'rgba(245, 208, 97, 0.15)',
+    borderColor: 'rgba(122, 82, 48, 0.12)',
     padding: 14,
+    shadowColor: '#7A5230',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 1,
   },
   scheduleIconCircle: {
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: 'rgba(245, 208, 97, 0.15)',
+    backgroundColor: PALETTE.prosecco.light,
     alignItems: 'center',
     justifyContent: 'center',
   },
   scheduleItemTitle: {
     fontFamily: FONTS.serifBold,
     fontSize: 14,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
   },
   scheduleItemSub: {
     fontFamily: FONTS.sans,
     fontSize: 11,
-    color: '#9CA3AF',
+    color: PALETTE.ink.muted,
     marginTop: 2,
   },
   portalReelsBanner: {
     borderRadius: 22,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(245, 208, 97, 0.25)',
+    borderColor: PALETTE.bronze.border,
+    shadowColor: '#7A5230',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 2,
   },
   portalReelsGradient: {
     flexDirection: 'row',
@@ -768,25 +794,25 @@ const styles = StyleSheet.create({
   bannerTag: {
     fontFamily: FONTS.sansBold,
     fontSize: 9.5,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.base,
     letterSpacing: 1.2,
   },
   bannerTitle: {
     fontFamily: FONTS.serifBold,
     fontSize: 16,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
   },
   bannerSub: {
     fontFamily: FONTS.sans,
     fontSize: 11,
-    color: '#D1CDDA',
+    color: PALETTE.ink.muted,
     marginTop: 2,
   },
   bannerArrowCircle: {
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: PALETTE.gold.base,
+    backgroundColor: PALETTE.bronze.base,
     alignItems: 'center',
     justifyContent: 'center',
   },

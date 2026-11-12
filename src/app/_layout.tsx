@@ -67,7 +67,7 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <View style={isWeb && !isMobileScreen ? styles.webOuterCanvas : styles.nativeContainer}>
         <View
           style={
@@ -79,7 +79,7 @@ export default function RootLayout() {
           <Stack
             screenOptions={{
               headerShown: false,
-              contentStyle: { backgroundColor: '#05040A' },
+              contentStyle: { backgroundColor: PALETTE.paper.linen },
               animation: 'fade',
             }}
           >
@@ -94,7 +94,7 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,
-    backgroundColor: '#05040A',
+    backgroundColor: PALETTE.paper.linen,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -102,13 +102,13 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100%',
-    backgroundColor: '#05040A',
+    backgroundColor: PALETTE.paper.linen,
   },
   webOuterCanvas: {
     flex: 1,
     width: '100%',
     height: '100vh' as any,
-    backgroundColor: '#030207', // Deep cosmic obsidian desk backdrop
+    backgroundColor: '#EFEAE3', // Architectural warm linen desk backdrop
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 16,
@@ -117,15 +117,15 @@ const styles = StyleSheet.create({
   mobileFrame: {
     width: '100%',
     maxWidth: 420, // Ideal iPhone viewport width
-    backgroundColor: '#05040A',
+    backgroundColor: PALETTE.paper.linen,
     borderRadius: 34,
     overflow: 'hidden',
-    shadowColor: PALETTE.gold.base,
+    shadowColor: '#7A5230',
     shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.22,
+    shadowOpacity: 0.12,
     shadowRadius: 36,
     elevation: 12,
     borderWidth: 1.5,
-    borderColor: 'rgba(245, 208, 97, 0.28)',
+    borderColor: 'rgba(122, 82, 48, 0.18)',
   },
 });

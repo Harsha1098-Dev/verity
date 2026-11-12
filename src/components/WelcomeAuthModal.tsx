@@ -56,16 +56,13 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
       onRequestClose={onClose}
     >
       <View style={styles.overlay}>
-        <LinearGradient
-          colors={['#0F0824', '#0A0518', '#05030C']}
-          style={styles.modalCard}
-        >
+        <View style={styles.modalCard}>
           {/* Close button */}
           <Pressable onPress={onClose} style={styles.closeBtn} hitSlop={12}>
-            <X size={20} color="#D1CDDA" />
+            <X size={20} color={PALETTE.ink.charcoal} />
           </Pressable>
 
-          {/* Logo Mark with Gold Sacred Ring */}
+          {/* Logo Mark with Bronze Sacred Ring */}
           <View style={styles.logoRing}>
             <Image
               source={require('../../assets/images/verity_logo.jpg')}
@@ -127,24 +124,24 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
           {(mode === 'login' || mode === 'signup') && (
             <View style={styles.formGroup}>
               <View style={styles.inputWrapper}>
-                <Mail size={16} color={PALETTE.gold.base} />
+                <Mail size={16} color={PALETTE.bronze.base} />
                 <TextInput
                   value={email}
                   onChangeText={setEmail}
                   placeholder="Enter your sacred email..."
-                  placeholderTextColor="#6B7280"
+                  placeholderTextColor={PALETTE.ink.muted}
                   style={styles.input}
                   autoCapitalize="none"
                 />
               </View>
 
               <View style={styles.inputWrapper}>
-                <Lock size={16} color={PALETTE.gold.base} />
+                <Lock size={16} color={PALETTE.bronze.base} />
                 <TextInput
                   value={password}
                   onChangeText={setPassword}
                   placeholder="Password"
-                  placeholderTextColor="#6B7280"
+                  placeholderTextColor={PALETTE.ink.muted}
                   secureTextEntry
                   style={styles.input}
                 />
@@ -154,7 +151,7 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
                 <Text style={styles.submitBtnText}>
                   {mode === 'signup' ? 'Open Your Portal' : 'Enter Portal'}
                 </Text>
-                <ArrowRight size={16} color="#07040E" />
+                <ArrowRight size={16} color="#FFFFFF" />
               </Pressable>
 
               <Pressable
@@ -165,7 +162,7 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
               </Pressable>
             </View>
           )}
-        </LinearGradient>
+        </View>
       </View>
     </Modal>
   );
@@ -174,7 +171,7 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(5, 4, 10, 0.85)',
+    backgroundColor: 'rgba(35, 33, 32, 0.45)',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
@@ -182,16 +179,17 @@ const styles = StyleSheet.create({
   modalCard: {
     width: '100%',
     maxWidth: 390,
+    backgroundColor: '#FFFFFF',
     borderRadius: 32,
     borderWidth: 1,
-    borderColor: 'rgba(245, 208, 97, 0.25)',
+    borderColor: 'rgba(122, 82, 48, 0.15)',
     paddingHorizontal: 24,
     paddingTop: 36,
     paddingBottom: 28,
     alignItems: 'center',
-    shadowColor: PALETTE.gold.base,
+    shadowColor: '#7A5230',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.12,
     shadowRadius: 28,
     elevation: 8,
   },
@@ -206,9 +204,9 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 40,
     borderWidth: 2,
-    borderColor: PALETTE.gold.base,
+    borderColor: PALETTE.bronze.border,
     padding: 2,
-    backgroundColor: '#0F0824',
+    backgroundColor: '#FFFFFF',
     marginBottom: 14,
     overflow: 'hidden',
   },
@@ -220,13 +218,13 @@ const styles = StyleSheet.create({
   appTitle: {
     fontFamily: FONTS.serifBold,
     fontSize: 24,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
     letterSpacing: 2,
   },
   appSub: {
     fontFamily: FONTS.sansSemiBold,
     fontSize: 9.5,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.base,
     letterSpacing: 1.5,
     marginTop: 4,
   },
@@ -234,7 +232,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.serifItalic,
     fontSize: 13,
     lineHeight: 20,
-    color: '#D1CDDA',
+    color: PALETTE.ink.muted,
     textAlign: 'center',
     marginTop: 14,
     marginBottom: 24,
@@ -252,22 +250,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   appleBtn: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#232120',
   },
   appleBtnText: {
     fontFamily: FONTS.sansBold,
     fontSize: 13.5,
-    color: '#000000',
+    color: '#FFFFFF',
   },
   googleBtn: {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderColor: 'rgba(122, 82, 48, 0.15)',
   },
   googleBtnText: {
     fontFamily: FONTS.sansSemiBold,
     fontSize: 13,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
   },
   dividerRow: {
     flexDirection: 'row',
@@ -277,12 +275,12 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(122, 82, 48, 0.12)',
   },
   dividerText: {
     fontFamily: FONTS.sans,
     fontSize: 10,
-    color: '#9CA3AF',
+    color: PALETTE.ink.muted,
     paddingHorizontal: 10,
   },
   rowBtns: {
@@ -291,7 +289,7 @@ const styles = StyleSheet.create({
   },
   primaryAuthBtn: {
     flex: 1,
-    backgroundColor: PALETTE.gold.base,
+    backgroundColor: PALETTE.bronze.base,
     paddingVertical: 12,
     borderRadius: 18,
     alignItems: 'center',
@@ -300,13 +298,13 @@ const styles = StyleSheet.create({
   primaryAuthBtnText: {
     fontFamily: FONTS.sansBold,
     fontSize: 12.5,
-    color: '#07040E',
+    color: '#FFFFFF',
   },
   secondaryAuthBtn: {
     flex: 1,
-    backgroundColor: 'rgba(245, 208, 97, 0.12)',
+    backgroundColor: PALETTE.prosecco.light,
     borderWidth: 1,
-    borderColor: 'rgba(245, 208, 97, 0.25)',
+    borderColor: PALETTE.prosecco.border,
     paddingVertical: 12,
     borderRadius: 18,
     alignItems: 'center',
@@ -315,7 +313,7 @@ const styles = StyleSheet.create({
   secondaryAuthBtnText: {
     fontFamily: FONTS.sansSemiBold,
     fontSize: 12.5,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.rich,
   },
   formGroup: {
     width: '100%',
@@ -325,9 +323,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    backgroundColor: PALETTE.paper.linen,
     borderWidth: 1,
-    borderColor: 'rgba(245, 208, 97, 0.2)',
+    borderColor: 'rgba(122, 82, 48, 0.15)',
     borderRadius: 16,
     paddingHorizontal: 14,
     paddingVertical: 10,
@@ -336,14 +334,14 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: FONTS.sans,
     fontSize: 13,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
   },
   submitBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: PALETTE.gold.base,
+    backgroundColor: PALETTE.bronze.base,
     paddingVertical: 13,
     borderRadius: 20,
     marginTop: 4,
@@ -351,7 +349,7 @@ const styles = StyleSheet.create({
   submitBtnText: {
     fontFamily: FONTS.sansBold,
     fontSize: 13.5,
-    color: '#07040E',
+    color: '#FFFFFF',
   },
   backLink: {
     alignItems: 'center',
@@ -360,6 +358,6 @@ const styles = StyleSheet.create({
   backLinkText: {
     fontFamily: FONTS.sans,
     fontSize: 11.5,
-    color: '#9CA3AF',
+    color: PALETTE.ink.muted,
   },
 });

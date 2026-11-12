@@ -28,8 +28,8 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: true,
-        tabBarActiveTintColor: PALETTE.gold.base,
-        tabBarInactiveTintColor: '#6B7280',
+        tabBarActiveTintColor: PALETTE.bronze.base,
+        tabBarInactiveTintColor: '#8E8982',
         tabBarStyle: [
           styles.tabBar,
           {
@@ -174,13 +174,13 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: '#07040E',
+    backgroundColor: '#FAF8F5',
     borderTopWidth: 1,
-    borderTopColor: 'rgba(245, 208, 97, 0.15)',
+    borderTopColor: 'rgba(122, 82, 48, 0.12)',
     elevation: 8,
-    shadowColor: '#000000',
+    shadowColor: '#7A5230',
     shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.35,
+    shadowOpacity: 0.08,
     shadowRadius: 10,
   },
   tabBarItem: {
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   iconWrapperActive: {
-    backgroundColor: 'rgba(245, 208, 97, 0.15)',
+    backgroundColor: PALETTE.prosecco.light,
   },
   tabBarLabel: {
     fontFamily: FONTS.sansMedium,

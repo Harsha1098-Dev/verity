@@ -123,7 +123,7 @@ export default function JournalScreen() {
             }}
             style={styles.newEntryBtn}
           >
-            <Plus size={16} color="#07040E" strokeWidth={2.5} />
+            <Plus size={16} color="#FFFFFF" strokeWidth={2.5} />
             <Text style={styles.newEntryBtnText}>Anchor Today</Text>
           </Pressable>
         </View>
@@ -132,7 +132,7 @@ export default function JournalScreen() {
         <View style={styles.statBanner}>
           <View style={styles.statBox}>
             <View style={styles.statIconCircle}>
-              <Heart size={14} color={PALETTE.gold.base} />
+              <Heart size={14} color={PALETTE.bronze.base} />
             </View>
             <View>
               <Text style={styles.statNumber}>{profile.gratitudeCount}</Text>
@@ -143,8 +143,8 @@ export default function JournalScreen() {
           <View style={styles.dividerVertical} />
 
           <View style={styles.statBox}>
-            <View style={[styles.statIconCircle, { backgroundColor: 'rgba(245, 158, 11, 0.15)' }]}>
-              <Flame size={14} color="#F59E0B" />
+            <View style={[styles.statIconCircle, { backgroundColor: PALETTE.prosecco.light }]}>
+              <Flame size={14} color={PALETTE.bronze.base} />
             </View>
             <View>
               <Text style={styles.statNumber}>{profile.streakDays} Days</Text>
@@ -162,11 +162,11 @@ export default function JournalScreen() {
             <View key={entry.id} style={styles.journalCard}>
               <View style={styles.cardTopRow}>
                 <View style={styles.dateTag}>
-                  <Calendar size={12} color={PALETTE.gold.base} />
+                  <Calendar size={12} color={PALETTE.bronze.base} />
                   <Text style={styles.dateText}>{entry.date}</Text>
                 </View>
                 <View style={styles.portalTag}>
-                  <Clock size={11} color={PALETTE.gold.base} />
+                  <Clock size={11} color={PALETTE.bronze.base} />
                   <Text style={styles.portalTagText}>{entry.portalTime}</Text>
                 </View>
               </View>
@@ -192,7 +192,7 @@ export default function JournalScreen() {
               {/* Prompt 4 */}
               <View style={[styles.qaBlock, styles.futureSelfBox]}>
                 <View style={styles.futureSelfHeader}>
-                  <Sparkles size={13} color={PALETTE.gold.base} />
+                  <Sparkles size={13} color={PALETTE.bronze.base} />
                   <Text style={styles.futureSelfLabel}>FUTURE SELF TRANSMISSION</Text>
                 </View>
                 <Text style={styles.futureSelfText}>“{entry.futureSelfSaid}”</Text>
@@ -209,13 +209,10 @@ export default function JournalScreen() {
           presentationStyle="pageSheet"
           onRequestClose={() => setIsModalVisible(false)}
         >
-          <LinearGradient
-            colors={['#0F0824', '#0A0518', '#05030C']}
-            style={styles.modalContainer}
-          >
+          <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
               <Pressable onPress={() => setIsModalVisible(false)} style={{ padding: 6 }}>
-                <X size={20} color="#D1CDDA" />
+                <X size={20} color={PALETTE.ink.charcoal} />
               </Pressable>
               <Text style={styles.modalTitle}>ANCHOR REALITY TRANSMISSION</Text>
               <View style={{ width: 32 }} />
@@ -229,7 +226,7 @@ export default function JournalScreen() {
               {/* Prompt 1 */}
               <View style={styles.inputCard}>
                 <View style={styles.inputCardHeader}>
-                  <Heart size={14} color={PALETTE.gold.base} />
+                  <Heart size={14} color={PALETTE.bronze.base} />
                   <Text style={styles.inputCardLabel}>PROMPT 1</Text>
                 </View>
                 <Text style={styles.inputTitle}>What am I grateful for today?</Text>
@@ -237,7 +234,7 @@ export default function JournalScreen() {
                   value={gratefulFor}
                   onChangeText={setGratefulFor}
                   placeholder="Lock your nervous system into gratitude..."
-                  placeholderTextColor="#6B7280"
+                  placeholderTextColor={PALETTE.ink.muted}
                   multiline
                   style={styles.textInputArea}
                 />
@@ -246,7 +243,7 @@ export default function JournalScreen() {
               {/* Prompt 2 */}
               <View style={styles.inputCard}>
                 <View style={styles.inputCardHeader}>
-                  <Eye size={14} color={PALETTE.gold.base} />
+                  <Eye size={14} color={PALETTE.bronze.base} />
                   <Text style={styles.inputCardLabel}>PROMPT 2</Text>
                 </View>
                 <Text style={styles.inputTitle}>What abundance did I notice today?</Text>
@@ -254,7 +251,7 @@ export default function JournalScreen() {
                   value={abundanceNoticed}
                   onChangeText={setAbundanceNoticed}
                   placeholder="Record syncs, gifts, financial flows, open doors..."
-                  placeholderTextColor="#6B7280"
+                  placeholderTextColor={PALETTE.ink.muted}
                   multiline
                   style={styles.textInputArea}
                 />
@@ -263,7 +260,7 @@ export default function JournalScreen() {
               {/* Prompt 3 */}
               <View style={styles.inputCard}>
                 <View style={styles.inputCardHeader}>
-                  <Sun size={14} color={PALETTE.gold.base} />
+                  <Sun size={14} color={PALETTE.bronze.base} />
                   <Text style={styles.inputCardLabel}>PROMPT 3</Text>
                 </View>
                 <Text style={styles.inputTitle}>What amazing thing happened today?</Text>
@@ -271,7 +268,7 @@ export default function JournalScreen() {
                   value={amazingHappened}
                   onChangeText={setAmazingHappened}
                   placeholder="Celebrate your wins, however quiet or massive..."
-                  placeholderTextColor="#6B7280"
+                  placeholderTextColor={PALETTE.ink.muted}
                   multiline
                   style={styles.textInputArea}
                 />
@@ -280,7 +277,7 @@ export default function JournalScreen() {
               {/* Prompt 4 */}
               <View style={styles.inputCard}>
                 <View style={styles.inputCardHeader}>
-                  <Sparkles size={14} color={PALETTE.gold.base} />
+                  <Sparkles size={14} color={PALETTE.bronze.base} />
                   <Text style={styles.inputCardLabel}>PROMPT 4</Text>
                 </View>
                 <Text style={styles.inputTitle}>What would my future self say right now?</Text>
@@ -288,7 +285,7 @@ export default function JournalScreen() {
                   value={futureSelfSaid}
                   onChangeText={setFutureSelfSaid}
                   placeholder="Transmission from the version of you who already lives it..."
-                  placeholderTextColor="#6B7280"
+                  placeholderTextColor={PALETTE.ink.muted}
                   multiline
                   style={styles.textInputArea}
                 />
@@ -296,11 +293,11 @@ export default function JournalScreen() {
 
               {/* Submit Button */}
               <Pressable onPress={handleSaveEntry} style={styles.sealEntryBtn}>
-                <Check size={18} color="#07040E" strokeWidth={2.5} />
+                <Check size={18} color="#FFFFFF" strokeWidth={2.5} />
                 <Text style={styles.sealEntryBtnText}>Seal Into Reality</Text>
               </Pressable>
             </ScrollView>
-          </LinearGradient>
+          </View>
         </Modal>
       </View>
     </SafeAreaView>
@@ -310,11 +307,11 @@ export default function JournalScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#05040A',
+    backgroundColor: PALETTE.paper.linen,
   },
   container: {
     flex: 1,
-    backgroundColor: '#05040A',
+    backgroundColor: PALETTE.paper.linen,
   },
   headerRow: {
     flexDirection: 'row',
@@ -324,25 +321,25 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 14,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(245, 208, 97, 0.12)',
+    borderBottomColor: 'rgba(122, 82, 48, 0.12)',
   },
   headerTitle: {
     fontFamily: FONTS.serifBold,
     fontSize: 18,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
     letterSpacing: 1,
   },
   headerSubtitle: {
     fontFamily: FONTS.sans,
     fontSize: 11,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.base,
     marginTop: 2,
   },
   newEntryBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: PALETTE.gold.base,
+    backgroundColor: PALETTE.bronze.base,
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: 18,
@@ -350,20 +347,25 @@ const styles = StyleSheet.create({
   newEntryBtnText: {
     fontFamily: FONTS.sansBold,
     fontSize: 11.5,
-    color: '#07040E',
+    color: '#FFFFFF',
   },
   statBanner: {
     flexDirection: 'row',
     marginHorizontal: 18,
     marginTop: 14,
     marginBottom: 10,
-    backgroundColor: 'rgba(26, 20, 56, 0.6)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(245, 208, 97, 0.18)',
+    borderColor: 'rgba(122, 82, 48, 0.12)',
     paddingVertical: 12,
     paddingHorizontal: 16,
     alignItems: 'center',
+    shadowColor: '#7A5230',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 1,
   },
   statBox: {
     flex: 1,
@@ -375,24 +377,24 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: 'rgba(245, 208, 97, 0.15)',
+    backgroundColor: PALETTE.prosecco.light,
     alignItems: 'center',
     justifyContent: 'center',
   },
   statNumber: {
     fontFamily: FONTS.sansBold,
     fontSize: 15,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
   },
   statLabel: {
     fontFamily: FONTS.sans,
     fontSize: 10,
-    color: '#9CA3AF',
+    color: PALETTE.ink.muted,
   },
   dividerVertical: {
     width: 1,
     height: 24,
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    backgroundColor: 'rgba(122, 82, 48, 0.12)',
     marginHorizontal: 12,
   },
   timelineScroll: {
@@ -401,12 +403,17 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   journalCard: {
-    backgroundColor: 'rgba(26, 20, 56, 0.75)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: 'rgba(245, 208, 97, 0.18)',
+    borderColor: 'rgba(122, 82, 48, 0.12)',
     padding: 18,
     gap: 12,
+    shadowColor: '#7A5230',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   cardTopRow: {
     flexDirection: 'row',
@@ -414,7 +421,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingBottom: 10,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+    borderBottomColor: 'rgba(122, 82, 48, 0.08)',
   },
   dateTag: {
     flexDirection: 'row',
@@ -424,13 +431,13 @@ const styles = StyleSheet.create({
   dateText: {
     fontFamily: FONTS.sansSemiBold,
     fontSize: 12,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
   },
   portalTag: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(245, 208, 97, 0.15)',
+    backgroundColor: PALETTE.prosecco.light,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 10,
@@ -438,7 +445,7 @@ const styles = StyleSheet.create({
   portalTagText: {
     fontFamily: FONTS.sansMedium,
     fontSize: 10,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.rich,
   },
   qaBlock: {
     gap: 3,
@@ -447,20 +454,20 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.sansSemiBold,
     fontSize: 9.5,
     letterSpacing: 1,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.base,
   },
   answerText: {
     fontFamily: FONTS.sans,
     fontSize: 13,
     lineHeight: 19,
-    color: '#D1CDDA',
+    color: PALETTE.ink.charcoal,
   },
   futureSelfBox: {
-    backgroundColor: 'rgba(10, 6, 26, 0.65)',
+    backgroundColor: PALETTE.paper.linen,
     borderRadius: 14,
     padding: 12,
     borderLeftWidth: 3,
-    borderLeftColor: PALETTE.gold.base,
+    borderLeftColor: PALETTE.bronze.base,
     marginTop: 4,
   },
   futureSelfHeader: {
@@ -473,16 +480,17 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.sansBold,
     fontSize: 9.5,
     letterSpacing: 1.2,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.base,
   },
   futureSelfText: {
     fontFamily: FONTS.serifItalic,
     fontSize: 13,
     lineHeight: 19,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
   },
   modalContainer: {
     flex: 1,
+    backgroundColor: PALETTE.paper.linen,
     paddingTop: Platform.OS === 'ios' ? 24 : 16,
     paddingHorizontal: 20,
   },
@@ -492,13 +500,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(245, 208, 97, 0.15)',
+    borderBottomColor: 'rgba(122, 82, 48, 0.12)',
   },
   modalTitle: {
     fontFamily: FONTS.sansSemiBold,
     fontSize: 12,
     letterSpacing: 1.5,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.base,
   },
   modalScroll: {
     paddingTop: 16,
@@ -506,11 +514,16 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   inputCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: 'rgba(245, 208, 97, 0.15)',
+    borderColor: 'rgba(122, 82, 48, 0.12)',
     padding: 14,
+    shadowColor: '#7A5230',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 1,
   },
   inputCardHeader: {
     flexDirection: 'row',
@@ -522,23 +535,23 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.sansBold,
     fontSize: 9.5,
     letterSpacing: 1,
-    color: PALETTE.gold.base,
+    color: PALETTE.bronze.base,
   },
   inputTitle: {
     fontFamily: FONTS.serifBold,
     fontSize: 15,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
     marginBottom: 8,
   },
   textInputArea: {
-    backgroundColor: 'rgba(7, 4, 14, 0.7)',
+    backgroundColor: PALETTE.paper.linen,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(122, 82, 48, 0.15)',
     padding: 10,
     fontFamily: FONTS.sans,
     fontSize: 13,
-    color: '#FFFFFF',
+    color: PALETTE.ink.charcoal,
     minHeight: 60,
     textAlignVertical: 'top',
   },
@@ -547,7 +560,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: PALETTE.gold.base,
+    backgroundColor: PALETTE.bronze.base,
     paddingVertical: 14,
     borderRadius: 24,
     marginTop: 8,
@@ -555,7 +568,7 @@ const styles = StyleSheet.create({
   sealEntryBtnText: {
     fontFamily: FONTS.sansBold,
     fontSize: 14,
-    color: '#07040E',
+    color: '#FFFFFF',
     letterSpacing: 0.5,
   },
 });
