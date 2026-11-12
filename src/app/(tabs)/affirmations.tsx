@@ -10,6 +10,7 @@ import {
   Share,
   Modal,
   ScrollView,
+  ImageBackground,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
@@ -19,11 +20,11 @@ import {
   Sparkles,
   Bookmark,
   X,
-  Play,
-  ArrowLeft,
-  ArrowRight,
-  Flame,
   Zap,
+  Layers,
+  Eye,
+  Check,
+  Shuffle,
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { PALETTE, FONTS } from '@/constants/theme';
@@ -31,12 +32,17 @@ import {
   AffirmationItem,
   AffirmationCategory,
   UserPortalProfile,
+  AI3DSceneDefinition,
 } from '@/types/portal';
 import {
   buildAffirmationFeed,
   generateDynamicAffirmation,
   THEMED_BACKGROUNDS,
   MASTER_CATEGORIES_LIST,
+  AI_3D_SCENE_CATALOG,
+  LOCAL_3D_SCENE_ASSETS,
+  getRandom3DScene,
+  get3DSceneById,
 } from '@/utils/portalEngine';
 import {
   loadPortalProfile,
@@ -50,6 +56,17 @@ const ALL_CATEGORIES: ('All' | AffirmationCategory)[] = [
   ...MASTER_CATEGORIES_LIST,
 ];
 
+const FLOATING_PARTICLES = [
+  { top: '14%', left: '18%', size: 4, opacity: 0.65 },
+  { top: '22%', left: '82%', size: 5, opacity: 0.7 },
+  { top: '35%', left: '10%', size: 3, opacity: 0.5 },
+  { top: '44%', left: '88%', size: 6, opacity: 0.75 },
+  { top: '60%', left: '16%', size: 4, opacity: 0.6 },
+  { top: '70%', left: '80%', size: 5, opacity: 0.7 },
+  { top: '78%', left: '28%', size: 3, opacity: 0.55 },
+  { top: '84%', left: '68%', size: 4, opacity: 0.65 },
+];
+
 export default function AffirmationsScreen() {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [profile, setProfile] = useState<Partial<UserPortalProfile>>({});
@@ -58,8 +75,10 @@ export default function AffirmationsScreen() {
   const [selectedCategory, setSelectedCategory] = useState<'All' | AffirmationCategory>('All');
   const [favorites, setFavorites] = useState<AffirmationItem[]>([]);
   const [favoritesModalVisible, setFavoritesModalVisible] = useState(false);
+  const [scenePickerVisible, setScenePickerVisible] = useState(false);
   const [audioModalVisible, setAudioModalVisible] = useState(false);
   const [shareNotice, setShareNotice] = useState<string | null>(null);
+  const [customSceneOverrides, setCustomSceneOverrides] = useState<Record<string, string>>({});
 
   const flatListRef = useRef<FlatList<AffirmationItem>>(null);
 
@@ -103,15 +122,55 @@ export default function AffirmationsScreen() {
     triggerHaptic('medium');
     const currentItem = filteredFeed[activeIndex];
     const category = currentItem ? currentItem.category : 'Wealth';
+
+    // Generates BOTH a new affirmation AND selects a new dynamic 3D scene
+    const freshScene = getRandom3DScene(currentItem?.backgroundTheme?.sceneId);
     const newAff = generateDynamicAffirmation(
       profile,
       category,
-      profile.portalTimes?.[0] || '11:11'
+      profile.portalTimes?.[0] || '11:11',
+      freshScene.id
     );
 
     setFeed((prev) => [newAff, ...prev]);
     setActiveIndex(0);
     flatListRef.current?.scrollToIndex({ index: 0, animated: true });
+
+    setShareNotice(`✨ New Transmission & 3D ${freshScene.name}`);
+    setTimeout(() => setShareNotice(null), 2500);
+  };
+
+  const handleCycleSceneForCard = (cardId: string) => {
+    triggerHaptic('light');
+    const currentSceneId = customSceneOverrides[cardId] || filteredFeed[activeIndex]?.backgroundTheme?.sceneId;
+    const nextScene = getRandom3DScene(currentSceneId);
+    setCustomSceneOverrides((prev) => ({
+      ...prev,
+      [cardId]: nextScene.id,
+    }));
+    setShareNotice(`✨ 3D Scene: ${nextScene.name}`);
+    setTimeout(() => setShareNotice(null), 2200);
+  };
+
+  const handleSelectSceneFromModal = (sceneId: string, applyToAll = false) => {
+    triggerHaptic('success');
+    const currentItem = filteredFeed[activeIndex];
+    if (applyToAll) {
+      const overrides: Record<string, string> = {};
+      feed.forEach((f) => {
+        overrides[f.id] = sceneId;
+      });
+      setCustomSceneOverrides(overrides);
+    } else if (currentItem) {
+      setCustomSceneOverrides((prev) => ({
+        ...prev,
+        [currentItem.id]: sceneId,
+      }));
+    }
+    const scene = get3DSceneById(sceneId);
+    setScenePickerVisible(false);
+    setShareNotice(`✨ 3D Scene Applied: ${scene.name}`);
+    setTimeout(() => setShareNotice(null), 2200);
   };
 
   const handleShare = async (item: AffirmationItem) => {
@@ -159,6 +218,11 @@ export default function AffirmationsScreen() {
     }
   };
 
+  const currentItem = filteredFeed[activeIndex];
+  const activeSceneId = currentItem
+    ? (customSceneOverrides[currentItem.id] || currentItem.backgroundTheme?.sceneId || 'scene_liquid_gold')
+    : 'scene_liquid_gold';
+
   return (
     <View style={styles.container}>
       {/* Top Floating Header & Category Bar */}
@@ -171,14 +235,30 @@ export default function AffirmationsScreen() {
             </Text>
           </View>
 
-          <Pressable
-            onPress={() => setFavoritesModalVisible(true)}
-            style={styles.favoritesBtn}
-            hitSlop={8}
-          >
-            <Bookmark size={14} color={PALETTE.gold.base} />
-            <Text style={styles.favoritesCountText}>{favorites.length}</Text>
-          </Pressable>
+          <View style={styles.topRightControls}>
+            {/* 3D Scene Selector Pill */}
+            <Pressable
+              onPress={() => {
+                triggerHaptic('light');
+                setScenePickerVisible(true);
+              }}
+              style={styles.sceneSelectorTopBtn}
+              hitSlop={8}
+            >
+              <Layers size={13} color={PALETTE.gold.base} />
+              <Text style={styles.sceneSelectorTopText}>3D Atmosphere</Text>
+            </Pressable>
+
+            {/* Saved Bookmarks Button */}
+            <Pressable
+              onPress={() => setFavoritesModalVisible(true)}
+              style={styles.favoritesBtn}
+              hitSlop={8}
+            >
+              <Bookmark size={14} color={PALETTE.gold.base} />
+              <Text style={styles.favoritesCountText}>{favorites.length}</Text>
+            </Pressable>
+          </View>
         </View>
 
         <ScrollView
@@ -215,7 +295,7 @@ export default function AffirmationsScreen() {
         </ScrollView>
       </View>
 
-      {/* Share Toast Notice */}
+      {/* Share & Scene Toast Notice */}
       {shareNotice && (
         <View style={styles.toastNotice}>
           <Sparkles size={14} color={PALETTE.gold.base} />
@@ -244,41 +324,123 @@ export default function AffirmationsScreen() {
         renderItem={({ item, index }) => {
           const isFav =
             favorites.some((f) => f.id === item.id) || item.isFavorite;
-          const bg = item.backgroundTheme || THEMED_BACKGROUNDS.Wealth;
+
+          // Resolve active 3D scene (with custom card override or default assigned scene)
+          const overrideSceneId = customSceneOverrides[item.id];
+          const activeScene = overrideSceneId
+            ? get3DSceneById(overrideSceneId)
+            : (item.backgroundTheme?.sceneId ? get3DSceneById(item.backgroundTheme.sceneId) : null);
+
+          const localKey = activeScene?.localAssetKey || item.backgroundTheme?.localAssetKey;
+          const localAsset = localKey ? LOCAL_3D_SCENE_ASSETS[localKey] : null;
+          const remoteUri = activeScene?.imageUrl || item.backgroundTheme?.aiSceneUrl;
+          const imageSource = localAsset || (remoteUri ? { uri: remoteUri } : null);
+
+          const gradientOverlay =
+            activeScene?.gradientOverlay ||
+            item.backgroundTheme?.gradient ||
+            THEMED_BACKGROUNDS.Wealth.gradient;
+
+          const particleColor =
+            activeScene?.particleColor ||
+            item.backgroundTheme?.particleColor ||
+            '#F5D061';
+
+          const accentGlow =
+            activeScene?.accentGlow ||
+            item.backgroundTheme?.accentGlow ||
+            'rgba(245, 208, 97, 0.45)';
+
+          const atmosphereName =
+            activeScene?.name ||
+            item.backgroundTheme?.atmosphereName ||
+            'Cosmic Portal';
+
+          const styleTag =
+            activeScene?.style ||
+            item.backgroundTheme?.ai3dStyle ||
+            'AI 3D Atmosphere';
 
           return (
             <View style={[styles.reelPage, { height: windowHeight }]}>
-              {/* Immersive Full-Screen Themed Background */}
-              <LinearGradient
-                colors={bg.gradient}
-                style={StyleSheet.absoluteFill}
-              />
+              {/* Dynamic Photorealistic AI 3D Scene Background */}
+              {imageSource ? (
+                <ImageBackground
+                  source={imageSource}
+                  style={StyleSheet.absoluteFill}
+                  resizeMode="cover"
+                >
+                  {/* Multi-Stop Dark Vignette Overlay for pristine typography legibility */}
+                  <LinearGradient
+                    colors={gradientOverlay}
+                    style={StyleSheet.absoluteFill}
+                  />
+                </ImageBackground>
+              ) : (
+                <LinearGradient
+                  colors={gradientOverlay}
+                  style={StyleSheet.absoluteFill}
+                />
+              )}
 
-              {/* Floating Ambient Atmosphere Layer */}
-              <View style={styles.ambientAtmosphere}>
+              {/* Floating Ambient Cosmic Glow Orb */}
+              <View style={styles.ambientAtmosphere} pointerEvents="none">
                 <View
                   style={[
                     styles.cosmicGlowOrb,
-                    { backgroundColor: bg.accentGlow },
+                    { backgroundColor: accentGlow },
                   ]}
                 />
               </View>
 
-              {/* Center Affirmation Card & Transmission */}
-              <View style={styles.affirmationContentContainer}>
-                {/* Category & Atmosphere Tag */}
-                <View style={styles.categoryBadgeRow}>
+              {/* Floating 3D Starlight Particles */}
+              <View style={StyleSheet.absoluteFill} pointerEvents="none">
+                {FLOATING_PARTICLES.map((p, pIdx) => (
+                  <View
+                    key={pIdx}
+                    style={[
+                      styles.shimmerParticle,
+                      {
+                        top: p.top as any,
+                        left: p.left as any,
+                        width: p.size,
+                        height: p.size,
+                        borderRadius: p.size / 2,
+                        backgroundColor: particleColor,
+                        opacity: p.opacity,
+                      },
+                    ]}
+                  />
+                ))}
+              </View>
+
+              {/* Glassmorphic Affirmation Card Container */}
+              <View style={styles.glassAffirmationCard}>
+                {/* Header Row: Category Badge & 3D Atmosphere Tag */}
+                <View style={styles.cardHeaderRow}>
                   <View style={styles.portalPill}>
-                    <Sparkles size={12} color={bg.particleColor} />
+                    <Sparkles size={11} color={particleColor} />
                     <Text
                       style={[
                         styles.portalPillText,
-                        { color: bg.particleColor },
+                        { color: particleColor },
                       ]}
                     >
                       {item.category.toUpperCase()}
                     </Text>
                   </View>
+
+                  <Pressable
+                    onPress={() => {
+                      triggerHaptic('light');
+                      setScenePickerVisible(true);
+                    }}
+                    style={styles.scenePill}
+                    hitSlop={6}
+                  >
+                    <Layers size={10} color={PALETTE.gold.base} />
+                    <Text style={styles.scenePillText}>{styleTag}</Text>
+                  </Pressable>
                 </View>
 
                 {/* Large Present-Tense Affirmation Text */}
@@ -288,7 +450,18 @@ export default function AffirmationsScreen() {
                 <Text style={styles.affirmationNoteText}>
                   {item.authorNote}
                 </Text>
-                <Text style={styles.atmosphereSub}>{bg.atmosphereName}</Text>
+
+                {/* Interactive 3D Scene Cycle Bar on Card */}
+                <Pressable
+                  onPress={() => handleCycleSceneForCard(item.id)}
+                  style={styles.sceneCycleButton}
+                  hitSlop={8}
+                >
+                  <Eye size={12} color={PALETTE.gold.base} />
+                  <Text style={styles.sceneCycleText}>
+                    {atmosphereName} • Tap to Rotate 3D Scene
+                  </Text>
+                </Pressable>
               </View>
 
               {/* Bottom Actions Floating Bar */}
@@ -331,7 +504,7 @@ export default function AffirmationsScreen() {
                     <Text style={styles.actionLabel}>Listen</Text>
                   </Pressable>
 
-                  {/* Regenerate AI Affirmation */}
+                  {/* Regenerate AI Affirmation + New 3D Scene */}
                   <Pressable
                     onPress={handleRegenerateCurrent}
                     style={styles.actionBtn}
@@ -406,6 +579,93 @@ export default function AffirmationsScreen() {
           );
         }}
       />
+
+      {/* 3D Scene Atmosphere Selector Modal */}
+      <Modal
+        visible={scenePickerVisible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setScenePickerVisible(false)}
+      >
+        <View style={styles.sceneModalContainer}>
+          <View style={styles.sceneModalTopBar}>
+            <View style={styles.sceneModalTitleRow}>
+              <Layers size={18} color={PALETTE.gold.base} />
+              <Text style={styles.sceneModalTitle}>AI 3D ATMOSPHERES</Text>
+            </View>
+            <Pressable
+              onPress={() => setScenePickerVisible(false)}
+              style={{ padding: 6 }}
+            >
+              <X size={20} color={PALETTE.gold.base} />
+            </Pressable>
+          </View>
+
+          <Text style={styles.sceneModalSub}>
+            Photorealistic 3D environments rendered to elevate your subconscious reality. Backgrounds rotate dynamically on every swipe and regeneration.
+          </Text>
+
+          {/* Quick Surprise Me Button */}
+          <Pressable
+            onPress={() => {
+              const random = getRandom3DScene(activeSceneId);
+              handleSelectSceneFromModal(random.id);
+            }}
+            style={styles.randomSceneBtn}
+          >
+            <Shuffle size={15} color="#07040E" />
+            <Text style={styles.randomSceneBtnText}>Surprise Me (Random 3D Scene)</Text>
+          </Pressable>
+
+          <ScrollView
+            contentContainerStyle={styles.scenesScrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            {AI_3D_SCENE_CATALOG.map((scene) => {
+              const isSelected = scene.id === activeSceneId;
+              const hasLocal = !!scene.localAssetKey && !!LOCAL_3D_SCENE_ASSETS[scene.localAssetKey];
+
+              return (
+                <Pressable
+                  key={scene.id}
+                  onPress={() => handleSelectSceneFromModal(scene.id)}
+                  style={[
+                    styles.sceneCard,
+                    isSelected && styles.sceneCardSelected,
+                  ]}
+                >
+                  <View style={styles.sceneCardLeft}>
+                    <View
+                      style={[
+                        styles.sceneIconDot,
+                        { backgroundColor: scene.particleColor },
+                      ]}
+                    />
+                    <View style={styles.sceneInfoBlock}>
+                      <View style={styles.sceneNameRow}>
+                        <Text style={styles.sceneCardName}>{scene.name}</Text>
+                        {hasLocal && (
+                          <View style={styles.octane3DTag}>
+                            <Text style={styles.octane3DText}>3D OCTANE</Text>
+                          </View>
+                        )}
+                      </View>
+                      <Text style={styles.sceneCardStyle}>{scene.style} • {scene.category}</Text>
+                      <Text style={styles.sceneCardVibe}>{scene.vibeDescription}</Text>
+                    </View>
+                  </View>
+
+                  {isSelected && (
+                    <View style={styles.selectedCheckCircle}>
+                      <Check size={14} color="#07040E" />
+                    </View>
+                  )}
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        </View>
+      </Modal>
 
       {/* Favorites Drawer Modal */}
       <Modal
@@ -494,6 +754,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  topRightControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   activePortalTag: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -510,6 +775,23 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: PALETTE.gold.base,
     letterSpacing: 0.8,
+  },
+  sceneSelectorTopBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 11,
+    paddingVertical: 6,
+    borderRadius: 16,
+    backgroundColor: 'rgba(5, 4, 10, 0.75)',
+    borderWidth: 1,
+    borderColor: PALETTE.gold.border,
+  },
+  sceneSelectorTopText: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 11,
+    color: PALETTE.gold.base,
+    letterSpacing: 0.5,
   },
   categoryScroll: {
     gap: 8,
@@ -560,12 +842,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#120E2E',
+    backgroundColor: 'rgba(18, 14, 46, 0.92)',
     borderWidth: 1,
     borderColor: PALETTE.gold.border,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
   },
   toastNoticeText: {
     fontFamily: FONTS.sansMedium,
@@ -576,7 +862,7 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 28,
+    paddingHorizontal: 22,
   },
   ambientAtmosphere: {
     ...StyleSheet.absoluteFill,
@@ -588,59 +874,101 @@ const styles = StyleSheet.create({
     width: 320,
     height: 320,
     borderRadius: 160,
-    opacity: 0.25,
+    opacity: 0.28,
   },
-  affirmationContentContainer: {
+  shimmerParticle: {
+    position: 'absolute',
+  },
+  glassAffirmationCard: {
     width: '100%',
+    backgroundColor: 'rgba(10, 7, 18, 0.62)',
+    borderRadius: 26,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.14)',
+    paddingVertical: 26,
+    paddingHorizontal: 22,
     alignItems: 'center',
-    paddingVertical: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.45,
+    shadowRadius: 16,
   },
-  categoryBadgeRow: {
+  cardHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
     marginBottom: 20,
   },
   portalPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 14,
     backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.15)',
   },
   portalPillText: {
     fontFamily: FONTS.sansBold,
-    fontSize: 11,
+    fontSize: 10.5,
     letterSpacing: 1.2,
+  },
+  scenePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 14,
+    backgroundColor: 'rgba(245, 208, 97, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(245, 208, 97, 0.28)',
+  },
+  scenePillText: {
+    fontFamily: FONTS.sansSemiBold,
+    fontSize: 10.5,
+    color: PALETTE.gold.base,
   },
   affirmationText: {
     fontFamily: FONTS.serifBold,
-    fontSize: 27,
-    lineHeight: 40,
+    fontSize: 26,
+    lineHeight: 38,
     color: '#FFFFFF',
     textAlign: 'center',
     letterSpacing: 0.3,
-    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowColor: 'rgba(0, 0, 0, 0.85)',
     textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 10,
+    textShadowRadius: 12,
   },
   affirmationNoteText: {
     fontFamily: FONTS.serifItalic,
     fontSize: 13,
     lineHeight: 20,
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: 'rgba(255, 255, 255, 0.72)',
     textAlign: 'center',
     marginTop: 18,
     maxWidth: 320,
   },
-  atmosphereSub: {
-    fontFamily: FONTS.sans,
+  sceneCycleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 18,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  sceneCycleText: {
+    fontFamily: FONTS.sansMedium,
     fontSize: 11,
-    color: 'rgba(255, 255, 255, 0.4)',
-    letterSpacing: 1,
-    marginTop: 6,
-    textTransform: 'uppercase',
+    color: PALETTE.gold.base,
+    letterSpacing: 0.5,
   },
   bottomControlsContainer: {
     position: 'absolute',
@@ -654,10 +982,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
     paddingVertical: 10,
-    backgroundColor: 'rgba(5, 4, 10, 0.65)',
+    backgroundColor: 'rgba(5, 4, 10, 0.75)',
     borderRadius: 26,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(255, 255, 255, 0.12)',
   },
   actionBtn: {
     alignItems: 'center',
@@ -685,7 +1013,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
   },
   prevNextBtn: {
-    backgroundColor: 'rgba(26, 20, 56, 0.8)',
+    backgroundColor: 'rgba(26, 20, 56, 0.85)',
     borderWidth: 1,
     borderColor: 'rgba(245, 208, 97, 0.25)',
     paddingHorizontal: 16,
@@ -704,6 +1032,131 @@ const styles = StyleSheet.create({
   },
   prevNextBtnTextDisabled: {
     color: '#9CA3AF',
+  },
+  sceneModalContainer: {
+    flex: 1,
+    backgroundColor: '#0A0612',
+    paddingTop: Platform.OS === 'ios' ? 24 : 16,
+    paddingHorizontal: 20,
+  },
+  sceneModalTopBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingBottom: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(245, 208, 97, 0.15)',
+  },
+  sceneModalTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  sceneModalTitle: {
+    fontFamily: FONTS.sansSemiBold,
+    fontSize: 13,
+    letterSpacing: 1.5,
+    color: PALETTE.gold.base,
+  },
+  sceneModalSub: {
+    fontFamily: FONTS.sans,
+    fontSize: 12,
+    color: '#D1CDDA',
+    lineHeight: 18,
+    marginTop: 12,
+    marginBottom: 14,
+  },
+  randomSceneBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: PALETTE.gold.base,
+    paddingVertical: 12,
+    borderRadius: 16,
+    marginBottom: 16,
+  },
+  randomSceneBtnText: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 13,
+    color: '#07040E',
+    letterSpacing: 0.5,
+  },
+  scenesScrollContent: {
+    paddingBottom: 40,
+    gap: 12,
+  },
+  sceneCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(22, 14, 38, 0.75)',
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    padding: 14,
+  },
+  sceneCardSelected: {
+    borderColor: PALETTE.gold.base,
+    backgroundColor: 'rgba(38, 24, 62, 0.95)',
+  },
+  sceneCardLeft: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+    flex: 1,
+  },
+  sceneIconDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginTop: 4,
+  },
+  sceneInfoBlock: {
+    flex: 1,
+    gap: 3,
+  },
+  sceneNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  sceneCardName: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 14,
+    color: '#FFFFFF',
+  },
+  octane3DTag: {
+    backgroundColor: 'rgba(245, 208, 97, 0.2)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
+  },
+  octane3DText: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 8.5,
+    color: PALETTE.gold.base,
+    letterSpacing: 0.6,
+  },
+  sceneCardStyle: {
+    fontFamily: FONTS.sansMedium,
+    fontSize: 11,
+    color: PALETTE.gold.base,
+  },
+  sceneCardVibe: {
+    fontFamily: FONTS.sans,
+    fontSize: 11.5,
+    color: 'rgba(255, 255, 255, 0.65)',
+    lineHeight: 16,
+  },
+  selectedCheckCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: PALETTE.gold.base,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 10,
   },
   favoritesModalContainer: {
     flex: 1,

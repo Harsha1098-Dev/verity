@@ -222,6 +222,19 @@ export type AffirmationPatternType =
   | 'Expansion-Based'
   | 'Completion-Based';
 
+export interface AI3DSceneDefinition {
+  id: string;
+  name: string;
+  category: AffirmationCategory;
+  style: string;
+  localAssetKey?: string;
+  imageUrl: string;
+  gradientOverlay: [string, string, string];
+  particleColor: string;
+  accentGlow: string;
+  vibeDescription: string;
+}
+
 export interface AffirmationItem {
   id: string;
   text: string;
@@ -237,6 +250,10 @@ export interface AffirmationItem {
     atmosphereName: string;
     iconName: string;
     accentGlow: string;
+    aiSceneUrl?: string;
+    ai3dStyle?: string;
+    localAssetKey?: string;
+    sceneId?: string;
   };
 }
 
