@@ -3,6 +3,8 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const { initializeFirebaseAdmin } = require('./config/firebaseAdmin');
 const authRoutes = require('./routes/authRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
+const { getPublicBankDetails } = require('./config/bankConfig');
 
 // Load environment variables
 dotenv.config();
@@ -35,14 +37,15 @@ app.use((req, res, next) => {
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'healthy',
-    service: 'Portal 11:11 Mobile OTP Authentication Server',
+    service: 'Portal 11:11 Mobile OTP & Payment Gateway Server',
     environment: process.env.NODE_ENV || 'development',
     time: new Date().toISOString(),
   });
 });
 
-// Mount Authentication routes
+// Mount Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/payment', paymentRoutes);
 
 // 404 handler
 app.use((req, res) => {
@@ -63,11 +66,13 @@ app.use((err, req, res, next) => {
 
 // Start listening
 app.listen(PORT, '0.0.0.0', () => {
+  const bank = getPublicBankDetails();
   console.log(`\n======================================================`);
-  console.log(`✨ PORTAL 11:11 FIREBASE MOBILE OTP SERVER IS ACTIVE`);
+  console.log(`✨ PORTAL 11:11 FIREBASE AUTH & PAYMENT SERVER IS ACTIVE`);
   console.log(`📡 URL: http://localhost:${PORT}`);
-  console.log(`🇮🇳 Indian Mobile Numbers Support: Ready (+91)`);
-  console.log(`⏱️ Resend Cooldown: 30 Seconds enforced`);
+  console.log(`🇮🇳 Indian Mobile Numbers: Ready (+91)`);
+  console.log(`💳 Payment Gateway: Razorpay UPI, Cards & Net Banking`);
+  console.log(`🏦 Direct Bank Settlement: ${bank.accountHolderName} | ${bank.bankName} (${bank.maskedAccountNumber}) | IFSC: ${bank.ifscCode}`);
   console.log(`======================================================\n`);
 });
 

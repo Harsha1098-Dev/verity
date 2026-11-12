@@ -32,6 +32,8 @@ import {
   Phone,
   ShieldCheck,
   RefreshCw,
+  Building2,
+  CreditCard,
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { PALETTE, FONTS, SHADOWS } from '@/constants/theme';
@@ -46,12 +48,14 @@ import {
 } from '@/utils/portalStore';
 import { PortalOnboardingModal } from '@/components/PortalOnboardingModal';
 import { WelcomeAuthModal } from '@/components/WelcomeAuthModal';
+import { PaymentGatewayModal } from '@/components/PaymentGatewayModal';
 
 export default function ProfileScreen() {
   const [profile, setProfile] = useState<UserPortalProfile>(DEFAULT_PORTAL_PROFILE);
   const [onboardingVisible, setOnboardingVisible] = useState(false);
   const [authVisible, setAuthVisible] = useState(false);
-  const [premiumModalVisible, setPremiumModalVisible] = useState(false);
+  const [paymentModalVisible, setPaymentModalVisible] = useState(false);
+  const [paymentModalTab, setPaymentModalTab] = useState<'checkout' | 'banking'>('checkout');
 
   const [remindersEnabled, setRemindersEnabled] = useState(true);
   const [hapticsEnabled, setHapticsEnabled] = useState(true);
@@ -127,13 +131,14 @@ export default function ProfileScreen() {
           <Pressable
             onPress={() => {
               triggerHaptic();
-              setPremiumModalVisible(true);
+              setPaymentModalTab('checkout');
+              setPaymentModalVisible(true);
             }}
             style={styles.membershipPill}
           >
             <Crown size={13} color={PALETTE.bronze.base} />
             <Text style={styles.membershipPillText}>
-              Portal 11:11 VIP • Unlimited AI Engine
+              Portal 11:11 VIP • Payment Gateway & Direct Bank
             </Text>
           </Pressable>
         </View>
@@ -377,6 +382,60 @@ export default function ProfileScreen() {
           </View>
         </View>
 
+        {/* Direct Merchant Banking & Settlement */}
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionTitleRow}>
+            <Text style={styles.sectionTitle}>Merchant Banking & Settlements</Text>
+            <View style={styles.verifiedBadge}>
+              <ShieldCheck size={11} color="#059669" />
+              <Text style={styles.verifiedBadgeText}>DIRECT BANK CONNECTED</Text>
+            </View>
+          </View>
+
+          <Text style={styles.bankSectionDesc}>
+            All user payments via Razorpay UPI, cards, and membership subscriptions settle directly into this verified account.
+          </Text>
+
+          <View style={styles.bankQuickCard}>
+            <View style={styles.bankQuickRow}>
+              <Building2 size={20} color={PALETTE.bronze.base} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.bankQuickName}>HDFC Bank Ltd • Current A/C</Text>
+                <Text style={styles.bankQuickAcc}>••••••••••1478 (IFSC: HDFC0000060)</Text>
+              </View>
+              <View style={styles.settlePill}>
+                <Text style={styles.settlePillText}>T+1 Payouts</Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.bankActionsRow}>
+            <Pressable
+              onPress={() => {
+                triggerHaptic();
+                setPaymentModalTab('banking');
+                setPaymentModalVisible(true);
+              }}
+              style={styles.manageBankBtn}
+            >
+              <Building2 size={14} color={PALETTE.bronze.base} />
+              <Text style={styles.manageBankBtnText}>Connect / Manage Bank</Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => {
+                triggerHaptic();
+                setPaymentModalTab('checkout');
+                setPaymentModalVisible(true);
+              }}
+              style={styles.viewGateBtn}
+            >
+              <Crown size={14} color="#FFFFFF" />
+              <Text style={styles.viewGateBtnText}>Payment Gateway</Text>
+            </Pressable>
+          </View>
+        </View>
+
         {/* Ethical Statement */}
         <View style={styles.ethicsContainer}>
           <Shield size={14} color={PALETTE.bronze.base} />
@@ -414,51 +473,21 @@ export default function ProfileScreen() {
         }}
       />
 
-      {/* Premium Features Showcase Modal */}
-      <Modal
-        visible={premiumModalVisible}
-        animationType="slide"
-        presentationStyle="pageSheet"
-        onRequestClose={() => setPremiumModalVisible(false)}
-      >
-        <View style={styles.premiumModal}>
-          <View style={styles.premiumHeader}>
-            <Pressable onPress={() => setPremiumModalVisible(false)} style={{ padding: 6 }}>
-              <X size={20} color={PALETTE.ink.charcoal} />
-            </Pressable>
-            <View style={styles.crownPill}>
-              <Crown size={14} color={PALETTE.bronze.base} />
-              <Text style={styles.crownPillText}>PORTAL 11:11 VIP</Text>
-            </View>
-            <View style={{ width: 32 }} />
-          </View>
-
-          <ScrollView contentContainerStyle={styles.premiumScroll} showsVerticalScrollIndicator={false}>
-            <Text style={styles.premiumTitle}>Ascend to Sovereign Mastery</Text>
-            <Text style={styles.premiumSub}>
-              Unlock the entire celestial manifestation stack with zero limitations.
-            </Text>
-
-            <View style={styles.featureBox}>
-              <Text style={styles.featureItem}>✨ Unlimited Dynamic AI Affirmations</Text>
-              <Text style={styles.featureItem}>🔊 Studio Audio Affirmations & Custom Voices</Text>
-              <Text style={styles.featureItem}>🌙 Delta-Wave Sleep Affirmations</Text>
-              <Text style={styles.featureItem}>🎯 Personalized 90-Day Manifestation Blueprint</Text>
-              <Text style={styles.featureItem}>🖼️ AI Vision Board Generator & High-Res Export</Text>
-              <Text style={styles.featureItem}>📖 AI Journal Insights & Synchronicity Tracker</Text>
-              <Text style={styles.featureItem}>🎨 All 10 Themed Luxury Background Atmospheres</Text>
-              <Text style={styles.featureItem}>❤️ Unlimited Favorites & Offline Sacred Audio</Text>
-            </View>
-
-            <Pressable
-              onPress={() => setPremiumModalVisible(false)}
-              style={styles.claimVipBtn}
-            >
-              <Text style={styles.claimVipBtnText}>Sovereign Lifetime Access Active</Text>
-            </Pressable>
-          </ScrollView>
-        </View>
-      </Modal>
+      {/* Payment Gateway & Direct Bank Modal */}
+      <PaymentGatewayModal
+        visible={paymentModalVisible}
+        initialTab={paymentModalTab}
+        onClose={() => setPaymentModalVisible(false)}
+        onSuccess={async (tier) => {
+          triggerHaptic();
+          const updated = await savePortalProfile({
+            isVIP: true,
+            isPremium: true,
+            membershipTier: tier.id,
+          });
+          setProfile(updated);
+        }}
+      />
     </SafeAreaView>
   );
 }
@@ -724,88 +753,82 @@ const styles = StyleSheet.create({
     lineHeight: 16,
     color: PALETTE.ink.muted,
   },
-  premiumModal: {
-    flex: 1,
-    backgroundColor: PALETTE.paper.linen,
-    paddingTop: Platform.OS === 'ios' ? 24 : 16,
-    paddingHorizontal: 20,
-  },
-  premiumHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(122, 82, 48, 0.12)',
-  },
-  crownPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: PALETTE.prosecco.light,
-    borderWidth: 1,
-    borderColor: PALETTE.prosecco.border,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  crownPillText: {
-    fontFamily: FONTS.sansBold,
-    fontSize: 10.5,
-    color: PALETTE.bronze.rich,
-    letterSpacing: 1,
-  },
-  premiumScroll: {
-    paddingTop: 10,
-    paddingBottom: 40,
-    gap: 14,
-    alignItems: 'center',
-  },
-  premiumTitle: {
-    fontFamily: FONTS.serifBold,
-    fontSize: 24,
-    color: PALETTE.ink.charcoal,
-    textAlign: 'center',
-  },
-  premiumSub: {
+  bankSectionDesc: {
     fontFamily: FONTS.sans,
-    fontSize: 13,
+    fontSize: 12,
     color: PALETTE.ink.muted,
-    textAlign: 'center',
-    lineHeight: 19,
-    paddingHorizontal: 16,
+    lineHeight: 18,
+    marginTop: 2,
+    marginBottom: 8,
   },
-  featureBox: {
-    width: '100%',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
+  bankQuickCard: {
+    backgroundColor: 'rgba(122, 82, 48, 0.05)',
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: 'rgba(122, 82, 48, 0.15)',
-    padding: 18,
-    gap: 12,
-    marginVertical: 12,
-    shadowColor: '#7A5230',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 1,
+    borderColor: 'rgba(122, 82, 48, 0.14)',
+    padding: 12,
+    marginVertical: 4,
   },
-  featureItem: {
-    fontFamily: FONTS.sansMedium,
+  bankQuickRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  bankQuickName: {
+    fontFamily: FONTS.sansBold,
     fontSize: 13,
     color: PALETTE.ink.charcoal,
-    lineHeight: 20,
   },
-  claimVipBtn: {
-    width: '100%',
-    backgroundColor: PALETTE.bronze.base,
-    paddingVertical: 14,
-    borderRadius: 24,
-    alignItems: 'center',
+  bankQuickAcc: {
+    fontFamily: FONTS.sans,
+    fontSize: 11.5,
+    color: PALETTE.ink.muted,
+    marginTop: 1,
   },
-  claimVipBtnText: {
+  settlePill: {
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  settlePillText: {
     fontFamily: FONTS.sansBold,
-    fontSize: 14,
+    fontSize: 9.5,
+    color: '#059669',
+  },
+  bankActionsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 8,
+  },
+  manageBankBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(122, 82, 48, 0.08)',
+    borderRadius: 14,
+    paddingVertical: 10,
+  },
+  manageBankBtnText: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 11.5,
+    color: PALETTE.bronze.base,
+  },
+  viewGateBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: PALETTE.bronze.base,
+    borderRadius: 14,
+    paddingVertical: 10,
+  },
+  viewGateBtnText: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 11.5,
     color: '#FFFFFF',
   },
   accountInfoRow: {

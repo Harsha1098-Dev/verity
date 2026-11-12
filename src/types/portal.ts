@@ -186,6 +186,10 @@ export interface UserPortalProfile {
   authMethod?: 'password' | 'otp';
   isAuthenticated?: boolean;
 
+  // Membership & Direct Bank Settlement
+  membershipTier?: 'free' | 'sacred_monthly' | 'sovereign_annual' | 'divine_lifetime';
+  isVIP?: boolean;
+
   // 15-Question Customization Profile Additions
   voiceTone?: string;
   primePortalWindow?: string;
