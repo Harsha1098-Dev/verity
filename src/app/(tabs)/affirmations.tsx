@@ -241,19 +241,6 @@ export default function AffirmationsScreen() {
           </View>
 
           <View style={styles.topRightControls}>
-            {/* 3D Scene Selector Pill */}
-            <Pressable
-              onPress={() => {
-                triggerHaptic('light');
-                setScenePickerVisible(true);
-              }}
-              style={styles.sceneSelectorTopBtn}
-              hitSlop={8}
-            >
-              <Layers size={13} color={PALETTE.gold.base} />
-              <Text style={styles.sceneSelectorTopText}>3D Atmosphere</Text>
-            </Pressable>
-
             {/* Saved Bookmarks Button */}
             <Pressable
               onPress={() => setFavoritesModalVisible(true)}
