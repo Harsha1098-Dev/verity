@@ -39,6 +39,7 @@ import { UserPortalProfile, SACRED_PORTAL_TIMES, ACHIEVEMENTS_LIST } from '@/typ
 import {
   loadPortalProfile,
   savePortalProfile,
+  subscribeToProfile,
   signOutUser,
   resetUserOnboarding,
   DEFAULT_PORTAL_PROFILE,
@@ -60,6 +61,11 @@ export default function ProfileScreen() {
       const p = await loadPortalProfile();
       setProfile(p);
     })();
+
+    const unsubscribe = subscribeToProfile((updated) => {
+      setProfile(updated);
+    });
+    return unsubscribe;
   }, []);
 
   const triggerHaptic = () => {

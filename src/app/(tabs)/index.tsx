@@ -43,6 +43,7 @@ import {
 import {
   loadPortalProfile,
   savePortalProfile,
+  subscribeToProfile,
   DEFAULT_PORTAL_PROFILE,
   loadAchievements,
 } from '@/utils/portalStore';
@@ -72,6 +73,19 @@ export default function HomeScreen() {
         generateDynamicAffirmation(p, p.goal === 'Career Success' ? 'Career' : 'Wealth', '11:11')
       );
     })();
+
+    const unsubscribe = subscribeToProfile((updated) => {
+      setProfile(updated);
+      setCountdown(getNextPortalCountdown(updated.portalTimes));
+      setTodayAffirmation(
+        generateDynamicAffirmation(
+          updated,
+          updated.goal === 'Career Success' ? 'Career' : 'Wealth',
+          '11:11'
+        )
+      );
+    });
+    return unsubscribe;
   }, []);
 
   // Live Portal Seconds Ticker

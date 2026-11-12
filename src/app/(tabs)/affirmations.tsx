@@ -47,6 +47,7 @@ import {
   loadPortalProfile,
   loadFavorites,
   toggleFavoriteAffirmation,
+  subscribeToProfile,
 } from '@/utils/portalStore';
 import { AudioPlayerModal } from '@/components/AudioPlayerModal';
 
@@ -90,6 +91,11 @@ export default function AffirmationsScreen() {
       const initialFeed = buildAffirmationFeed(p);
       setFeed(initialFeed);
     })();
+
+    const unsubscribe = subscribeToProfile((updated) => {
+      setProfile(updated);
+    });
+    return unsubscribe;
   }, []);
 
   const triggerHaptic = (type: 'light' | 'medium' | 'success' = 'light') => {
