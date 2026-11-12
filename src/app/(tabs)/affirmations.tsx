@@ -356,11 +356,6 @@ export default function AffirmationsScreen() {
             item.backgroundTheme?.atmosphereName ||
             'Cosmic Portal';
 
-          const styleTag =
-            activeScene?.style ||
-            item.backgroundTheme?.ai3dStyle ||
-            'AI 3D Atmosphere';
-
           return (
             <View style={[styles.reelPage, { height: windowHeight }]}>
               {/* Dynamic Photorealistic AI 3D Scene Background */}
@@ -416,7 +411,7 @@ export default function AffirmationsScreen() {
 
               {/* Glassmorphic Affirmation Card Container */}
               <View style={styles.glassAffirmationCard}>
-                {/* Header Row: Category Badge & 3D Atmosphere Tag */}
+                {/* Header Row: Category Badge */}
                 <View style={styles.cardHeaderRow}>
                   <View style={styles.portalPill}>
                     <Sparkles size={11} color={particleColor} />
@@ -429,18 +424,6 @@ export default function AffirmationsScreen() {
                       {item.category.toUpperCase()}
                     </Text>
                   </View>
-
-                  <Pressable
-                    onPress={() => {
-                      triggerHaptic('light');
-                      setScenePickerVisible(true);
-                    }}
-                    style={styles.scenePill}
-                    hitSlop={6}
-                  >
-                    <Layers size={10} color={PALETTE.gold.base} />
-                    <Text style={styles.scenePillText}>{styleTag}</Text>
-                  </Pressable>
                 </View>
 
                 {/* Large Present-Tense Affirmation Text */}
@@ -896,7 +879,7 @@ const styles = StyleSheet.create({
   cardHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     width: '100%',
     marginBottom: 20,
   },
