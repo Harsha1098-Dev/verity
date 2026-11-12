@@ -11,7 +11,9 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   ActivityIndicator,
+  useWindowDimensions,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   Sparkles,
   Lock,
@@ -55,6 +57,13 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const isMobileScreen = windowWidth < 520;
+  const isCompact = windowHeight < 740;
+  const isNarrow = windowWidth < 380;
+  const isVeryNarrow = windowWidth < 340;
+
   // Mode: Default to 'signin', toggle to 'signup'
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   // Login method: 'otp' vs 'password'
@@ -326,29 +335,61 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
     <Modal
       visible={visible}
       animationType="fade"
-      transparent
+      transparent={!isMobileScreen}
       onRequestClose={dismissible && onClose ? onClose : () => {}}
     >
-      <View style={styles.overlay}>
+      <View style={isMobileScreen ? styles.mobileContainer : styles.desktopOverlay}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={styles.keyboardView}
         >
-          <View style={styles.modalCard}>
+          <View
+            style={[
+              isMobileScreen ? styles.mobileCard : styles.desktopCard,
+              {
+                paddingTop: isMobileScreen ? Math.max(insets.top, 10) : 24,
+                paddingBottom: isMobileScreen ? Math.max(insets.bottom, 14) : 20,
+              },
+            ]}
+          >
             {/* Optional Close Button (only if dismissible) */}
             {dismissible && onClose && (
-              <Pressable onPress={onClose} style={styles.closeBtn} hitSlop={12}>
+              <Pressable
+                onPress={onClose}
+                style={[
+                  styles.closeBtn,
+                  isMobileScreen && { top: Math.max(insets.top + 6, 14), right: 16 },
+                ]}
+                hitSlop={12}
+              >
                 <X size={20} color={PALETTE.ink.charcoal} />
               </Pressable>
             )}
 
             <ScrollView
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.scrollInside}
+              contentContainerStyle={[
+                styles.scrollInside,
+                {
+                  flexGrow: 1,
+                  justifyContent: isCompact ? 'flex-start' : 'center',
+                  paddingHorizontal: isVeryNarrow ? 14 : isNarrow ? 18 : 24,
+                },
+              ]}
               keyboardShouldPersistTaps="handled"
             >
-              {/* Brand Logo & Glowing Halo */}
-              <View style={styles.logoRing}>
+              {/* Brand Logo & Glowing Ring */}
+              <View
+                style={[
+                  styles.logoRing,
+                  isCompact && {
+                    width: 54,
+                    height: 54,
+                    borderRadius: 27,
+                    marginBottom: 8,
+                  },
+                ]}
+              >
                 <Image
                   source={require('../../assets/images/verity_logo.jpg')}
                   style={styles.logoImage}
@@ -356,18 +397,32 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
                 />
               </View>
 
-              <Text style={styles.appTitle}>PORTAL 11:11</Text>
-              <Text style={styles.appSub}>FIREBASE MOBILE OTP AUTHENTICATION</Text>
+              <Text style={[styles.appTitle, isCompact && { fontSize: 20 }]}>
+                PORTAL 11:11
+              </Text>
+              <Text style={[styles.appSub, isCompact && { fontSize: 8.5, letterSpacing: 1.2 }]}>
+                FIREBASE MOBILE OTP AUTHENTICATION
+              </Text>
 
               {/* Header Mode Title */}
-              <Text style={styles.authModeTitle}>
+              <Text
+                style={[
+                  styles.authModeTitle,
+                  isCompact && { fontSize: 16, marginTop: 10 },
+                ]}
+              >
                 {otpSent
                   ? 'Verify Sacred Code'
                   : mode === 'signin'
                   ? 'Sign In to Your Reality'
                   : 'Create Sacred Account'}
               </Text>
-              <Text style={styles.authModeSub}>
+              <Text
+                style={[
+                  styles.authModeSub,
+                  isCompact && { fontSize: 11.5, marginTop: 3, marginBottom: 12, lineHeight: 16 },
+                ]}
+              >
                 {otpSent
                   ? `Enter the 6-digit OTP delivered to +91 ${formattedDisplayPhone}`
                   : mode === 'signin'
@@ -397,7 +452,7 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
                 <View style={styles.formContainer}>
                   {/* Method Toggle: OTP vs Password */}
                   {mode === 'signin' && (
-                    <View style={styles.methodToggleRow}>
+                    <View style={[styles.methodToggleRow, isCompact && { marginBottom: 2 }]}>
                       <Pressable
                         onPress={() => {
                           triggerHaptic('light');
@@ -406,16 +461,18 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
                         }}
                         style={[
                           styles.methodToggleBtn,
+                          isCompact && { paddingVertical: 7 },
                           loginMethod === 'otp' && styles.methodToggleBtnActive,
                         ]}
                       >
                         <Zap
-                          size={14}
+                          size={isNarrow ? 12 : 14}
                           color={loginMethod === 'otp' ? PALETTE.bronze.base : PALETTE.ink.muted}
                         />
                         <Text
                           style={[
                             styles.methodToggleText,
+                            isNarrow && { fontSize: 11 },
                             loginMethod === 'otp' && styles.methodToggleTextActive,
                           ]}
                         >
@@ -431,16 +488,18 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
                         }}
                         style={[
                           styles.methodToggleBtn,
+                          isCompact && { paddingVertical: 7 },
                           loginMethod === 'password' && styles.methodToggleBtnActive,
                         ]}
                       >
                         <Lock
-                          size={14}
+                          size={isNarrow ? 12 : 14}
                           color={loginMethod === 'password' ? PALETTE.bronze.base : PALETTE.ink.muted}
                         />
                         <Text
                           style={[
                             styles.methodToggleText,
+                            isNarrow && { fontSize: 11 },
                             loginMethod === 'password' && styles.methodToggleTextActive,
                           ]}
                         >
@@ -454,14 +513,14 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
                   {mode === 'signup' && (
                     <View style={styles.fieldSection}>
                       <Text style={styles.inputLabel}>Your Sacred Name</Text>
-                      <View style={styles.inputWrapper}>
+                      <View style={[styles.inputWrapper, isCompact && { height: 46 }]}>
                         <User size={16} color={PALETTE.bronze.base} />
                         <TextInput
                           value={name}
                           onChangeText={setName}
                           placeholder="e.g. Harsha Vardhan"
                           placeholderTextColor={PALETTE.ink.muted}
-                          style={styles.textInput}
+                          style={[styles.textInput, isNarrow && { fontSize: 13 }]}
                         />
                       </View>
                     </View>
@@ -470,16 +529,30 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
                   {/* Indian Mobile Number Input */}
                   <View style={styles.fieldSection}>
                     <Text style={styles.inputLabel}>Indian Mobile Number</Text>
-                    <View style={styles.phoneInputRow}>
+                    <View style={[styles.phoneInputRow, isNarrow && { gap: 6 }]}>
                       {/* Flag & Country Code Badge */}
-                      <View style={styles.countryCodeBadge}>
+                      <View
+                        style={[
+                          styles.countryCodeBadge,
+                          isCompact && { height: 46 },
+                          isNarrow && { paddingHorizontal: 8, gap: 4 },
+                        ]}
+                      >
                         <Text style={styles.countryFlagText}>🇮🇳</Text>
-                        <Text style={styles.countryCodeText}>+91</Text>
+                        <Text style={[styles.countryCodeText, isNarrow && { fontSize: 12.5 }]}>
+                          +91
+                        </Text>
                       </View>
 
                       {/* 10-digit number input */}
-                      <View style={styles.phoneFieldWrapper}>
-                        <Phone size={16} color={PALETTE.bronze.base} />
+                      <View
+                        style={[
+                          styles.phoneFieldWrapper,
+                          isCompact && { height: 46 },
+                          isNarrow && { paddingHorizontal: 10, gap: 6 },
+                        ]}
+                      >
+                        <Phone size={isNarrow ? 14 : 16} color={PALETTE.bronze.base} />
                         <TextInput
                           value={formattedDisplayPhone}
                           onChangeText={handlePhoneChange}
@@ -487,7 +560,7 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
                           placeholderTextColor={PALETTE.ink.muted}
                           keyboardType="phone-pad"
                           maxLength={11} // 10 digits + 1 space
-                          style={styles.textInput}
+                          style={[styles.textInput, isNarrow && { fontSize: 13 }]}
                         />
                       </View>
                     </View>
@@ -499,7 +572,7 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
                       <Text style={styles.inputLabel}>
                         {mode === 'signup' ? 'Create Portal Password' : 'Password'}
                       </Text>
-                      <View style={styles.inputWrapper}>
+                      <View style={[styles.inputWrapper, isCompact && { height: 46 }]}>
                         <Lock size={16} color={PALETTE.bronze.base} />
                         <TextInput
                           value={password}
@@ -507,7 +580,7 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
                           placeholder="At least 4 characters"
                           placeholderTextColor={PALETTE.ink.muted}
                           secureTextEntry={!showPassword}
-                          style={styles.textInput}
+                          style={[styles.textInput, isNarrow && { fontSize: 13 }]}
                         />
                         <Pressable
                           onPress={() => setShowPassword(!showPassword)}
@@ -533,14 +606,18 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
                         : handleSignInWithPassword
                     }
                     disabled={isLoading}
-                    style={[styles.primaryActionBtn, isLoading && styles.btnDisabled]}
+                    style={[
+                      styles.primaryActionBtn,
+                      isCompact && { paddingVertical: 12 },
+                      isLoading && styles.btnDisabled,
+                    ]}
                   >
                     {isLoading ? (
                       <ActivityIndicator size="small" color="#FFFFFF" />
                     ) : (
                       <>
                         <Zap size={16} color="#FFFFFF" />
-                        <Text style={styles.primaryActionBtnText}>
+                        <Text style={[styles.primaryActionBtnText, isNarrow && { fontSize: 12.5 }]}>
                           {mode === 'signup'
                             ? 'Send Verification OTP'
                             : loginMethod === 'otp'
@@ -553,8 +630,8 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
                   </Pressable>
 
                   {/* Switch between Sign In and Sign Up */}
-                  <View style={styles.switchAuthRow}>
-                    <Text style={styles.switchAuthLabel}>
+                  <View style={[styles.switchAuthRow, isCompact && { marginTop: 4 }]}>
+                    <Text style={[styles.switchAuthLabel, isNarrow && { fontSize: 11.5 }]}>
                       {mode === 'signin' ? "Don't have an account?" : 'Already registered?'}
                     </Text>
                     <Pressable
@@ -566,7 +643,7 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
                       }}
                       hitSlop={8}
                     >
-                      <Text style={styles.switchAuthAction}>
+                      <Text style={[styles.switchAuthAction, isNarrow && { fontSize: 11.5 }]}>
                         {mode === 'signin' ? 'Sign Up' : 'Sign In'}
                       </Text>
                     </Pressable>
@@ -581,17 +658,22 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
                 <View style={styles.otpVerifyContainer}>
                   {/* Phone Pill Header */}
                   <View style={styles.verifyPhonePill}>
-                    <ShieldCheck size={14} color={PALETTE.bronze.base} />
-                    <Text style={styles.verifyPhoneText}>
-                      Sent to +91 {formattedDisplayPhone}
-                    </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 }}>
+                      <ShieldCheck size={14} color={PALETTE.bronze.base} />
+                      <Text
+                        style={[styles.verifyPhoneText, isNarrow && { fontSize: 11 }]}
+                        numberOfLines={1}
+                      >
+                        +91 {formattedDisplayPhone}
+                      </Text>
+                    </View>
                     <Pressable
                       onPress={() => {
                         triggerHaptic('light');
                         setOtpSent(false);
                         setOtpArray(['', '', '', '', '', '']);
                       }}
-                      hitSlop={6}
+                      hitSlop={8}
                     >
                       <Text style={styles.editPhoneLink}>Change</Text>
                     </Pressable>
@@ -599,7 +681,12 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
 
                   {/* 6 Individual OTP Digit Input Boxes */}
                   <Text style={styles.inputLabelCenter}>Enter 6-Digit Sacred OTP</Text>
-                  <View style={styles.otpBoxesRow}>
+                  <View
+                    style={[
+                      styles.otpBoxesRow,
+                      { gap: isVeryNarrow ? 4 : isNarrow ? 6 : 8 },
+                    ]}
+                  >
                     {otpArray.map((digit, index) => (
                       <TextInput
                         key={index}
@@ -610,10 +697,12 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
                         onChangeText={(val) => handleOtpDigitChange(val, index)}
                         onKeyPress={(e) => handleOtpKeyPress(e, index)}
                         keyboardType="number-pad"
-                        maxLength={1}
+                        maxLength={index === 0 ? 6 : 1}
                         selectTextOnFocus
                         style={[
                           styles.otpDigitBox,
+                          isCompact && { height: 44 },
+                          isNarrow && { maxWidth: 44, fontSize: 18 },
                           digit ? styles.otpDigitBoxFilled : null,
                         ]}
                       />
@@ -624,13 +713,19 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
                   <Pressable
                     onPress={() => handleVerifyCode()}
                     disabled={isLoading}
-                    style={[styles.primaryActionBtn, isLoading && styles.btnDisabled]}
+                    style={[
+                      styles.primaryActionBtn,
+                      isCompact && { paddingVertical: 12 },
+                      isLoading && styles.btnDisabled,
+                    ]}
                   >
                     {isLoading ? (
                       <ActivityIndicator size="small" color="#FFFFFF" />
                     ) : (
                       <>
-                        <Text style={styles.primaryActionBtnText}>Verify OTP & Enter</Text>
+                        <Text style={[styles.primaryActionBtnText, isNarrow && { fontSize: 12.5 }]}>
+                          Verify OTP & Enter
+                        </Text>
                         <ArrowRight size={16} color="#FFFFFF" />
                       </>
                     )}
@@ -641,7 +736,7 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
                     {otpCountdown > 0 ? (
                       <View style={styles.resendCountdownRow}>
                         <RotateCcw size={13} color={PALETTE.ink.muted} />
-                        <Text style={styles.resendCountdownText}>
+                        <Text style={[styles.resendCountdownText, isNarrow && { fontSize: 11.5 }]}>
                           Resend sacred OTP in{' '}
                           <Text style={{ fontFamily: FONTS.sansBold, color: PALETTE.bronze.base }}>
                             {otpCountdown}s
@@ -655,7 +750,9 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
                         style={styles.resendActiveBtn}
                       >
                         <RotateCcw size={14} color={PALETTE.bronze.base} />
-                        <Text style={styles.resendActiveBtnText}>Resend Sacred Code</Text>
+                        <Text style={[styles.resendActiveBtnText, isNarrow && { fontSize: 12 }]}>
+                          Resend Sacred Code
+                        </Text>
                       </Pressable>
                     )}
                   </View>
@@ -665,11 +762,16 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
               {/* Quick Evaluation / Demo Bypass Button */}
               <Pressable
                 onPress={handleQuickDemoBypass}
-                style={styles.quickDemoLink}
+                style={[
+                  styles.quickDemoLink,
+                  isCompact && { marginTop: 12, paddingVertical: 6 },
+                ]}
                 hitSlop={6}
               >
-                <Sparkles size={13} color={PALETTE.bronze.base} />
-                <Text style={styles.quickDemoText}>🧪 Quick Demo: Instant Login (+91 98765 43210)</Text>
+                <Sparkles size={12} color={PALETTE.bronze.base} />
+                <Text style={[styles.quickDemoText, isNarrow && { fontSize: 10 }]}>
+                  🧪 Quick Demo: Instant Login (+91 98765 43210)
+                </Text>
               </Pressable>
             </ScrollView>
           </View>
@@ -680,7 +782,13 @@ export const WelcomeAuthModal: React.FC<WelcomeAuthModalProps> = ({
 };
 
 const styles = StyleSheet.create({
-  overlay: {
+  mobileContainer: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#FFFFFF',
+  },
+  desktopOverlay: {
     flex: 1,
     backgroundColor: 'rgba(26, 22, 20, 0.72)',
     justifyContent: 'center',
@@ -689,20 +797,26 @@ const styles = StyleSheet.create({
     paddingVertical: 24,
   },
   keyboardView: {
+    flex: 1,
     width: '100%',
-    maxWidth: 420,
-    alignItems: 'center',
+    maxWidth: 440,
+    alignSelf: 'center',
   },
-  modalCard: {
+  mobileCard: {
+    flex: 1,
     width: '100%',
-    maxHeight: '92%',
+    backgroundColor: '#FFFFFF',
+  },
+  desktopCard: {
+    width: '100%',
+    maxHeight: '94%',
     backgroundColor: '#FFFFFF',
     borderRadius: 32,
     borderWidth: 1,
     borderColor: 'rgba(122, 82, 48, 0.16)',
-    paddingHorizontal: 22,
-    paddingTop: 28,
-    paddingBottom: 24,
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 20,
     shadowColor: '#7A5230',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.15,
@@ -711,7 +825,7 @@ const styles = StyleSheet.create({
   },
   scrollInside: {
     alignItems: 'center',
-    paddingBottom: 12,
+    paddingBottom: 16,
   },
   closeBtn: {
     position: 'absolute',
@@ -721,9 +835,9 @@ const styles = StyleSheet.create({
     padding: 6,
   },
   logoRing: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+    width: 66,
+    height: 66,
+    borderRadius: 33,
     borderWidth: 2,
     borderColor: PALETTE.bronze.border,
     padding: 2,
@@ -734,7 +848,7 @@ const styles = StyleSheet.create({
   logoImage: {
     width: '100%',
     height: '100%',
-    borderRadius: 34,
+    borderRadius: 31,
   },
   appTitle: {
     fontFamily: FONTS.serifBold,
@@ -753,7 +867,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.serifBold,
     fontSize: 18,
     color: PALETTE.ink.charcoal,
-    marginTop: 16,
+    marginTop: 14,
     textAlign: 'center',
   },
   authModeSub: {
@@ -763,8 +877,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 18,
     marginTop: 4,
-    marginBottom: 16,
-    paddingHorizontal: 12,
+    marginBottom: 14,
+    paddingHorizontal: 10,
   },
   errorBox: {
     width: '100%',
@@ -774,7 +888,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 9,
-    marginBottom: 14,
+    marginBottom: 12,
   },
   errorText: {
     fontFamily: FONTS.sansMedium,
@@ -794,7 +908,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 9,
-    marginBottom: 14,
+    marginBottom: 12,
   },
   successText: {
     fontFamily: FONTS.sansMedium,
@@ -859,6 +973,7 @@ const styles = StyleSheet.create({
   phoneInputRow: {
     flexDirection: 'row',
     gap: 8,
+    alignItems: 'center',
   },
   countryCodeBadge: {
     flexDirection: 'row',
@@ -869,6 +984,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(122, 82, 48, 0.16)',
     paddingHorizontal: 12,
+    height: 50,
+    justifyContent: 'center',
   },
   countryFlagText: {
     fontSize: 16,
@@ -888,7 +1005,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(122, 82, 48, 0.16)',
     paddingHorizontal: 14,
-    paddingVertical: 12,
+    height: 50,
   },
   inputWrapper: {
     flexDirection: 'row',
@@ -899,7 +1016,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(122, 82, 48, 0.16)',
     paddingHorizontal: 14,
-    paddingVertical: 12,
+    height: 50,
   },
   textInput: {
     flex: 1,
@@ -914,9 +1031,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
     backgroundColor: PALETTE.bronze.base,
-    borderRadius: 18,
+    borderRadius: 16,
     paddingVertical: 14,
-    marginTop: 6,
+    marginTop: 4,
     shadowColor: '#7A5230',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.18,
@@ -941,18 +1058,18 @@ const styles = StyleSheet.create({
   },
   switchAuthLabel: {
     fontFamily: FONTS.sans,
-    fontSize: 12.5,
+    fontSize: 12,
     color: PALETTE.ink.muted,
   },
   switchAuthAction: {
     fontFamily: FONTS.sansBold,
-    fontSize: 12.5,
+    fontSize: 12,
     color: PALETTE.bronze.base,
     textDecorationLine: 'underline',
   },
   otpVerifyContainer: {
     width: '100%',
-    gap: 14,
+    gap: 12,
   },
   verifyPhonePill: {
     flexDirection: 'row',
@@ -963,7 +1080,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(122, 82, 48, 0.18)',
     borderRadius: 14,
     paddingHorizontal: 14,
-    paddingVertical: 9,
+    paddingVertical: 8,
   },
   verifyPhoneText: {
     fontFamily: FONTS.sansMedium,
@@ -975,15 +1092,17 @@ const styles = StyleSheet.create({
     fontSize: 11.5,
     color: PALETTE.bronze.base,
     textDecorationLine: 'underline',
+    paddingLeft: 8,
   },
   otpBoxesRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 8,
+    width: '100%',
     marginVertical: 4,
   },
   otpDigitBox: {
     flex: 1,
+    maxWidth: 48,
     height: 48,
     borderRadius: 14,
     backgroundColor: PALETTE.paper.linen,
@@ -993,6 +1112,8 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.sansBold,
     fontSize: 20,
     color: PALETTE.ink.charcoal,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
   },
   otpDigitBoxFilled: {
     borderColor: PALETTE.bronze.base,
@@ -1005,7 +1126,7 @@ const styles = StyleSheet.create({
   },
   resendSection: {
     alignItems: 'center',
-    paddingVertical: 4,
+    paddingVertical: 2,
   },
   resendCountdownRow: {
     flexDirection: 'row',
@@ -1033,7 +1154,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    marginTop: 18,
+    marginTop: 16,
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: 14,

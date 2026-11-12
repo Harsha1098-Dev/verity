@@ -8,7 +8,9 @@ import {
   ScrollView,
   TextInput,
   Platform,
+  useWindowDimensions,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   Sparkles,
   ArrowRight,
@@ -162,6 +164,8 @@ export const PortalOnboardingModal: React.FC<PortalOnboardingModalProps> = ({
   onComplete,
   currentProfile,
 }) => {
+  const insets = useSafeAreaInsets();
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [step, setStep] = useState<number>(1);
   const totalSteps = 15;
 
@@ -240,7 +244,15 @@ export const PortalOnboardingModal: React.FC<PortalOnboardingModalProps> = ({
       presentationStyle="pageSheet"
       onRequestClose={dismissible && onClose ? onClose : () => {}}
     >
-      <View style={styles.container}>
+      <View
+        style={[
+          styles.container,
+          {
+            paddingTop: Math.max(insets.top, Platform.OS === 'ios' ? 20 : 16),
+            paddingBottom: Math.max(insets.bottom, 12),
+          },
+        ]}
+      >
         {/* Top Header & Progress */}
         <View style={styles.topBar}>
           {dismissible && onClose ? (
