@@ -181,6 +181,18 @@ export interface UserPortalProfile {
   isPremium: boolean;
   preferredVoice: 'Aura Calm' | 'Sol Spiritual' | 'Orion Deep' | 'Mystic Nature';
 
+  // Authentication Credentials
+  phoneNumber?: string;
+  authMethod?: 'password' | 'otp';
+  isAuthenticated?: boolean;
+
+  // 15-Question Customization Profile Additions
+  voiceTone?: string;
+  primePortalWindow?: string;
+  preferred3DAtmosphere?: string;
+  manifestationObstacle?: string;
+  commitmentLevel?: string;
+
   // Backward-compatibility aliases
   manifestationGoal?: ManifestationGoal;
   emotionalState?: EmotionalState;

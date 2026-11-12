@@ -1,5 +1,5 @@
 import '../../global.css';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -26,12 +26,21 @@ import {
   Inter_700Bold,
 } from '@expo-google-fonts/inter';
 import { PALETTE } from '@/constants/theme';
+import { UserPortalProfile } from '@/types/portal';
+import {
+  loadPortalProfile,
+  savePortalProfile,
+  subscribeToProfile,
+} from '@/utils/portalStore';
+import { WelcomeAuthModal } from '@/components/WelcomeAuthModal';
+import { PortalOnboardingModal } from '@/components/PortalOnboardingModal';
 
 // Keep splash screen visible while fonts load
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function RootLayout() {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  const [portalProfile, setPortalProfile] = useState<UserPortalProfile | null>(null);
 
   const [fontsLoaded, fontError] = useFonts({
     PlayfairDisplay_400Regular,
@@ -50,6 +59,18 @@ export default function RootLayout() {
       SplashScreen.hideAsync().catch(() => {});
     }
   }, [fontsLoaded, fontError]);
+
+  useEffect(() => {
+    (async () => {
+      const p = await loadPortalProfile();
+      setPortalProfile(p);
+    })();
+
+    const unsubscribe = subscribeToProfile((updated) => {
+      setPortalProfile(updated);
+    });
+    return unsubscribe;
+  }, []);
 
   if (!fontsLoaded && !fontError) {
     return (
@@ -85,6 +106,45 @@ export default function RootLayout() {
           >
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           </Stack>
+
+          {/* ========================================================
+              GATE 1: AUTHENTICATION GATE (Sign In via OTP/Password or Sign Up)
+             ======================================================== */}
+          {portalProfile && !portalProfile.isAuthenticated && (
+            <WelcomeAuthModal
+              visible={true}
+              dismissible={false}
+              onSuccess={async (cred) => {
+                const updated = await savePortalProfile({
+                  isAuthenticated: true,
+                  phoneNumber: cred.phoneNumber,
+                  authMethod: cred.authMethod,
+                  name: cred.name || portalProfile.name || 'Harsha',
+                });
+                setPortalProfile(updated);
+              }}
+            />
+          )}
+
+          {/* ========================================================
+              GATE 2: 15-QUESTION CUSTOMIZATION QUESTIONNAIRE (First-Time User)
+             ======================================================== */}
+          {portalProfile &&
+            portalProfile.isAuthenticated &&
+            !portalProfile.onboardingCompleted && (
+              <PortalOnboardingModal
+                visible={true}
+                dismissible={false}
+                currentProfile={portalProfile}
+                onComplete={async (updatedProfile) => {
+                  const updated = await savePortalProfile({
+                    ...updatedProfile,
+                    onboardingCompleted: true,
+                  });
+                  setPortalProfile(updated);
+                }}
+              />
+            )}
         </View>
       </View>
     </SafeAreaProvider>

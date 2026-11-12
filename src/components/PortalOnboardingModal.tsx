@@ -9,7 +9,6 @@ import {
   TextInput,
   Platform,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import {
   Sparkles,
   ArrowRight,
@@ -17,12 +16,11 @@ import {
   Check,
   Zap,
   X,
+  Volume2,
   Clock,
-  Sliders,
+  Layers,
+  ShieldAlert,
   Flame,
-  Shield,
-  Heart,
-  Crown,
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import {
@@ -41,7 +39,8 @@ import { generateDynamicAffirmation } from '@/utils/portalEngine';
 
 interface PortalOnboardingModalProps {
   visible: boolean;
-  onClose: () => void;
+  dismissible?: boolean;
+  onClose?: () => void;
   onComplete: (profile: UserPortalProfile) => void;
   currentProfile: UserPortalProfile;
 }
@@ -118,17 +117,61 @@ const ENERGY_INTENTIONS: EnergyIntention[] = [
   'Expand',
 ];
 
+const VOICE_TONES = [
+  'Calm & Grounding',
+  'Celestial & Mystical',
+  'Sovereign & Empowering',
+  'Gentle Healing',
+];
+
+const PRIME_PORTAL_WINDOWS = [
+  'Morning Dawn (7:07 AM)',
+  'Midday Alignment (11:11 AM)',
+  'Afternoon Flow (3:33 PM)',
+  'Evening Surrender (9:09 PM)',
+  'Midnight Gateway (12:12 AM)',
+];
+
+const ATMOSPHERE_CHOICES = [
+  'Cosmic Merkaba Stargate',
+  'Molten Gold & Obsidian Waves',
+  'Amethyst Crystal Sanctuary',
+  'Zen Emerald Peak',
+  'Obsidian Summit Monolith',
+];
+
+const MANIFESTATION_OBSTACLES = [
+  'Doubt & Overthinking',
+  'Financial Scarcity Fear',
+  'Imposter Syndrome',
+  'Past Distrust & Guardedness',
+  'Energy Fatigue & Burnout',
+];
+
+const COMMITMENT_LEVELS = [
+  'Daily Sacred Devotion',
+  '11-Day Deep Reset',
+  '21-Day Neural Rewiring',
+  'Sovereign Life Mastery',
+];
+
 export const PortalOnboardingModal: React.FC<PortalOnboardingModalProps> = ({
   visible,
+  dismissible = false,
   onClose,
   onComplete,
   currentProfile,
 }) => {
   const [step, setStep] = useState<number>(1);
-  const totalSteps = 10;
+  const totalSteps = 15;
 
   const [formData, setFormData] = useState<UserPortalProfile>({
     ...currentProfile,
+    voiceTone: currentProfile.voiceTone || 'Sovereign & Empowering',
+    primePortalWindow: currentProfile.primePortalWindow || 'Midday Alignment (11:11 AM)',
+    preferred3DAtmosphere: currentProfile.preferred3DAtmosphere || 'Molten Gold & Obsidian Waves',
+    manifestationObstacle: currentProfile.manifestationObstacle || 'Doubt & Overthinking',
+    commitmentLevel: currentProfile.commitmentLevel || 'Daily Sacred Devotion',
   });
 
   const triggerHaptic = () => {
@@ -146,7 +189,7 @@ export const PortalOnboardingModal: React.FC<PortalOnboardingModalProps> = ({
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
       onComplete({ ...formData, onboardingCompleted: true });
-      onClose();
+      if (onClose) onClose();
     }
   };
 
@@ -172,7 +215,7 @@ export const PortalOnboardingModal: React.FC<PortalOnboardingModalProps> = ({
 
   const sampleAffirmation = generateDynamicAffirmation(
     formData,
-    'Wealth',
+    formData.goal === 'Career Success' ? 'Career' : 'Wealth',
     '11:11'
   );
 
@@ -181,14 +224,18 @@ export const PortalOnboardingModal: React.FC<PortalOnboardingModalProps> = ({
       visible={visible}
       animationType="slide"
       presentationStyle="pageSheet"
-      onRequestClose={onClose}
+      onRequestClose={dismissible && onClose ? onClose : () => {}}
     >
       <View style={styles.container}>
         {/* Top Header & Progress */}
         <View style={styles.topBar}>
-          <Pressable onPress={onClose} style={styles.closeBtn} hitSlop={10}>
-            <X size={20} color={PALETTE.ink.charcoal} />
-          </Pressable>
+          {dismissible && onClose ? (
+            <Pressable onPress={onClose} style={styles.closeBtn} hitSlop={10}>
+              <X size={20} color={PALETTE.ink.charcoal} />
+            </Pressable>
+          ) : (
+            <View style={{ width: 20 }} />
+          )}
 
           <View style={styles.stepIndicatorGroup}>
             <Text style={styles.stepNumberText}>
@@ -352,23 +399,23 @@ export const PortalOnboardingModal: React.FC<PortalOnboardingModalProps> = ({
           {/* STEP 4: What affirmation style resonates most? */}
           {step === 4 && (
             <View style={styles.stepCard}>
-              <Text style={styles.questionCategory}>STEP 4 • AFFIRMATION TONE</Text>
+              <Text style={styles.questionCategory}>STEP 4 • VIBRATIONAL TONE</Text>
               <Text style={styles.questionTitle}>
                 What affirmation style resonates most?
               </Text>
               <Text style={styles.questionSubtitle}>
-                Your brain responds best when words align with your personal belief architecture.
+                Attune the language structure to your cognitive and spiritual blueprint.
               </Text>
 
               <View style={styles.optionsList}>
-                {AFFIRMATION_STYLES.map((styleItem) => {
-                  const isSelected = formData.affirmationStyle === styleItem;
+                {AFFIRMATION_STYLES.map((style) => {
+                  const isSelected = formData.affirmationStyle === style;
                   return (
                     <Pressable
-                      key={styleItem}
+                      key={style}
                       onPress={() => {
                         triggerHaptic();
-                        setFormData({ ...formData, affirmationStyle: styleItem });
+                        setFormData({ ...formData, affirmationStyle: style });
                       }}
                       style={[
                         styles.fullWidthOption,
@@ -381,11 +428,16 @@ export const PortalOnboardingModal: React.FC<PortalOnboardingModalProps> = ({
                           isSelected && styles.fullWidthOptionTextSelected,
                         ]}
                       >
-                        {styleItem}
+                        {style}
                       </Text>
-                      {isSelected && (
-                        <Sparkles size={16} color={PALETTE.gold.base} />
-                      )}
+                      <View
+                        style={[
+                          styles.radioCircle,
+                          isSelected && styles.radioCircleSelected,
+                        ]}
+                      >
+                        {isSelected && <View style={styles.radioDot} />}
+                      </View>
                     </Pressable>
                   );
                 })}
@@ -393,56 +445,47 @@ export const PortalOnboardingModal: React.FC<PortalOnboardingModalProps> = ({
             </View>
           )}
 
-          {/* STEP 5: Describe biggest goal in 90 days */}
+          {/* STEP 5: Biggest 90-day goal */}
           {step === 5 && (
             <View style={styles.stepCard}>
-              <Text style={styles.questionCategory}>STEP 5 • 90-DAY VISION</Text>
+              <Text style={styles.questionCategory}>STEP 5 • 90-DAY REALITY TARGET</Text>
               <Text style={styles.questionTitle}>
                 Describe your biggest goal in the next 90 days.
               </Text>
               <Text style={styles.questionSubtitle}>
-                Be specific. What reality are you demanding into existence?
+                Be specific. Write as if this milestone is already completed.
               </Text>
 
-              <View style={styles.inputCard}>
-                <TextInput
-                  value={formData.goal90Days}
-                  onChangeText={(text) =>
-                    setFormData({ ...formData, goal90Days: text })
-                  }
-                  placeholder="e.g. Lead an engineering team, earn ₹5 Lakh monthly, and feel peaceful..."
-                  placeholderTextColor="#6B7280"
-                  multiline
-                  numberOfLines={4}
-                  style={styles.textInput}
-                />
-              </View>
+              <TextInput
+                value={formData.goal90Days}
+                onChangeText={(text) =>
+                  setFormData({ ...formData, goal90Days: text })
+                }
+                placeholder="e.g., Lead an exceptional team, earn ₹5 Lakh monthly, and radiate calm confidence"
+                placeholderTextColor={PALETTE.ink.muted}
+                multiline
+                numberOfLines={4}
+                style={styles.textArea}
+              />
 
-              <View style={styles.presetGoalPillsRow}>
-                <Pressable
-                  onPress={() => {
-                    triggerHaptic();
-                    setFormData({
-                      ...formData,
-                      goal90Days: 'Lead a software company with ₹10 Lakh monthly cash flow',
-                    });
-                  }}
-                  style={styles.presetGoalPill}
-                >
-                  <Text style={styles.presetGoalText}>+ ₹10L Monthly Cash Flow</Text>
-                </Pressable>
-                <Pressable
-                  onPress={() => {
-                    triggerHaptic();
-                    setFormData({
-                      ...formData,
-                      goal90Days: 'Attract deep, committed soulmate love & mutual adoration',
-                    });
-                  }}
-                  style={styles.presetGoalPill}
-                >
-                  <Text style={styles.presetGoalText}>+ Soulmate Love</Text>
-                </Pressable>
+              <View style={styles.quickPromptsRow}>
+                <Text style={styles.quickPromptsLabel}>Inspirational starters:</Text>
+                {[
+                  'Earn ₹5 Lakh monthly in flow',
+                  'Attract a loving, committed partner',
+                  'Feel boundless health and radiant vitality',
+                ].map((prompt) => (
+                  <Pressable
+                    key={prompt}
+                    onPress={() => {
+                      triggerHaptic();
+                      setFormData({ ...formData, goal90Days: prompt });
+                    }}
+                    style={styles.promptPill}
+                  >
+                    <Text style={styles.promptPillText}>+ {prompt}</Text>
+                  </Pressable>
+                ))}
               </View>
             </View>
           )}
@@ -450,50 +493,41 @@ export const PortalOnboardingModal: React.FC<PortalOnboardingModalProps> = ({
           {/* STEP 6: Which portal times do you want notifications? */}
           {step === 6 && (
             <View style={styles.stepCard}>
-              <Text style={styles.questionCategory}>STEP 6 • SACRED PORTALS</Text>
+              <Text style={styles.questionCategory}>STEP 6 • PORTAL SYNCHRONICITY</Text>
               <Text style={styles.questionTitle}>
                 Which portal times do you want notifications?
               </Text>
               <Text style={styles.questionSubtitle}>
-                Affirmations arrive at high synchronicity times. Tap to select multiple.
+                Select sacred angel number timestamps for spontaneous transmission delivery.
               </Text>
 
-              <View style={styles.portalGrid}>
+              <View style={styles.portalTimesGrid}>
                 {SACRED_PORTAL_TIMES.map((portal) => {
-                  const isChecked = formData.portalTimes.includes(portal.time);
+                  const isSelected = formData.portalTimes.includes(portal.time);
                   return (
                     <Pressable
                       key={portal.time}
                       onPress={() => togglePortalTime(portal.time)}
                       style={[
                         styles.portalTimeCard,
-                        isChecked && styles.portalTimeCardChecked,
+                        isSelected && styles.portalTimeCardSelected,
                       ]}
                     >
                       <View style={styles.portalTimeTopRow}>
+                        <Zap
+                          size={14}
+                          color={isSelected ? PALETTE.bronze.base : PALETTE.ink.muted}
+                        />
                         <Text
                           style={[
-                            styles.portalTimeDigits,
-                            isChecked && styles.portalTimeDigitsChecked,
+                            styles.portalTimeText,
+                            isSelected && styles.portalTimeTextSelected,
                           ]}
                         >
-                          {portal.display}
+                          {portal.time}
                         </Text>
-                        {portal.isRecommended && (
-                          <View style={styles.recommendedPill}>
-                            <Text style={styles.recommendedPillText}>REC</Text>
-                          </View>
-                        )}
                       </View>
-                      <Text
-                        style={[
-                          styles.portalNameText,
-                          isChecked && styles.portalNameTextChecked,
-                        ]}
-                        numberOfLines={1}
-                      >
-                        {portal.name}
-                      </Text>
+                      <Text style={styles.portalTimeName}>{portal.name}</Text>
                     </Pressable>
                   );
                 })}
@@ -504,7 +538,7 @@ export const PortalOnboardingModal: React.FC<PortalOnboardingModalProps> = ({
           {/* STEP 7: How often do you want affirmations? */}
           {step === 7 && (
             <View style={styles.stepCard}>
-              <Text style={styles.questionCategory}>STEP 7 • FREQUENCY</Text>
+              <Text style={styles.questionCategory}>STEP 7 • NOTIFICATION FREQUENCY</Text>
               <Text style={styles.questionTitle}>
                 How often do you want affirmations?
               </Text>
@@ -536,7 +570,7 @@ export const PortalOnboardingModal: React.FC<PortalOnboardingModalProps> = ({
                         {freq}
                       </Text>
                       {isSelected && (
-                        <Check size={16} color={PALETTE.gold.base} />
+                        <Check size={16} color={PALETTE.bronze.base} />
                       )}
                     </Pressable>
                   );
@@ -548,7 +582,7 @@ export const PortalOnboardingModal: React.FC<PortalOnboardingModalProps> = ({
           {/* STEP 8: Preferred affirmation format */}
           {step === 8 && (
             <View style={styles.stepCard}>
-              <Text style={styles.questionCategory}>STEP 8 • FORMAT</Text>
+              <Text style={styles.questionCategory}>STEP 8 • TRANSMISSION FORMAT</Text>
               <Text style={styles.questionTitle}>
                 Preferred affirmation format?
               </Text>
@@ -637,7 +671,7 @@ export const PortalOnboardingModal: React.FC<PortalOnboardingModalProps> = ({
             </View>
           )}
 
-          {/* STEP 10: Confidence Level (Slider 1-10) */}
+          {/* STEP 10: Confidence Level */}
           {step === 10 && (
             <View style={styles.stepCard}>
               <Text style={styles.questionCategory}>STEP 10 • CONFIDENCE LEVEL</Text>
@@ -675,18 +709,238 @@ export const PortalOnboardingModal: React.FC<PortalOnboardingModalProps> = ({
                   );
                 })}
               </View>
+            </View>
+          )}
+
+          {/* STEP 11: Sacred Voice Tone */}
+          {step === 11 && (
+            <View style={styles.stepCard}>
+              <Text style={styles.questionCategory}>STEP 11 • TRANSMISSION VOICE</Text>
+              <Text style={styles.questionTitle}>
+                Sacred Voice Tone & Resonance
+              </Text>
+              <Text style={styles.questionSubtitle}>
+                How should the inner voice of the app sound when speaking affirmations?
+              </Text>
+
+              <View style={styles.optionsList}>
+                {VOICE_TONES.map((tone) => {
+                  const isSelected = formData.voiceTone === tone;
+                  return (
+                    <Pressable
+                      key={tone}
+                      onPress={() => {
+                        triggerHaptic();
+                        setFormData({ ...formData, voiceTone: tone });
+                      }}
+                      style={[
+                        styles.fullWidthOption,
+                        isSelected && styles.fullWidthOptionSelected,
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.fullWidthOptionText,
+                          isSelected && styles.fullWidthOptionTextSelected,
+                        ]}
+                      >
+                        {tone}
+                      </Text>
+                      {isSelected && (
+                        <Check size={16} color={PALETTE.bronze.base} />
+                      )}
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </View>
+          )}
+
+          {/* STEP 12: Daily Focus Window */}
+          {step === 12 && (
+            <View style={styles.stepCard}>
+              <Text style={styles.questionCategory}>STEP 12 • PRIME WINDOW</Text>
+              <Text style={styles.questionTitle}>
+                Daily Prime Manifestation Portal
+              </Text>
+              <Text style={styles.questionSubtitle}>
+                When is your consciousness most receptive to subconscious rewiring?
+              </Text>
+
+              <View style={styles.optionsList}>
+                {PRIME_PORTAL_WINDOWS.map((window) => {
+                  const isSelected = formData.primePortalWindow === window;
+                  return (
+                    <Pressable
+                      key={window}
+                      onPress={() => {
+                        triggerHaptic();
+                        setFormData({ ...formData, primePortalWindow: window });
+                      }}
+                      style={[
+                        styles.fullWidthOption,
+                        isSelected && styles.fullWidthOptionSelected,
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.fullWidthOptionText,
+                          isSelected && styles.fullWidthOptionTextSelected,
+                        ]}
+                      >
+                        {window}
+                      </Text>
+                      {isSelected && (
+                        <Check size={16} color={PALETTE.bronze.base} />
+                      )}
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </View>
+          )}
+
+          {/* STEP 13: Preferred 3D Atmosphere */}
+          {step === 13 && (
+            <View style={styles.stepCard}>
+              <Text style={styles.questionCategory}>STEP 13 • 3D ENVIRONMENT</Text>
+              <Text style={styles.questionTitle}>
+                Preferred 3D Aesthetic Atmosphere
+              </Text>
+              <Text style={styles.questionSubtitle}>
+                Select the primary 3D visual frequency that anchors your highest self.
+              </Text>
+
+              <View style={styles.optionsList}>
+                {ATMOSPHERE_CHOICES.map((atm) => {
+                  const isSelected = formData.preferred3DAtmosphere === atm;
+                  return (
+                    <Pressable
+                      key={atm}
+                      onPress={() => {
+                        triggerHaptic();
+                        setFormData({ ...formData, preferred3DAtmosphere: atm });
+                      }}
+                      style={[
+                        styles.fullWidthOption,
+                        isSelected && styles.fullWidthOptionSelected,
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.fullWidthOptionText,
+                          isSelected && styles.fullWidthOptionTextSelected,
+                        ]}
+                      >
+                        {atm}
+                      </Text>
+                      {isSelected && (
+                        <Check size={16} color={PALETTE.bronze.base} />
+                      )}
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </View>
+          )}
+
+          {/* STEP 14: Manifestation Obstacle */}
+          {step === 14 && (
+            <View style={styles.stepCard}>
+              <Text style={styles.questionCategory}>STEP 14 • DISSOLVING LIMITS</Text>
+              <Text style={styles.questionTitle}>
+                Primary Manifestation Obstacle
+              </Text>
+              <Text style={styles.questionSubtitle}>
+                Which subconscious resistance pattern would you like Portal 11:11 to neutralize?
+              </Text>
+
+              <View style={styles.optionsList}>
+                {MANIFESTATION_OBSTACLES.map((obs) => {
+                  const isSelected = formData.manifestationObstacle === obs;
+                  return (
+                    <Pressable
+                      key={obs}
+                      onPress={() => {
+                        triggerHaptic();
+                        setFormData({ ...formData, manifestationObstacle: obs });
+                      }}
+                      style={[
+                        styles.fullWidthOption,
+                        isSelected && styles.fullWidthOptionSelected,
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.fullWidthOptionText,
+                          isSelected && styles.fullWidthOptionTextSelected,
+                        ]}
+                      >
+                        {obs}
+                      </Text>
+                      {isSelected && (
+                        <Check size={16} color={PALETTE.bronze.base} />
+                      )}
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </View>
+          )}
+
+          {/* STEP 15: Commitment Level & Synthesis */}
+          {step === 15 && (
+            <View style={styles.stepCard}>
+              <Text style={styles.questionCategory}>STEP 15 • SOVEREIGN COMMITMENT</Text>
+              <Text style={styles.questionTitle}>
+                Commitment to Your Highest Reality
+              </Text>
+              <Text style={styles.questionSubtitle}>
+                Declare your dedication to stepping permanently into your desired identity.
+              </Text>
+
+              <View style={styles.optionsList}>
+                {COMMITMENT_LEVELS.map((com) => {
+                  const isSelected = formData.commitmentLevel === com;
+                  return (
+                    <Pressable
+                      key={com}
+                      onPress={() => {
+                        triggerHaptic();
+                        setFormData({ ...formData, commitmentLevel: com });
+                      }}
+                      style={[
+                        styles.fullWidthOption,
+                        isSelected && styles.fullWidthOptionSelected,
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.fullWidthOptionText,
+                          isSelected && styles.fullWidthOptionTextSelected,
+                        ]}
+                      >
+                        {com}
+                      </Text>
+                      {isSelected && (
+                        <Check size={16} color={PALETTE.bronze.base} />
+                      )}
+                    </Pressable>
+                  );
+                })}
+              </View>
 
               {/* Sample Profile Manifestation Preview */}
               <View style={styles.previewCard}>
                 <View style={styles.previewHeader}>
-                  <Sparkles size={14} color={PALETTE.gold.base} />
+                  <Sparkles size={14} color={PALETTE.bronze.base} />
                   <Text style={styles.previewTag}>YOUR PORTAL PROFILE SYNTHESIS</Text>
                 </View>
                 <Text style={styles.previewAffirmation}>
                   “{sampleAffirmation.text}”
                 </Text>
                 <Text style={styles.previewMeta}>
-                  Delivering to {formData.name} at {formData.portalTimes.join(', ')}
+                  Delivering to {formData.name} at {formData.portalTimes.join(', ')} • {formData.preferred3DAtmosphere}
                 </Text>
               </View>
             </View>
@@ -701,14 +955,14 @@ export const PortalOnboardingModal: React.FC<PortalOnboardingModalProps> = ({
               <Text style={styles.backBtnText}>Back</Text>
             </Pressable>
           ) : (
-            <View style={{ width: 80 }} />
+            <View style={{ width: 60 }} />
           )}
 
           <Pressable onPress={handleNext} style={styles.nextBtn}>
             <Text style={styles.nextBtnText}>
-              {step === totalSteps ? 'Activate Portal' : 'Continue'}
+              {step === totalSteps ? 'Enter Portal 11:11' : 'Continue'}
             </Text>
-            <ArrowRight size={18} color="#FFFFFF" />
+            <ArrowRight size={16} color="#FFFFFF" />
           </Pressable>
         </View>
       </View>
@@ -720,14 +974,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: PALETTE.paper.linen,
-    paddingTop: Platform.OS === 'ios' ? 20 : 12,
+    paddingTop: Platform.OS === 'ios' ? 20 : 16,
   },
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingBottom: 14,
+    paddingBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(122, 82, 48, 0.12)',
   },
@@ -736,20 +990,19 @@ const styles = StyleSheet.create({
   },
   stepIndicatorGroup: {
     alignItems: 'center',
+    gap: 6,
     flex: 1,
-    marginHorizontal: 16,
   },
   stepNumberText: {
     fontFamily: FONTS.sansSemiBold,
-    fontSize: 11,
-    letterSpacing: 1.5,
+    fontSize: 12,
     color: PALETTE.bronze.base,
-    marginBottom: 6,
+    letterSpacing: 1,
   },
   progressBarTrack: {
-    width: '100%',
+    width: 140,
     height: 4,
-    backgroundColor: 'rgba(122, 82, 48, 0.12)',
+    backgroundColor: 'rgba(122, 82, 48, 0.15)',
     borderRadius: 2,
     overflow: 'hidden',
   },
@@ -759,24 +1012,23 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   sparkleIcon: {
-    padding: 4,
+    padding: 6,
   },
   scrollArea: {
     flex: 1,
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 30,
+    paddingVertical: 24,
   },
   stepCard: {
-    gap: 12,
+    gap: 16,
   },
   questionCategory: {
-    fontFamily: FONTS.sansSemiBold,
-    fontSize: 10,
-    letterSpacing: 1.8,
+    fontFamily: FONTS.sansBold,
+    fontSize: 10.5,
     color: PALETTE.bronze.base,
+    letterSpacing: 1.5,
   },
   questionTitle: {
     fontFamily: FONTS.serifBold,
@@ -789,7 +1041,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: PALETTE.ink.muted,
     lineHeight: 19,
-    marginBottom: 8,
   },
   optionsGrid: {
     flexDirection: 'row',
@@ -801,12 +1052,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     paddingVertical: 10,
-    borderRadius: 16,
+    borderRadius: 22,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(122, 82, 48, 0.12)',
+    borderColor: 'rgba(122, 82, 48, 0.15)',
   },
   optionChipSelected: {
     backgroundColor: PALETTE.bronze.base,
@@ -814,8 +1065,8 @@ const styles = StyleSheet.create({
   },
   optionChipText: {
     fontFamily: FONTS.sansMedium,
-    fontSize: 13,
-    color: PALETTE.ink.body,
+    fontSize: 12.5,
+    color: PALETTE.ink.charcoal,
   },
   optionChipTextSelected: {
     color: '#FFFFFF',
@@ -829,24 +1080,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
+    paddingHorizontal: 18,
     paddingVertical: 14,
-    borderRadius: 16,
+    borderRadius: 18,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(122, 82, 48, 0.12)',
+    borderColor: 'rgba(122, 82, 48, 0.15)',
   },
   fullWidthOptionSelected: {
-    backgroundColor: PALETTE.prosecco.light,
     borderColor: PALETTE.bronze.base,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
   },
   fullWidthOptionText: {
     fontFamily: FONTS.sansMedium,
-    fontSize: 14,
+    fontSize: 13.5,
     color: PALETTE.ink.charcoal,
   },
   fullWidthOptionTextSelected: {
-    color: PALETTE.bronze.rich,
+    color: PALETTE.bronze.base,
     fontFamily: FONTS.sansBold,
   },
   radioCircle: {
@@ -854,7 +1106,7 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 10,
     borderWidth: 1.5,
-    borderColor: 'rgba(122, 82, 48, 0.25)',
+    borderColor: 'rgba(122, 82, 48, 0.3)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -867,46 +1119,43 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: PALETTE.bronze.base,
   },
-  inputCard: {
+  textArea: {
     backgroundColor: '#FFFFFF',
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: 'rgba(122, 82, 48, 0.15)',
-    padding: 16,
-    marginTop: 6,
-    shadowColor: '#7A5230',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 1,
-  },
-  textInput: {
+    borderColor: 'rgba(122, 82, 48, 0.18)',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     fontFamily: FONTS.sans,
-    fontSize: 14,
+    fontSize: 13.5,
     color: PALETTE.ink.charcoal,
-    minHeight: 80,
     textAlignVertical: 'top',
+    minHeight: 110,
   },
-  presetGoalPillsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+  quickPromptsRow: {
     gap: 8,
-    marginTop: 8,
+    marginTop: 4,
   },
-  presetGoalPill: {
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 14,
-    backgroundColor: PALETTE.prosecco.light,
-    borderWidth: 1,
-    borderColor: PALETTE.prosecco.border,
-  },
-  presetGoalText: {
-    fontFamily: FONTS.sansMedium,
+  quickPromptsLabel: {
+    fontFamily: FONTS.sansSemiBold,
     fontSize: 11,
-    color: PALETTE.bronze.rich,
+    color: PALETTE.ink.muted,
   },
-  portalGrid: {
+  promptPill: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 14,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: 'rgba(122, 82, 48, 0.15)',
+    alignSelf: 'flex-start',
+  },
+  promptPillText: {
+    fontFamily: FONTS.sansMedium,
+    fontSize: 12,
+    color: PALETTE.bronze.base,
+  },
+  portalTimesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 10,
@@ -917,45 +1166,31 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(122, 82, 48, 0.12)',
+    borderColor: 'rgba(122, 82, 48, 0.15)',
     padding: 12,
+    gap: 4,
   },
-  portalTimeCardChecked: {
-    backgroundColor: PALETTE.prosecco.light,
+  portalTimeCardSelected: {
     borderColor: PALETTE.bronze.base,
+    backgroundColor: 'rgba(122, 82, 48, 0.06)',
   },
   portalTimeTopRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 6,
   },
-  portalTimeDigits: {
+  portalTimeText: {
     fontFamily: FONTS.sansBold,
-    fontSize: 16,
+    fontSize: 14,
     color: PALETTE.ink.charcoal,
   },
-  portalTimeDigitsChecked: {
-    color: PALETTE.bronze.rich,
-  },
-  recommendedPill: {
-    backgroundColor: PALETTE.prosecco.light,
-    paddingHorizontal: 5,
-    paddingVertical: 2,
-    borderRadius: 6,
-  },
-  recommendedPillText: {
-    fontFamily: FONTS.sansBold,
-    fontSize: 8.5,
-    color: PALETTE.bronze.rich,
-  },
-  portalNameText: {
-    fontFamily: FONTS.sans,
-    fontSize: 10.5,
-    color: PALETTE.ink.muted,
-    marginTop: 4,
-  },
-  portalNameTextChecked: {
+  portalTimeTextSelected: {
     color: PALETTE.bronze.base,
+  },
+  portalTimeName: {
+    fontFamily: FONTS.sans,
+    fontSize: 10,
+    color: PALETTE.ink.muted,
   },
   formatCardsRow: {
     gap: 12,
@@ -964,13 +1199,14 @@ const styles = StyleSheet.create({
   formatCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 18,
-    padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(122, 82, 48, 0.12)',
+    borderColor: 'rgba(122, 82, 48, 0.15)',
+    padding: 16,
+    gap: 4,
   },
   formatCardSelected: {
-    backgroundColor: PALETTE.prosecco.light,
     borderColor: PALETTE.bronze.base,
+    backgroundColor: 'rgba(122, 82, 48, 0.05)',
   },
   formatCardTitle: {
     fontFamily: FONTS.serifBold,
@@ -978,29 +1214,29 @@ const styles = StyleSheet.create({
     color: PALETTE.ink.charcoal,
   },
   formatCardTitleSelected: {
-    color: PALETTE.bronze.rich,
+    color: PALETTE.bronze.base,
   },
   formatCardDesc: {
     fontFamily: FONTS.sans,
     fontSize: 12,
     color: PALETTE.ink.muted,
-    marginTop: 4,
   },
   sliderPillsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
-    marginTop: 8,
+    gap: 10,
+    justifyContent: 'center',
+    marginTop: 12,
   },
   numberPill: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(122, 82, 48, 0.12)',
+    borderColor: 'rgba(122, 82, 48, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   numberPillSelected: {
     backgroundColor: PALETTE.bronze.base,
@@ -1015,43 +1251,47 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   previewCard: {
-    marginTop: 20,
-    backgroundColor: PALETTE.prosecco.light,
-    borderRadius: 18,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: PALETTE.prosecco.border,
-    padding: 16,
+    borderColor: 'rgba(122, 82, 48, 0.16)',
+    padding: 18,
+    gap: 8,
+    marginTop: 20,
+    shadowColor: '#7A5230',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 2,
   },
   previewHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginBottom: 8,
   },
   previewTag: {
-    fontFamily: FONTS.sansSemiBold,
+    fontFamily: FONTS.sansBold,
     fontSize: 10,
     color: PALETTE.bronze.base,
-    letterSpacing: 1,
+    letterSpacing: 1.2,
   },
   previewAffirmation: {
-    fontFamily: FONTS.serifItalic,
+    fontFamily: FONTS.serifBold,
     fontSize: 15,
     lineHeight: 22,
     color: PALETTE.ink.charcoal,
   },
   previewMeta: {
     fontFamily: FONTS.sans,
-    fontSize: 10.5,
+    fontSize: 11,
     color: PALETTE.ink.muted,
-    marginTop: 8,
   },
   footerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 14,
+    paddingVertical: 16,
     borderTopWidth: 1,
     borderTopColor: 'rgba(122, 82, 48, 0.12)',
     backgroundColor: PALETTE.paper.linen,
@@ -1073,13 +1313,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     backgroundColor: PALETTE.bronze.base,
-    paddingHorizontal: 22,
+    borderRadius: 20,
     paddingVertical: 12,
-    borderRadius: 24,
+    paddingHorizontal: 22,
+    shadowColor: '#7A5230',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 3,
   },
   nextBtnText: {
     fontFamily: FONTS.sansBold,
-    fontSize: 13.5,
+    fontSize: 13,
     color: '#FFFFFF',
     letterSpacing: 0.5,
   },

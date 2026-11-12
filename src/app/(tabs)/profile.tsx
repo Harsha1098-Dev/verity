@@ -28,6 +28,10 @@ import {
   Check,
   X,
   Lock,
+  LogOut,
+  Phone,
+  ShieldCheck,
+  RefreshCw,
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { PALETTE, FONTS, SHADOWS } from '@/constants/theme';
@@ -35,6 +39,8 @@ import { UserPortalProfile, SACRED_PORTAL_TIMES, ACHIEVEMENTS_LIST } from '@/typ
 import {
   loadPortalProfile,
   savePortalProfile,
+  signOutUser,
+  resetUserOnboarding,
   DEFAULT_PORTAL_PROFILE,
 } from '@/utils/portalStore';
 import { PortalOnboardingModal } from '@/components/PortalOnboardingModal';
@@ -79,6 +85,16 @@ export default function ProfileScreen() {
     };
     setProfile(newProfile);
     await savePortalProfile(newProfile);
+  };
+
+  const handleSignOut = async () => {
+    triggerHaptic();
+    await signOutUser();
+  };
+
+  const handleRetakeOnboarding = async () => {
+    triggerHaptic();
+    await resetUserOnboarding();
   };
 
   return (
@@ -311,6 +327,50 @@ export default function ProfileScreen() {
           </View>
         </View>
 
+        {/* Account & Sacred Security */}
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>Account & Sacred Access</Text>
+          <View style={styles.accountInfoRow}>
+            <View style={styles.accountIconBox}>
+              <Phone size={18} color={PALETTE.bronze.base} />
+            </View>
+            <View style={styles.accountTextCol}>
+              <View style={styles.phoneVerifiedRow}>
+                <Text style={styles.accountPhoneText}>
+                  {profile.phoneNumber || '+1 555-019-1111'}
+                </Text>
+                <View style={styles.verifiedBadge}>
+                  <ShieldCheck size={11} color="#059669" />
+                  <Text style={styles.verifiedBadgeText}>VERIFIED</Text>
+                </View>
+              </View>
+              <Text style={styles.accountSubText}>
+                Authenticated via {profile.authMethod === 'password' ? 'Password' : 'Sacred OTP'}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.accountActionsRow}>
+            {/* Retake 15 Questions */}
+            <Pressable
+              onPress={handleRetakeOnboarding}
+              style={styles.retakeBtn}
+            >
+              <RefreshCw size={14} color={PALETTE.bronze.base} />
+              <Text style={styles.retakeBtnText}>Retake 15 Questions</Text>
+            </Pressable>
+
+            {/* Sign Out */}
+            <Pressable
+              onPress={handleSignOut}
+              style={styles.signOutBtn}
+            >
+              <LogOut size={14} color="#DC2626" />
+              <Text style={styles.signOutBtnText}>Sign Out</Text>
+            </Pressable>
+          </View>
+        </View>
+
         {/* Ethical Statement */}
         <View style={styles.ethicsContainer}>
           <Shield size={14} color={PALETTE.bronze.base} />
@@ -325,6 +385,7 @@ export default function ProfileScreen() {
       {/* Onboarding Modal */}
       <PortalOnboardingModal
         visible={onboardingVisible}
+        dismissible={true}
         onClose={() => setOnboardingVisible(false)}
         onComplete={handleProfileUpdated}
         currentProfile={profile}
@@ -333,8 +394,18 @@ export default function ProfileScreen() {
       {/* Welcome / Auth Modal */}
       <WelcomeAuthModal
         visible={authVisible}
+        dismissible={true}
         onClose={() => setAuthVisible(false)}
-        onSuccess={() => {}}
+        onSuccess={async (cred) => {
+          setAuthVisible(false);
+          const updated = await savePortalProfile({
+            isAuthenticated: true,
+            phoneNumber: cred.phoneNumber,
+            authMethod: cred.authMethod,
+            name: cred.name || profile.name,
+          });
+          setProfile(updated);
+        }}
       />
 
       {/* Premium Features Showcase Modal */}
@@ -730,5 +801,94 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.sansBold,
     fontSize: 14,
     color: '#FFFFFF',
+  },
+  accountInfoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 6,
+  },
+  accountIconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(122, 82, 48, 0.08)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  accountTextCol: {
+    flex: 1,
+    gap: 3,
+  },
+  phoneVerifiedRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  accountPhoneText: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 14,
+    color: PALETTE.ink.charcoal,
+  },
+  verifiedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+  },
+  verifiedBadgeText: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 9,
+    color: '#059669',
+    letterSpacing: 0.5,
+  },
+  accountSubText: {
+    fontFamily: FONTS.sans,
+    fontSize: 11.5,
+    color: PALETTE.ink.muted,
+  },
+  accountActionsRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 8,
+  },
+  retakeBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(122, 82, 48, 0.08)',
+    paddingVertical: 10,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(122, 82, 48, 0.15)',
+  },
+  retakeBtnText: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 11.5,
+    color: PALETTE.bronze.base,
+  },
+  signOutBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: '#FEF2F2',
+    paddingVertical: 10,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#FECACA',
+  },
+  signOutBtnText: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 11.5,
+    color: '#DC2626',
   },
 });

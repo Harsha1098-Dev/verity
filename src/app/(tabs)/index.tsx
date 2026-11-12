@@ -42,6 +42,7 @@ import {
 } from '@/utils/portalEngine';
 import {
   loadPortalProfile,
+  savePortalProfile,
   DEFAULT_PORTAL_PROFILE,
   loadAchievements,
 } from '@/utils/portalStore';
@@ -411,19 +412,33 @@ export default function HomeScreen() {
         durationSeconds={180}
       />
 
-      {/* 10-Step Onboarding Questionnaire Modal */}
+      {/* 15-Question Onboarding Questionnaire Modal */}
       <PortalOnboardingModal
         visible={onboardingModalVisible}
+        dismissible={true}
         onClose={() => setOnboardingModalVisible(false)}
-        onComplete={(updated) => setProfile(updated)}
+        onComplete={async (updated) => {
+          setProfile(updated);
+          await savePortalProfile(updated);
+        }}
         currentProfile={profile}
       />
 
       {/* Welcome & Authentication Modal */}
       <WelcomeAuthModal
         visible={welcomeModalVisible}
+        dismissible={true}
         onClose={() => setWelcomeModalVisible(false)}
-        onSuccess={() => {}}
+        onSuccess={async (cred) => {
+          setWelcomeModalVisible(false);
+          const updated = await savePortalProfile({
+            isAuthenticated: true,
+            phoneNumber: cred.phoneNumber,
+            authMethod: cred.authMethod,
+            name: cred.name || profile.name,
+          });
+          setProfile(updated);
+        }}
       />
     </SafeAreaView>
   );

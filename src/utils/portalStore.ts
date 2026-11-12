@@ -31,10 +31,38 @@ export const DEFAULT_PORTAL_PROFILE: UserPortalProfile = {
   monthlyStreak: 1,
   gratitudeCount: 38,
   manifestationProgress: 84,
-  onboardingCompleted: true,
+  onboardingCompleted: false, // First-time users are prompted for 15 customization questions
+  isAuthenticated: false, // First-time users are prompted to sign in with phone
+  phoneNumber: '',
+  authMethod: 'otp',
+  voiceTone: 'Sovereign & Empowering',
+  primePortalWindow: 'Midday Alignment 11:11',
+  preferred3DAtmosphere: 'Molten Gold & Obsidian Waves',
+  manifestationObstacle: 'Doubt & Overthinking',
+  commitmentLevel: 'Daily Sacred Devotion',
   isPremium: true,
   preferredVoice: 'Sol Spiritual',
 };
+
+type ProfileListener = (profile: UserPortalProfile) => void;
+const profileListeners = new Set<ProfileListener>();
+
+export function subscribeToProfile(listener: ProfileListener): () => void {
+  profileListeners.add(listener);
+  return () => {
+    profileListeners.delete(listener);
+  };
+}
+
+export function notifyProfileListeners(profile: UserPortalProfile) {
+  profileListeners.forEach((fn) => {
+    try {
+      fn(profile);
+    } catch (err) {
+      console.error('Error in profile listener', err);
+    }
+  });
+}
 
 export const DEFAULT_VISION_BOARD: VisionBoardItem[] = [
   {
@@ -130,11 +158,57 @@ export async function savePortalProfile(
     const current = await loadPortalProfile();
     const updated = { ...current, ...profile };
     await AsyncStorage.setItem(PROFILE_KEY, JSON.stringify(updated));
+    notifyProfileListeners(updated);
     return updated;
   } catch (e) {
     console.error('Failed to save profile', e);
-    return { ...DEFAULT_PORTAL_PROFILE, ...profile };
+    const fallback = { ...DEFAULT_PORTAL_PROFILE, ...profile };
+    notifyProfileListeners(fallback);
+    return fallback;
   }
+}
+
+/**
+ * Signs in user with mobile phone credentials (via OTP or Password)
+ */
+export async function signInWithPhone(
+  phoneNumber: string,
+  authMethod: 'password' | 'otp',
+  name?: string
+): Promise<UserPortalProfile> {
+  const current = await loadPortalProfile();
+  const updated: UserPortalProfile = {
+    ...current,
+    phoneNumber,
+    authMethod,
+    isAuthenticated: true,
+    name: name || current.name || 'Harsha',
+  };
+  return await savePortalProfile(updated);
+}
+
+/**
+ * Signs out current user, triggering auth gating screen
+ */
+export async function signOutUser(): Promise<UserPortalProfile> {
+  const current = await loadPortalProfile();
+  const updated: UserPortalProfile = {
+    ...current,
+    isAuthenticated: false,
+  };
+  return await savePortalProfile(updated);
+}
+
+/**
+ * Resets onboarding so user can retake 15 customization questions
+ */
+export async function resetUserOnboarding(): Promise<UserPortalProfile> {
+  const current = await loadPortalProfile();
+  const updated: UserPortalProfile = {
+    ...current,
+    onboardingCompleted: false,
+  };
+  return await savePortalProfile(updated);
 }
 
 export async function loadFavorites(): Promise<AffirmationItem[]> {
