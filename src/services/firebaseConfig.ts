@@ -34,7 +34,7 @@ function resolveBackendUrl(): string {
       return `http://${ip}:5000`;
     }
   }
-  return 'http://192.168.50.178:5000';
+  return 'http://192.168.1.2:5000';
 }
 
 export const AUTH_SERVER_BASE_URL = resolveBackendUrl();
